@@ -315,13 +315,14 @@
     <script>
         // Configuración Firebase Realtime Database
         const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "TU_PROYECTO.firebaseapp.com",
-            databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-            projectId: "TU_PROYECTO",
-            storageBucket: "TU_PROYECTO.appspot.com",
-            messagingSenderId: "NUMERO",
-            appId: "ID_APP"
+            apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
+            authDomain: "torneomlbb-631f7.firebaseapp.com",
+            databaseURL: "https://torneomlbb-631f7-default-rtdb.firebaseio.com",
+            projectId: "torneomlbb-631f7",
+            storageBucket: "torneomlbb-631f7.firebasestorage.app",
+            messagingSenderId: "1087179789180",
+            appId: "1:1087179789180:web:cd22d6c989b8ca90784af9",
+            measurementId: "G-90CH11C594"
         };
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -430,7 +431,7 @@
                     limpiarFormulario();
                     cambiarTab('equipos');
                 } else {
-                    alert("Error al guardar registro.");
+                    alert("Error al guardar registro: " + error.message);
                 }
             });
         }
