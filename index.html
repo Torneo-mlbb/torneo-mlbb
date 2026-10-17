@@ -645,10 +645,11 @@
             renderizarRondasYBracket();
         }
 
+        // FUNCIÓN DE SORTEO CORREGIDA PARA FILTRAR ÚNICAMENTE LA RONDA ACTUAL
         function generarSorteo() {
             const numAdmins = 4;
             const matchesPerAdmin = 4;
-            const maxPartidasTanda = numAdmins * matchesPerAdmin;
+            const maxPartidasTanda = numAdmins * matchesPerAdmin; // Máximo 16 partidas (32 equipos) por clic
 
             const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
             const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
@@ -664,20 +665,17 @@
             let bracketEstructura = datosBracketServidor || {};
             let rondaPartidosExistentes = bracketEstructura[`ronda_${rondaSeleccionada}`] || [];
 
+            // REVISAR SOLAMENTE LOS EQUIPOS DE LA RONDA ACTUAL (NO DE OTRAS RONDAS)
             let equiposYaSorteados = new Set();
-            Object.values(bracketEstructura).forEach(ronda => {
-                if (ronda) {
-                    ronda.forEach(m => {
-                        if (m.equipo1) equiposYaSorteados.add(m.equipo1);
-                        if (m.equipo2 && m.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(m.equipo2);
-                    });
-                }
+            rondaPartidosExistentes.forEach(m => {
+                if (m.equipo1) equiposYaSorteados.add(m.equipo1);
+                if (m.equipo2 && m.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(m.equipo2);
             });
 
             let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq));
 
             if (equiposPendientes.length === 0) {
-                mostrarToast("Todos los equipos ya jugaron en esta ronda.", "info");
+                mostrarToast("Todos los equipos registrados ya están sorteados en esta ronda.", "info");
                 return;
             }
 
@@ -687,6 +685,12 @@
             let [hours, minutes] = startTimeStr.split(':').map(Number);
             let currentTime = new Date();
             currentTime.setHours(hours, minutes, 0, 0);
+
+            // Ajustar el horario si ya hay partidas previas en esta ronda
+            if (rondaPartidosExistentes.length > 0) {
+                const minutosSuma = rondaPartidosExistentes.length * (duration + breakTime);
+                currentTime = new Date(currentTime.getTime() + minutosSuma * 60000);
+            }
 
             let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -721,7 +725,7 @@
             bracketEstructura[`ronda_${rondaSeleccionada}`] = nuevosPartidos;
 
             db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast(`¡Tanda generada con éxito! (16 partidas añadidas)`, "success");
+                if (!err) mostrarToast(`¡Se añadieron ${nuevosPartidos.length - rondaPartidosExistentes.length} nuevas partidas a la Ronda ${rondaSeleccionada}!`, "success");
             });
         }
 
