@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLBB Torneos - Live Realtime Sync</title>
+    <title>MLBB Torneos - Sincronización Realtime</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -109,33 +109,40 @@
                     <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
                         <i class="fa-solid fa-sliders"></i> Panel de Administración (<span id="admin-mode-label">5v5</span>)
                     </h2>
-                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">Modo Edición Activo</span>
+                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">Límite: 16 Partidas por Día (4 Admins x 4 Matches)</span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio 1er Match</label>
-                        <input type="time" id="cfg-start-time" value="20:00" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Total Admins</label>
+                        <input type="number" id="cfg-admins-count" value="4" readonly class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración Match (min)</label>
-                        <input type="number" id="cfg-match-dur" value="30" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Matches / Admin</label>
+                        <input type="number" id="cfg-matches-per-admin" value="4" readonly class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Descanso / Break (min)</label>
-                        <input type="number" id="cfg-break-dur" value="10" min="0" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio</label>
+                        <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tolerancia W.O. (min)</label>
-                        <input type="number" id="cfg-tolerance" value="5" min="1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración (min)</label>
+                        <input type="number" id="cfg-match-dur" value="20" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                    </div>
+                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Desc (m) / W.O. (m)</label>
+                        <div class="flex gap-1">
+                            <input type="number" id="cfg-break-dur" value="10" title="Descanso" class="w-1/2 bg-mldark-800 border border-slate-700 rounded-lg px-1.5 py-1 text-xs text-white text-center">
+                            <input type="number" id="cfg-tolerance" value="5" title="Tolerancia W.O." class="w-1/2 bg-mldark-800 border border-slate-700 rounded-lg px-1.5 py-1 text-xs text-white text-center">
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-3">
-                    <button id="btn-generar-sorteo" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-shuffle"></i> Iniciar Torneo y Sortear Ronda 1
+                    <button id="btn-generar-sorteo" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-shuffle"></i> Sortear Lote de 16 Partidas (Tanda Actual)
                     </button>
-                    <button id="btn-reiniciar-torneo" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                    <button id="btn-reiniciar-torneo" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-rotate-right"></i> Reiniciar Torneo
                     </button>
                 </div>
@@ -148,7 +155,7 @@
                 <button id="tab-btn-bracket" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos</button>
             </div>
 
-            <!-- CONTENIDO TAB 1: REGISTRO -->
+            <!-- CONTENIDO TAB 1: REGISTRO DE EQUIPOS -->
             <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Inscripción para Torneo <span id="reg-mode-title">5v5</span></h3>
                 
@@ -158,17 +165,20 @@
                         <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
 
-                    <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800">
-                        <h4 class="text-xs font-bold text-amber-400 mb-2">👑 Datos del Capitán / Líder (Su ID será su contraseña de chat)</h4>
+                    <!-- CAPITÁN -->
+                    <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="text-xs font-bold text-amber-400">👑 Capitán / Líder (Su ID será clave de acceso al chat)</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <input type="text" id="cap-nick" placeholder="Nick del Líder" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                            <input type="text" id="cap-id" placeholder="ID y Server (Ej: 12345678 (2001))" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                            <input type="tel" id="cap-phone" placeholder="WhatsApp del Líder" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-nick" placeholder="Nick del Capitán" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-id" placeholder="ID (Ej: 12345678)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-server" placeholder="Server (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                         </div>
+                        <input type="tel" id="cap-phone" placeholder="WhatsApp de Contacto" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                     </div>
 
+                    <!-- INTEGRANTES CON ID Y SERVIDOR SEPARADOS -->
                     <div>
-                        <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes del Equipo</h4>
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes de la Escuadra</h4>
                         <div id="dynamic-players-inputs" class="space-y-2"></div>
                     </div>
 
@@ -248,7 +258,6 @@
         let datosBracketServidor = null;
         let chatsDesbloqueados = {}; 
 
-        // ASIGNACIÓN SEGURA DE EVENTOS AL CARGAR LA PÁGINA
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-mode-5v5').addEventListener('click', () => seleccionarModalidad('5v5'));
             document.getElementById('btn-mode-3v3').addEventListener('click', () => seleccionarModalidad('3v3'));
@@ -291,9 +300,13 @@
 
             for (let i = 2; i <= numExtra + 1; i++) {
                 container.innerHTML += `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="text" id="nick-j${i}" placeholder="Nick Jugador ${i}" class="bg-mldark-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                        <input type="text" id="id-j${i}" placeholder="ID y Server Jugador ${i}" class="bg-mldark-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                    <div class="bg-mldark-900/60 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+                        <span class="text-[11px] font-bold text-slate-400">Jugador ${i}</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input type="text" id="nick-j${i}" placeholder="Nick J${i}" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                            <input type="text" id="id-j${i}" placeholder="ID (Ej: 98765432)" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                            <input type="text" id="server-j${i}" placeholder="Server (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                        </div>
                     </div>
                 `;
             }
@@ -359,24 +372,27 @@
             const nombreEquipo = document.getElementById('team-name').value.trim();
             const capNick = document.getElementById('cap-nick').value.trim();
             const capId = document.getElementById('cap-id').value.trim();
+            const capServer = document.getElementById('cap-server').value.trim();
             const capPhone = document.getElementById('cap-phone').value.trim();
 
-            if (!nombreEquipo || !capNick || !capId || !capPhone) {
-                mostrarToast("Completa los datos del equipo y del capitán", "warning");
+            if (!nombreEquipo || !capNick || !capId || !capServer || !capPhone) {
+                mostrarToast("Completa todos los datos del capitán (Nick, ID y Server)", "warning");
                 return;
             }
 
-            let jugadores = [{ nick: capNick, id: capId, rol: 'Capitán', telefono: capPhone }];
+            let jugadores = [{ nick: capNick, id: capId, server: capServer, rol: 'Capitán', telefono: capPhone }];
             const numExtra = currentMode === '5v5' ? 4 : 2;
 
             for (let i = 2; i <= numExtra + 1; i++) {
                 const jNick = document.getElementById(`nick-j${i}`).value.trim();
                 const jId = document.getElementById(`id-j${i}`).value.trim();
-                if (!jNick || !jId) {
-                    mostrarToast(`Faltan datos del Jugador ${i}`, "warning");
+                const jServer = document.getElementById(`server-j${i}`).value.trim();
+
+                if (!jNick || !jId || !jServer) {
+                    mostrarToast(`Faltan datos del Jugador ${i} (Nick, ID o Server)`, "warning");
                     return;
                 }
-                jugadores.push({ nick: jNick, id: jId, rol: 'Integrante' });
+                jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
             }
 
             db.ref(`torneos/${currentMode}/equipos`).push({
@@ -387,6 +403,7 @@
                     document.getElementById('team-name').value = '';
                     document.getElementById('cap-nick').value = '';
                     document.getElementById('cap-id').value = '';
+                    document.getElementById('cap-server').value = '';
                     document.getElementById('cap-phone').value = '';
                     construirInputsJugadores();
                     cambiarTab('equipos');
@@ -413,7 +430,7 @@
                     equiposCacheObj[eq.nombreEquipo] = eq.jugadores;
                     let playersHtml = '';
                     eq.jugadores.forEach(j => {
-                        playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} (${j.id})</span> <span class="text-amber-400">${j.rol}</span></div>`;
+                        playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} <b class="text-slate-400">(${j.id} - ${j.server})</b></span> <span class="text-amber-400">${j.rol}</span></div>`;
                     });
 
                     let deleteBtn = isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : '';
@@ -472,7 +489,7 @@
             const partidosRondaActual = datosBracketServidor[`ronda_${rondaSeleccionada}`] || [];
 
             if (partidosRondaActual.length === 0) {
-                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Esperando a que concluya la ronda anterior para generar esta fase.</p>`;
+                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Esta ronda aún no ha sido generada o está a la espera del sorteo de la siguiente tanda de 16 partidas.</p>`;
                 return;
             }
 
@@ -503,7 +520,7 @@
                             chatMessagesHtml += `<div class="mb-1.5"><span class="font-bold text-amber-300">${msg.autor}</span>${badgeRol}: <span class="text-slate-200">${msg.texto}</span></div>`;
                         });
                     } else {
-                        chatMessagesHtml = `<div class="text-slate-500 italic text-[11px]">Chat seguro desbloqueado. ¡Comiencen a coordinar!</div>`;
+                        chatMessagesHtml = `<div class="text-slate-500 italic text-[11px]">Chat seguro desbloqueado. ¡Comiencen a coordinar la sala!</div>`;
                     }
 
                     chatSectionHtml = `
@@ -527,11 +544,11 @@
                     chatSectionHtml = `
                         <div class="bg-mldark-900 border border-slate-800 rounded-xl p-3 mb-2 text-center">
                             <div class="text-[11px] font-bold text-slate-400 mb-2">
-                                <i class="fa-solid fa-lock text-amber-400 mr-1"></i> Chat Privado Protegido por ID de MLBB
+                                <i class="fa-solid fa-lock text-amber-400 mr-1"></i> Chat Protegido por ID de MLBB
                             </div>
-                            <p class="text-[10px] text-slate-500 mb-2">Solo los integrantes de <b class="text-cyan-400">${p.equipo1}</b> o <b class="text-rose-400">${p.equipo2}</b> pueden entrar ingresando el ID de su cuenta.</p>
+                            <p class="text-[10px] text-slate-500 mb-2">Solo los integrantes de <b class="text-cyan-400">${p.equipo1}</b> o <b class="text-rose-400">${p.equipo2}</b> pueden entrar con su ID exacto.</p>
                             <button onclick="verificarIdParaChat('${matchKey}', '${p.equipo1}', '${p.equipo2}')" class="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs py-1.5 px-4 rounded-lg shadow cursor-pointer">
-                                🔑 Ingresar ID de MLBB para chatear
+                                🔑 Ingresar ID para validar acceso
                             </button>
                         </div>
                     `;
@@ -595,7 +612,7 @@
         }
 
         function verificarIdParaChat(matchKey, eq1, eq2) {
-            let idIngresado = prompt("Escribe tu ID de MLBB (registrado en el torneo) para acceder al chat del match:");
+            let idIngresado = prompt("Escribe tu ID de MLBB registrado en tu equipo:");
             if (!idIngresado) return;
 
             idIngresado = idIngresado.trim();
@@ -604,7 +621,7 @@
 
             if (equiposCacheObj[eq1]) {
                 equiposCacheObj[eq1].forEach(j => {
-                    if (j.id.includes(idIngresado)) {
+                    if (j.id.toString().trim() === idIngresado) {
                         encontrado = true;
                         nombreUsuario = `${j.nick} (${eq1})`;
                     }
@@ -613,7 +630,7 @@
 
             if (!encontrado && equiposCacheObj[eq2]) {
                 equiposCacheObj[eq2].forEach(j => {
-                    if (j.id.includes(idIngresado)) {
+                    if (j.id.toString().trim() === idIngresado) {
                         encontrado = true;
                         nombreUsuario = `${j.nick} (${eq2})`;
                     }
@@ -622,10 +639,10 @@
 
             if (encontrado) {
                 chatsDesbloqueados[matchKey] = nombreUsuario;
-                mostrarToast(`¡Acceso concedido! Bienvenido, ${nombreUsuario}`, "success");
+                mostrarToast(`¡ID verificado! Bienvenido ${nombreUsuario}`, "success");
                 renderizarRondasYBracket();
             } else {
-                mostrarToast("ID no encontrado en ninguno de los dos equipos de esta partida", "error");
+                mostrarToast("ID no coincide con ninguno de los participantes de este enfrentamiento", "error");
             }
         }
 
@@ -659,24 +676,46 @@
             });
         }
 
+        // SORTEO EXACTO DE 16 PARTIDAS MÁXIMO POR TANDA (4 ADMINS x 4 MATCHES)
         function generarSorteo() {
-            if (Object.keys(equiposCacheObj).length < 2) {
-                mostrarToast("Se necesitan al menos 2 equipos", "warning");
-                return;
-            }
+            const numAdmins = 4;
+            const matchesPerAdmin = 4;
+            const maxPartidasTanda = numAdmins * matchesPerAdmin; // Exactamente 16 partidas (32 equipos)
 
-            const startTimeStr = document.getElementById('cfg-start-time').value || '20:00';
-            const duration = parseInt(document.getElementById('cfg-match-dur').value) || 30;
+            const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
+            const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
             const breakTime = parseInt(document.getElementById('cfg-break-dur').value) || 10;
             const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
-            let listaNombresEquipos = Object.keys(equiposCacheObj);
-            let mezcla = [...listaNombresEquipos].sort(() => Math.random() - 0.5);
+            let todosLosEquipos = Object.keys(equiposCacheObj);
+            if (todosLosEquipos.length < 2) {
+                mostrarToast("Se necesitan al menos 2 equipos registrados", "warning");
+                return;
+            }
 
-            let totalEquipos = mezcla.length;
-            let numRondas = Math.ceil(Math.log2(totalEquipos));
+            let bracketEstructura = datosBracketServidor || {};
+            let rondaPartidosExistentes = bracketEstructura[`ronda_${rondaSeleccionada}`] || [];
 
-            let bracketEstructura = {};
+            // Evitar que equipos que ya jugaron o están programados en la ronda vuelvan a salir en esta tanda
+            let equiposYaSorteados = new Set();
+            Object.values(bracketEstructura).forEach(ronda => {
+                if (ronda) {
+                    ronda.forEach(m => {
+                        if (m.equipo1) equiposYaSorteados.add(m.equipo1);
+                        if (m.equipo2 && m.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(m.equipo2);
+                    });
+                }
+            });
+
+            let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq));
+
+            if (equiposPendientes.length === 0) {
+                mostrarToast("Todos los equipos ya jugaron en esta ronda. ¡Pasa a la siguiente ronda!", "info");
+                return;
+            }
+
+            let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
+            let equiposParaTanda = candidatos.slice(0, maxPartidasTanda * 2); // 32 equipos máximo para 16 matches
 
             let [hours, minutes] = startTimeStr.split(':').map(Number);
             let currentTime = new Date();
@@ -684,25 +723,26 @@
 
             let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            let partidosRonda1 = [];
-            for (let i = 0; i < mezcla.length; i += 2) {
+            let nuevosPartidos = [...rondaPartidosExistentes];
+
+            for (let i = 0; i < equiposParaTanda.length; i += 2) {
                 let matchStart = new Date(currentTime);
                 let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
 
-                if (mezcla[i + 1]) {
-                    partidosRonda1.push({
-                        equipo1: mezcla[i],
-                        equipo2: mezcla[i + 1],
+                if (equiposParaTanda[i + 1]) {
+                    nuevosPartidos.push({
+                        equipo1: equiposParaTanda[i],
+                        equipo2: equiposParaTanda[i + 1],
                         ganador: "Pendiente",
                         timeStr: formatTime(matchStart),
                         toleranceStr: formatTime(toleranceStart),
                         motivo: ''
                     });
                 } else {
-                    partidosRonda1.push({
-                        equipo1: mezcla[i],
+                    nuevosPartidos.push({
+                        equipo1: equiposParaTanda[i],
                         equipo2: "PASE DIRECTO 🏆",
-                        ganador: mezcla[i],
+                        ganador: equiposParaTanda[i],
                         timeStr: formatTime(matchStart),
                         toleranceStr: '-',
                         motivo: 'Avanza por sorteo impar'
@@ -711,16 +751,10 @@
                 currentTime = new Date(currentTime.getTime() + (duration + breakTime) * 60000);
             }
 
-            bracketEstructura["ronda_1"] = partidosRonda1;
-
-            for (let r = 2; r <= numRondas; r++) {
-                bracketEstructura[`ronda_${r}`] = [];
-            }
-
-            rondaSeleccionada = 1;
+            bracketEstructura[`ronda_${rondaSeleccionada}`] = nuevosPartidos;
 
             db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast("¡Torneo iniciado y Ronda 1 sorteada!", "success");
+                if (!err) mostrarToast(`¡Tanda generada! Se sortearon ${nuevosPartidos.length - rondaPartidosExistentes.length} nuevas partidas (Límite 16).`, "success");
             });
         }
 
@@ -746,55 +780,20 @@
                     return;
                 }
 
-                const startTimeStr = document.getElementById('cfg-start-time').value || '20:00';
-                const duration = parseInt(document.getElementById('cfg-match-dur').value) || 30;
-                const breakTime = parseInt(document.getElementById('cfg-break-dur').value) || 10;
-                const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
-
-                let [hours, minutes] = startTimeStr.split(':').map(Number);
-                let currentTime = new Date();
-                currentTime.setHours(hours, minutes, 0, 0);
-
-                let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                let nuevosPartidos = [];
-                for (let i = 0; i < ganadores.length; i += 2) {
-                    let matchStart = new Date(currentTime);
-                    let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-
-                    if (ganadores[i + 1]) {
-                        nuevosPartidos.push({
-                            equipo1: ganadores[i],
-                            equipo2: ganadores[i + 1],
-                            ganador: "Pendiente",
-                            timeStr: formatTime(matchStart),
-                            toleranceStr: formatTime(toleranceStart),
-                            motivo: ''
-                        });
-                    } else {
-                        nuevosPartidos.push({
-                            equipo1: ganadores[i],
-                            equipo2: "PASE DIRECTO 🏆",
-                            ganador: ganadores[i],
-                            timeStr: formatTime(matchStart),
-                            toleranceStr: '-',
-                            motivo: 'Avanza por sorteo impar'
-                        });
-                    }
-                    currentTime = new Date(currentTime.getTime() + (duration + breakTime) * 60000);
+                // Inicializar siguiente ronda vacía para que los admins controlen cuándo sortear el siguiente lote de ganadores
+                if (!datosBracketServidor[`ronda_${siguienteRondaNum}`]) {
+                    db.ref(`torneos/${currentMode}/bracket/ronda_${siguienteRondaNum}`).set([], (err) => {
+                        if (!err) {
+                            rondaSeleccionada = siguienteRondaNum;
+                            mostrarToast(`¡Todos los matches de la ronda ${rondaActual} terminaron! Ya puedes sortear la Ronda ${siguienteRondaNum}.`, "success");
+                        }
+                    });
                 }
-
-                db.ref(`torneos/${currentMode}/bracket/ronda_${siguienteRondaNum}`).set(nuevosPartidos, (err) => {
-                    if (!err) {
-                        rondaSeleccionada = siguienteRondaNum;
-                        mostrarToast(`¡Ronda ${siguienteRondaNum} generada automáticamente!`, "success");
-                    }
-                });
             }
         }
 
         function reiniciarTorneo() {
-            if (confirm("¿Reiniciar el torneo?")) {
+            if (confirm("¿Seguro que deseas reiniciar todo el torneo?")) {
                 db.ref(`torneos/${currentMode}/bracket`).remove();
                 rondaSeleccionada = 1;
                 mostrarToast("Torneo reiniciado", "info");
@@ -802,7 +801,7 @@
         }
 
         function eliminarEquipo(key) {
-            if (confirm("¿Eliminar este equipo?")) {
+            if (confirm("¿Eliminar este equipo registrado?")) {
                 db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
                 mostrarToast("Equipo eliminado", "info");
             }
