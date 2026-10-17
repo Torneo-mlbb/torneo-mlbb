@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BNX Style Arena - MLBB Manager</title>
+    <title>MLBB Torneos - Live Realtime Sync</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,11 +12,8 @@
             theme: {
                 extend: {
                     colors: {
-                        bnxgreen: '#00e676',
-                        bnxblue: '#00b0ff',
-                        bnxdark: '#0a0a0a',
-                        bnxcard: '#121212',
-                        bnxborder: '#222222'
+                        mlgold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        mldark: { 900: '#0a0d14', 800: '#111827', 700: '#1f2937' }
                     }
                 }
             }
@@ -29,162 +26,199 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body {
-            background-color: #070707;
-            color: #ffffff;
+            background-color: #07090e;
+            color: #f3f4f6;
             font-family: system-ui, -apple-system, sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #070707; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+        .ml-gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #07090e; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
-    <!-- HEADER / NAVBAR -->
-    <header class="bg-black/90 border-b border-neutral-800 sticky top-0 z-50 px-4 py-3">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <button id="back-menu-btn" onclick="volverMenu()" class="hidden text-slate-300 text-lg">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <div class="flex items-center gap-2">
-                <span class="font-black text-xl tracking-tighter text-white">BNX <span class="text-bnxgreen">ARENA</span></span>
+    <!-- HEADER -->
+    <header class="bg-mldark-800/90 backdrop-blur-md border-b border-amber-500/20 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-2">
+                        <span class="ml-gold-gradient-text">Arena Torneos MLBB</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Sincronización en Tiempo Real</p>
+                </div>
             </div>
-            <button onclick="openAuthModal()" class="text-xs bg-neutral-800 text-neutral-300 px-3 py-1.5 rounded-lg border border-neutral-700 font-bold">
-                <i class="fa-solid fa-key mr-1"></i> Admin
-            </button>
+
+            <div class="flex items-center gap-3">
+                <button id="back-menu-btn" onclick="volverMenu()" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Menú
+                </button>
+                <div id="role-badge" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-eye text-xs"></i> Espectador
+                </div>
+                <button onclick="openAuthModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-amber-500/20">
+                    <i class="fa-solid fa-key text-xs"></i> Admin
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- MAIN CONTAINER -->
-    <main class="max-w-md mx-auto px-4 py-4 w-full flex-grow">
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
 
-        <div id="toast-container" class="fixed bottom-20 right-4 z-50 flex flex-col gap-2"></div>
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
-        <!-- SELECCIÓN DE MODALIDAD -->
-        <section id="mode-selector-section" class="py-6 text-center">
-            <h2 class="text-xl font-extrabold text-white mb-1">TORNEO MLBB PERÚ</h2>
-            <p class="text-xs text-neutral-400 mb-6">Selecciona el formato de competencia</p>
-
-            <div class="space-y-4">
-                <div onclick="seleccionarModalidad('5v5')" class="bg-bnxcard border border-neutral-800 hover:border-bnxgreen rounded-2xl p-6 cursor-pointer text-left transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-black text-lg text-white">5 vs 5 MLBB</span>
-                        <span class="text-xs font-bold text-bnxgreen bg-bnxgreen/10 border border-bnxgreen/30 px-2 py-0.5 rounded-md">Squad</span>
-                    </div>
-                    <p class="text-xs text-neutral-400">Capitán + 4 Jugadores</p>
+        <!-- SELECCIÓN DE MODALIDAD (INICIO) -->
+        <section id="mode-selector-section" class="py-10 text-center">
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Selecciona la Modalidad de Competencia</h2>
+            <p class="text-xs text-slate-400 mb-8">Elige el torneo en el que deseas participar o gestionar</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+                    <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
+                    <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
+                    <p class="text-xs text-slate-400">Capitán + 4 Integrantes de Squad</p>
                 </div>
-
-                <div onclick="seleccionarModalidad('3v3')" class="bg-bnxcard border border-neutral-800 hover:border-bnxblue rounded-2xl p-6 cursor-pointer text-left transition">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-black text-lg text-white">3 vs 3 MLBB</span>
-                        <span class="text-xs font-bold text-bnxblue bg-bnxblue/10 border border-bnxblue/30 px-2 py-0.5 rounded-md">Trío</span>
-                    </div>
-                    <p class="text-xs text-neutral-400">Capitán + 2 Jugadores</p>
+                <div onclick="seleccionarModalidad('3v3')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+                    <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
+                    <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
+                    <p class="text-xs text-slate-400">Capitán + 2 Integrantes de Trío</p>
                 </div>
             </div>
         </section>
 
-        <!-- APLICACIÓN PRINCIPAL -->
-        <div id="tournament-app-container" class="hidden space-y-4">
+        <!-- PANEL DE GESTIÓN DEL TORNEO -->
+        <div id="tournament-app-container" class="hidden space-y-6">
 
-            <!-- BANNER DEL TORNEO ESTILO BNX -->
-            <div class="bg-neutral-900 rounded-2xl p-4 border border-neutral-800 relative overflow-hidden">
-                <div class="flex justify-between items-start mb-2">
-                    <h2 class="text-base font-black text-white uppercase" id="tournament-banner-title">BDG | MLBB BNX PERÚ</h2>
-                    <span class="text-[10px] font-bold bg-bnxgreen text-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <i class="fa-solid fa-check text-[9px]"></i> Checked-in
-                    </span>
+            <!-- ADMIN PANEL -->
+            <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Panel de Administración (<span id="admin-mode-label">5v5</span>)
+                    </h2>
+                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">Modo Edición Activo</span>
                 </div>
 
-                <!-- SELECTOR DE PESTAÑAS (Detalles / Llave) -->
-                <div class="grid grid-cols-2 bg-neutral-800 p-1 rounded-xl text-center text-xs font-bold mt-3">
-                    <button id="tab-btn-detalles" onclick="cambiarTabMain('detalles')" class="py-2 rounded-lg bg-white text-black transition">Detalles</button>
-                    <button id="tab-btn-llave" onclick="cambiarTabMain('llave')" class="py-2 rounded-lg text-neutral-400 transition">Llave</button>
-                </div>
-            </div>
-
-            <!-- PANEL DE CONTROL ADMIN -->
-            <div id="admin-panel" class="hidden bg-neutral-900 border border-amber-500/40 rounded-xl p-3 space-y-2">
-                <div class="text-xs font-bold text-amber-400 flex justify-between items-center">
-                    <span>Panel Admin</span>
-                    <span class="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded">Modo Edición</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button onclick="generarSorteo()" class="bg-bnxgreen text-black font-bold py-1.5 rounded-lg">Sortear Matches</button>
-                    <button onclick="reiniciarTorneo()" class="bg-rose-950 text-rose-300 font-bold py-1.5 rounded-lg border border-rose-800">Reiniciar</button>
-                </div>
-            </div>
-
-            <!-- SECCIÓN DETALLES (Inscripción y Equipos) -->
-            <div id="section-detalles" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                    <div class="bg-bnxcard border border-neutral-800 p-3 rounded-xl">
-                        <span class="text-neutral-500 block text-[10px]">Formato</span>
-                        <span class="font-bold text-white">Single elimination</span>
+                <!-- HORARIOS Y TIEMPOS DE MATCH -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio 1er Match</label>
+                        <input type="time" id="cfg-start-time" value="20:00" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
-                    <div class="bg-bnxcard border border-neutral-800 p-3 rounded-xl">
-                        <span class="text-neutral-500 block text-[10px]">Participantes</span>
-                        <span class="font-bold text-white" id="teams-count-badge">0 Equipos</span>
+                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración Match (min)</label>
+                        <input type="number" id="cfg-match-dur" value="30" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                    </div>
+                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Descanso / Break (min)</label>
+                        <input type="number" id="cfg-break-dur" value="10" min="0" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                    </div>
+                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tolerancia W.O. (min)</label>
+                        <input type="number" id="cfg-tolerance" value="5" min="1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                 </div>
 
-                <!-- FORMULARIO DE REGISTRO -->
-                <div class="bg-bnxcard border border-neutral-800 rounded-2xl p-4 space-y-3">
-                    <h3 class="text-xs font-bold text-bnxgreen uppercase tracking-wider">Inscribir Squad</h3>
-                    <input type="text" id="team-name" placeholder="Nombre del Equipo" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-xs text-white">
-                    <div class="space-y-2">
-                        <input type="text" id="cap-nick" placeholder="Nick Capitán" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                        <input type="text" id="cap-id" placeholder="ID (Server)" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                        <input type="tel" id="cap-phone" placeholder="WhatsApp Capitán" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="generarSorteo()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-lg transition shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-shuffle"></i> Sortear Matches y Programar Horarios
+                    </button>
+                    <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2 px-4 rounded-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Sorteo
+                    </button>
+                </div>
+            </section>
+
+            <!-- TABS DE NAVEGACIÓN INTERNA -->
+            <div class="flex gap-2 border-b border-slate-800 pb-2">
+                <button onclick="cambiarTab('registro')" id="tab-btn-registro" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition">📋 Inscribir Equipo</button>
+                <button onclick="cambiarTab('equipos')" id="tab-btn-equipos" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition">👥 Equipos Registrados</button>
+                <button onclick="cambiarTab('bracket')" id="tab-btn-bracket" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition">⚔️ Enfrentamientos</button>
+            </div>
+
+            <!-- CONTENIDO TAB 1: REGISTRO -->
+            <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Inscripción para Torneo <span id="reg-mode-title">5v5</span></h3>
+                
+                <div class="space-y-4 max-w-2xl">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo / Squad:</label>
+                        <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
-                    <div id="dynamic-players-inputs" class="space-y-2"></div>
-                    <button onclick="enviarInscripcion()" class="w-full bg-bnxblue text-black font-extrabold text-xs py-2.5 rounded-xl">Registrar Equipo</button>
+
+                    <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800">
+                        <h4 class="text-xs font-bold text-amber-400 mb-2">👑 Datos del Capitán / Líder</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input type="text" id="cap-nick" placeholder="Nick del Líder" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-id" placeholder="ID y Server (Ej: 1234 (2001))" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="tel" id="cap-phone" placeholder="WhatsApp del Líder" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes del Equipo</h4>
+                        <div id="dynamic-players-inputs" class="space-y-2"></div>
+                    </div>
+
+                    <button onclick="enviarInscripcion()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition shadow-lg shadow-amber-500/20">
+                        ✅ Confirmar e Inscribir Equipo
+                    </button>
                 </div>
             </div>
 
-            <!-- SECCIÓN LLAVE (Rondas + Matches estilo BNX) -->
-            <div id="section-llave" class="hidden space-y-4">
-
-                <!-- FILTRO DE RONDAS (Estilo BNX) -->
-                <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold">
-                    <button onclick="filtrarRonda('ronda1')" id="round-btn-ronda1" class="px-3.5 py-1.5 rounded-xl bg-bnxblue text-black whitespace-nowrap">Round 1</button>
-                    <button onclick="filtrarRonda('quarters')" id="round-btn-quarters" class="px-3.5 py-1.5 rounded-xl bg-neutral-800 text-neutral-400 whitespace-nowrap">Quarters</button>
-                    <button onclick="filtrarRonda('semis')" id="round-btn-semis" class="px-3.5 py-1.5 rounded-xl bg-neutral-800 text-neutral-400 whitespace-nowrap">Semis</button>
-                    <button onclick="filtrarRonda('final')" id="round-btn-final" class="px-3.5 py-1.5 rounded-xl bg-neutral-800 text-neutral-400 whitespace-nowrap">Final</button>
+            <!-- CONTENIDO TAB 2: EQUIPOS -->
+            <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-amber-400 mb-4">Equipos Confirmados</h3>
+                <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
                 </div>
+            </div>
 
-                <!-- CARDS DE MATCHES BNX -->
-                <div id="matches-container" class="space-y-3">
-                    <p class="text-xs text-neutral-500 italic text-center py-6">El cuadro de llaves estará disponible cuando inicie el torneo.</p>
+            <!-- CONTENIDO TAB 3: BRACKET / MATCHES -->
+            <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-amber-400 mb-4">Cuadro de Matches y Resultados</h3>
+                <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p class="text-xs text-slate-500 italic col-span-full">El cuadro de enfrentamientos aparecerá cuando el administrador realice el sorteo.</p>
                 </div>
-
             </div>
 
         </div>
 
     </main>
 
-    <!-- BARRA INFERIOR FLOTANTE "MATCHROOM ACTUAL" -->
-    <div id="bottom-matchroom-bar" class="hidden fixed bottom-0 left-0 right-0 p-3 bg-black/90 border-t border-neutral-800 backdrop-blur-md z-40">
-        <div class="max-w-md mx-auto">
-            <button onclick="cambiarTabMain('llave')" class="w-full bg-bnxblue hover:bg-bnxblue/90 text-black font-black text-sm py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2">
-                Matchroom Actual
-            </button>
-        </div>
-    </div>
+    <!-- FOOTER -->
+    <footer class="bg-mldark-900 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-10">
+        Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
+    </footer>
 
-    <!-- PIN MODAL ADMIN -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-xs w-full p-5 text-center">
-            <h3 class="text-sm font-bold text-white mb-2">Acceso Administrador</h3>
+    <!-- PIN MODAL -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-4">
+                <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
+                <p class="text-xs text-slate-400 mt-1">Usa la clave `admin123`</p>
+            </div>
             <form onsubmit="handleAdminAuth(event)">
-                <input type="password" id="admin-pin" placeholder="PIN admin" class="w-full bg-black border border-neutral-700 rounded-lg px-3 py-2 text-xs text-white mb-3">
-                <button type="submit" class="w-full bg-bnxgreen text-black font-bold text-xs py-2 rounded-lg">Ingresar</button>
+                <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition">Verificar</button>
             </form>
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE Y LÓGICA -->
+    <!-- FIREBASE & LOGIC SCRIPT -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
@@ -208,9 +242,9 @@
             currentMode = modo;
             document.getElementById('mode-selector-section').classList.add('hidden');
             document.getElementById('tournament-app-container').classList.remove('hidden');
-            document.getElementById('bottom-matchroom-bar').classList.remove('hidden');
             document.getElementById('back-menu-btn').classList.remove('hidden');
-            document.getElementById('tournament-banner-title').innerText = `BDG | ${modo} MLBB BNX - PERÚ`;
+            document.getElementById('reg-mode-title').innerText = modo;
+            document.getElementById('admin-mode-label').innerText = modo;
 
             construirInputsJugadores();
             sincronizarDatosFirebase();
@@ -220,7 +254,6 @@
             currentMode = null;
             document.getElementById('mode-selector-section').classList.remove('hidden');
             document.getElementById('tournament-app-container').classList.add('hidden');
-            document.getElementById('bottom-matchroom-bar').classList.add('hidden');
             document.getElementById('back-menu-btn').classList.add('hidden');
         }
 
@@ -231,146 +264,370 @@
 
             for (let i = 2; i <= numExtra + 1; i++) {
                 container.innerHTML += `
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="nick-j${i}" placeholder="Nick J${i}" class="bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-                        <input type="text" id="id-j${i}" placeholder="ID J${i}" class="bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="text" id="nick-j${i}" placeholder="Nick Jugador ${i}" class="bg-mldark-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                        <input type="text" id="id-j${i}" placeholder="ID y Server Jugador ${i}" class="bg-mldark-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                     </div>
                 `;
             }
         }
 
-        function cambiarTabMain(tab) {
-            if (tab === 'detalles') {
-                document.getElementById('section-detalles').classList.remove('hidden');
-                document.getElementById('section-llave').classList.add('hidden');
-                document.getElementById('tab-btn-detalles').className = "py-2 rounded-lg bg-white text-black transition";
-                document.getElementById('tab-btn-llave').className = "py-2 rounded-lg text-neutral-400 transition";
-            } else {
-                document.getElementById('section-detalles').classList.add('hidden');
-                document.getElementById('section-llave').classList.remove('hidden');
-                document.getElementById('tab-btn-detalles').className = "py-2 rounded-lg text-neutral-400 transition";
-                document.getElementById('tab-btn-llave').className = "py-2 rounded-lg bg-white text-black transition";
-            }
+        function cambiarTab(tab) {
+            ['registro', 'equipos', 'bracket'].forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition";
+            });
+            document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tab}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition";
         }
 
         function openAuthModal() {
             if (isAdmin) {
                 isAdmin = false;
-                document.getElementById('admin-panel').classList.add('hidden');
-                mostrarToast("Modo admin cerrado");
+                actualizarPermisosAdmin();
+                mostrarToast("Modo administrador cerrado", "info");
             } else {
                 document.getElementById('auth-modal').classList.remove('hidden');
             }
         }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
 
         function handleAdminAuth(e) {
             e.preventDefault();
-            if (document.getElementById('admin-pin').value === ADMIN_PASS) {
+            const pin = document.getElementById('admin-pin').value;
+            if (pin === ADMIN_PASS) {
                 isAdmin = true;
-                document.getElementById('auth-modal').classList.add('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
+                closeAuthModal();
                 document.getElementById('admin-pin').value = '';
-                sincronizarDatosFirebase();
-                mostrarToast("Acceso Concedido");
+                actualizarPermisosAdmin();
+                mostrarToast("Acceso Administrador concedido", "success");
             } else {
-                mostrarToast("Clave incorrecta");
+                mostrarToast("Clave incorrecta", "error");
             }
+        }
+
+        function actualizarPermisosAdmin() {
+            const badge = document.getElementById('role-badge');
+            const adminPanel = document.getElementById('admin-panel');
+            if (isAdmin) {
+                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
+                badge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i> Admin`;
+                adminPanel.classList.remove('hidden');
+            } else {
+                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5";
+                badge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i> Espectador`;
+                adminPanel.classList.add('hidden');
+            }
+            if (currentMode) sincronizarDatosFirebase();
         }
 
         function enviarInscripcion() {
             const nombreEquipo = document.getElementById('team-name').value.trim();
             const capNick = document.getElementById('cap-nick').value.trim();
             const capId = document.getElementById('cap-id').value.trim();
+            const capPhone = document.getElementById('cap-phone').value.trim();
 
-            if (!nombreEquipo || !capNick || !capId) {
-                mostrarToast("Completa los datos principales");
+            if (!nombreEquipo || !capNick || !capId || !capPhone) {
+                mostrarToast("Completa los datos del equipo y del capitán", "warning");
                 return;
             }
 
+            let jugadores = [{ nick: capNick, id: capId, rol: 'Capitán', telefono: capPhone }];
+            const numExtra = currentMode === '5v5' ? 4 : 2;
+
+            for (let i = 2; i <= numExtra + 1; i++) {
+                const jNick = document.getElementById(`nick-j${i}`).value.trim();
+                const jId = document.getElementById(`id-j${i}`).value.trim();
+                if (!jNick || !jId) {
+                    mostrarToast(`Faltan datos del Jugador ${i}`, "warning");
+                    return;
+                }
+                jugadores.push({ nick: jNick, id: jId, rol: 'Integrante' });
+            }
+
             db.ref(`torneos/${currentMode}/equipos`).push({
-                nombreEquipo, capNick, capId
-            }, (err) => {
-                if (!err) {
-                    mostrarToast("¡Equipo Inscrito!");
+                nombreEquipo, jugadores
+            }, (error) => {
+                if (!error) {
+                    mostrarToast("¡Inscripción exitosa!", "success");
                     document.getElementById('team-name').value = '';
                     document.getElementById('cap-nick').value = '';
                     document.getElementById('cap-id').value = '';
+                    document.getElementById('cap-phone').value = '';
+                    construirInputsJugadores();
+                    cambiarTab('equipos');
+                } else {
+                    mostrarToast("Error al registrar", "error");
                 }
             });
         }
 
         function sincronizarDatosFirebase() {
+            // Escuchar Equipos
             db.ref(`torneos/${currentMode}/equipos`).on('value', (snap) => {
                 const data = snap.val();
+                const container = document.getElementById('teams-list-container');
+                container.innerHTML = '';
                 equiposCache = [];
-                if (data) Object.values(data).forEach(e => equiposCache.push(e.nombreEquipo));
-                document.getElementById('teams-count-badge').innerText = `${equiposCache.length} Equipos`;
+
+                if (!data) {
+                    container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados...</p>`;
+                    return;
+                }
+
+                Object.keys(data).forEach(key => {
+                    const eq = data[key];
+                    equiposCache.push(eq.nombreEquipo);
+                    let playersHtml = '';
+                    eq.jugadores.forEach(j => {
+                        playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} (${j.id})</span> <span class="text-amber-400">${j.rol}</span></div>`;
+                    });
+
+                    container.innerHTML += `
+                        <div class="bg-mldark-900 border border-slate-800 p-4 rounded-xl">
+                            <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
+                                <span class="font-bold text-amber-400 text-sm">🛡️ ${eq.nombreEquipo}</span>
+                                ${isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                            <div>${playersHtml}</div>
+                        </div>
+                    `;
+                });
             });
 
+            // Escuchar Bracket / Matches con Chat en Vivo y Estilo VS Separado
             db.ref(`torneos/${currentMode}/bracket`).on('value', (snap) => {
                 const partidos = snap.val();
                 const container = document.getElementById('matches-container');
                 container.innerHTML = '';
 
                 if (!partidos) {
-                    container.innerHTML = `<p class="text-xs text-neutral-500 italic text-center py-6">El cuadro de llaves estará disponible cuando inicie el torneo.</p>`;
+                    container.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full">El cuadro de enfrentamientos aparecerá cuando el administrador realice el sorteo.</p>`;
                     return;
                 }
 
                 partidos.forEach((p, idx) => {
-                    let hasChat = p.chat ? true : false;
+                    let isFinished = p.ganador !== "Pendiente";
+                    let isPass = p.equipo2 === "PASE DIRECTO 🏆";
 
-                    container.innerHTML += `
-                        <div class="bg-bnxcard border border-neutral-800 rounded-2xl p-4 flex justify-between items-center relative">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-black text-neutral-500">${idx + 1}</span>
-                                <div>
-                                    <div class="font-bold text-sm text-white">${p.equipo1}</div>
-                                    <div class="text-xs text-neutral-400 mt-1">${p.equipo2}</div>
+                    let eq1Style = "bg-mldark-900 border-slate-800 text-cyan-400 font-bold";
+                    let eq2Style = "bg-mldark-900 border-slate-800 text-rose-400 font-bold";
+
+                    if (isFinished) {
+                        if (p.ganador === p.equipo1) {
+                            eq1Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+                            eq2Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
+                        } else if (p.ganador === p.equipo2) {
+                            eq1Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
+                            eq2Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+                        }
+                    }
+
+                    // Renderizar Mensajes del Chat del Match
+                    let chatMessagesHtml = '';
+                    if (p.chat) {
+                        Object.values(p.chat).forEach(msg => {
+                            let badgeRol = msg.isAdmin ? `<span class="bg-amber-500/20 text-amber-400 text-[9px] px-1.5 py-0.5 rounded font-bold ml-1">ADMIN</span>` : '';
+                            chatMessagesHtml += `<div class="mb-1.5"><span class="font-bold text-amber-300">${msg.autor}</span>${badgeRol}: <span class="text-slate-200">${msg.texto}</span></div>`;
+                        });
+                    } else {
+                        chatMessagesHtml = `<div class="text-slate-500 italic text-[11px]">No hay mensajes aún. ¡Comiencen a coordinar la sala!</div>`;
+                    }
+
+                    let adminAcciones = '';
+                    if (isAdmin && !isFinished && !isPass) {
+                        adminAcciones = `
+                            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col gap-2">
+                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Declarar Ganador</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="declararGanador(${idx}, '${p.equipo1}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition">
+                                        Gana ${p.equipo1}
+                                    </button>
+                                    <button onclick="declararGanador(${idx}, '${p.equipo2}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition">
+                                        Gana ${p.equipo2}
+                                    </button>
+                                </div>
+                                <div class="text-[10px] font-bold text-rose-400/80 uppercase tracking-wider text-center mt-1">Sanción Walkover (W.O.)</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="declararWO(${idx}, '${p.equipo2}', '${p.equipo1}')" class="bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-800/50 text-[11px] font-semibold py-1.5 px-2 rounded-lg transition">
+                                        <i class="fa-solid fa-user-slash mr-1"></i> Faltó ${p.equipo1}
+                                    </button>
+                                    <button onclick="declararWO(${idx}, '${p.equipo1}', '${p.equipo2}')" class="bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-800/50 text-[11px] font-semibold py-1.5 px-2 rounded-lg transition">
+                                        <i class="fa-solid fa-user-slash mr-1"></i> Faltó ${p.equipo2}
+                                    </button>
                                 </div>
                             </div>
-                            
-                            <div class="flex items-center gap-3">
-                                ${hasChat ? '<i class="fa-regular fa-comment-dots text-bnxblue text-base"></i>' : ''}
-                                ${isAdmin ? `<button onclick="declararGanador(${idx}, '${p.equipo1}')" class="text-[10px] bg-bnxgreen text-black px-2 py-1 rounded font-bold">Gana E1</button>` : ''}
+                        `;
+                    }
+
+                    container.innerHTML += `
+                        <div class="bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-slate-800">
+                                    <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idx + 1}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
+                                        ${isFinished ? 'GANADOR: ' + p.ganador : 'EN ESPERA'}
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between items-center bg-mldark-900 px-3 py-2 rounded-xl mb-3 text-xs border border-slate-800">
+                                    <div class="text-slate-300 font-medium">
+                                        <i class="fa-regular fa-clock text-amber-400 mr-1"></i> Hora: <b class="text-white">${p.timeStr || '--:--'}</b>
+                                    </div>
+                                    <div class="text-slate-400 font-medium">
+                                        <i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> Límite W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 mb-4">
+                                    <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
+                                        <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
+                                    </div>
+                                    <div class="text-center text-[10px] font-black text-slate-600 tracking-widest">VS</div>
+                                    <div class="p-3 rounded-xl border ${eq2Style} flex justify-between items-center text-sm">
+                                        <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
+                                    </div>
+                                </div>
+
+                                <!-- CHAT DE COORDINACIÓN DEL MATCH -->
+                                <div class="bg-mldark-900 border border-slate-800 rounded-xl p-3 mb-2">
+                                    <div class="text-[11px] font-bold text-slate-400 mb-2 flex items-center gap-1.5">
+                                        <i class="fa-regular fa-comments text-amber-400"></i> Chat de Coordinación del Match
+                                    </div>
+                                    <div id="chat-box-${idx}" class="max-h-28 overflow-y-auto custom-scrollbar text-xs bg-slate-950/60 p-2 rounded-lg mb-2 border border-slate-900">
+                                        ${chatMessagesHtml}
+                                    </div>
+                                    <div class="flex gap-1.5">
+                                        <input type="text" id="chat-input-${idx}" placeholder="Tu nick / equipo y mensaje..." class="flex-1 bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                        <button onclick="enviarMensajeChat(${idx})" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                ${p.motivo ? `<div class="mt-2 text-[11px] text-slate-400 text-center italic bg-mldark-900 py-1 rounded-md border border-slate-800">${p.motivo}</div>` : ''}
                             </div>
+
+                            ${adminAcciones}
                         </div>
                     `;
                 });
             });
         }
 
+        function enviarMensajeChat(idx) {
+            const input = document.getElementById(`chat-input-${idx}`);
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            let autor = isAdmin ? "Administrador" : prompt("Ingresa tu nombre o el de tu equipo para chatear:") || "Capitán Anónimo";
+
+            const mensajeData = {
+                autor: autor,
+                texto: texto,
+                isAdmin: isAdmin,
+                timestamp: Date.now()
+            };
+
+            db.ref(`torneos/${currentMode}/bracket/${idx}/chat`).push(mensajeData, (err) => {
+                if (!err) {
+                    input.value = '';
+                }
+            });
+        }
+
         function generarSorteo() {
-            if (equiposCache.length < 2) return mostrarToast("Mínimo 2 equipos");
+            if (equiposCache.length < 2) {
+                mostrarToast("Se necesitan al menos 2 equipos", "warning");
+                return;
+            }
+
+            const startTimeStr = document.getElementById('cfg-start-time').value || '20:00';
+            const duration = parseInt(document.getElementById('cfg-match-dur').value) || 30;
+            const breakTime = parseInt(document.getElementById('cfg-break-dur').value) || 10;
+            const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
+
             let mezcla = [...equiposCache].sort(() => Math.random() - 0.5);
             let partidos = [];
 
+            let [hours, minutes] = startTimeStr.split(':').map(Number);
+            let currentTime = new Date();
+            currentTime.setHours(hours, minutes, 0, 0);
+
+            let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             for (let i = 0; i < mezcla.length; i += 2) {
-                partidos.push({
-                    equipo1: mezcla[i],
-                    equipo2: mezcla[i + 1] || "PASE DIRECTO 🏆",
-                    ganador: mezcla[i + 1] ? "Pendiente" : mezcla[i]
-                });
+                let matchStart = new Date(currentTime);
+                let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+
+                if (mezcla[i + 1]) {
+                    partidos.push({
+                        equipo1: mezcla[i],
+                        equipo2: mezcla[i + 1],
+                        ganador: "Pendiente",
+                        timeStr: formatTime(matchStart),
+                        toleranceStr: formatTime(toleranceStart),
+                        motivo: ''
+                    });
+                } else {
+                    partidos.push({
+                        equipo1: mezcla[i],
+                        equipo2: "PASE DIRECTO 🏆",
+                        ganador: mezcla[i],
+                        timeStr: formatTime(matchStart),
+                        toleranceStr: '-',
+                        motivo: 'Avanza por sorteo impar'
+                    });
+                }
+
+                currentTime = new Date(currentTime.getTime() + (duration + breakTime) * 60000);
             }
 
-            db.ref(`torneos/${currentMode}/bracket`).set(partidos);
+            db.ref(`torneos/${currentMode}/bracket`).set(partidos, (err) => {
+                if (!err) mostrarToast("¡Sorteo generado con horarios y chat!", "success");
+            });
         }
 
         function declararGanador(idx, ganador) {
-            db.ref(`torneos/${currentMode}/bracket/${idx}/ganador`).set(ganador);
+            db.ref(`torneos/${currentMode}/bracket/${idx}`).update({
+                ganador: ganador,
+                motivo: 'Victoria en Arena'
+            });
+        }
+
+        function declararWO(idx, ganador, ausente) {
+            db.ref(`torneos/${currentMode}/bracket/${idx}`).update({
+                ganador: ganador,
+                motivo: `Derrota por W.O. (Ausente: ${ausente})`
+            });
         }
 
         function reiniciarTorneo() {
-            db.ref(`torneos/${currentMode}/bracket`).remove();
+            if (confirm("¿Reiniciar el torneo?")) {
+                db.ref(`torneos/${currentMode}/bracket`).remove();
+                mostrarToast("Torneo reiniciado", "info");
+            }
         }
 
-        function mostrarToast(msg) {
+        function eliminarEquipo(key) {
+            if (confirm("¿Eliminar este equipo?")) {
+                db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
+                mostrarToast("Equipo eliminado", "info");
+            }
+        }
+
+        function mostrarToast(msg, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = "bg-neutral-800 text-white text-xs px-3 py-2 rounded-xl border border-neutral-700 shadow-xl";
+            let color = "bg-mldark-800 border-slate-700 text-white";
+            if (type === "success") color = "bg-emerald-950 border-emerald-800 text-emerald-200";
+            if (type === "warning") color = "bg-amber-950 border-amber-800 text-amber-200";
+            if (type === "error") color = "bg-rose-950 border-rose-800 text-rose-200";
+
+            toast.className = `${color} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold`;
             toast.innerText = msg;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
