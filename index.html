@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLBB Torneos - Registro & Gestión</title>
+    <title>MLBB Torneos - Registro & Organización</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -63,13 +63,13 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button id="back-menu-btn" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+                <button id="back-menu-btn" onclick="volverMenu()" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-arrow-left"></i> Menú
                 </button>
                 <div id="role-badge" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5">
                     <i class="fa-solid fa-eye text-xs"></i> Espectador
                 </div>
-                <button id="auth-btn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer">
+                <button id="auth-btn" onclick="openAuthModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer">
                     <i class="fa-solid fa-key text-xs"></i> Admin
                 </button>
             </div>
@@ -87,12 +87,12 @@
             <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribir a tu equipo</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div id="btn-mode-5v5" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+                <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
                     <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
                     <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
                     <p class="text-xs text-slate-400">Inscripción para Capitán + 4 Integrantes</p>
                 </div>
-                <div id="btn-mode-3v3" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+                <div onclick="seleccionarModalidad('3v3')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
                     <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
                     <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
                     <p class="text-xs text-slate-400">Inscripción para Capitán + 2 Integrantes</p>
@@ -103,7 +103,7 @@
         <!-- PANEL PRINCIPAL DEL TORNEO -->
         <div id="tournament-app-container" class="hidden space-y-6">
 
-            <!-- PANEL DE ORGANIZACIÓN ADMIN (SOLO VISIBLE PARA ADMINS) -->
+            <!-- PANEL DE ORGANIZACIÓN ADMIN -->
             <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
                     <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
@@ -139,24 +139,24 @@
                 </div>
 
                 <div class="flex flex-wrap gap-3">
-                    <button id="btn-generar-sorteo" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+                    <button onclick="generarSorteo()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-shuffle"></i> Sortear Tanda de 16 Partidas (32 Equipos)
                     </button>
-                    <button id="btn-reiniciar-torneo" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                    <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-rotate-right"></i> Reiniciar Datos de Torneo
                     </button>
                 </div>
             </section>
 
-            <!-- NAVEGACIÓN INTERNA (DETALLES Y LLAVES SOLO PARA ADMINS) -->
+            <!-- NAVEGACIÓN INTERNA -->
             <div class="flex gap-2 border-b border-slate-800 pb-2">
-                <button id="tab-btn-registro" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
-                <button id="tab-btn-equipos" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
-                <button id="tab-btn-bracket" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Organización & Horarios (Admin)</button>
-                <button id="tab-btn-arbol" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático (Admin)</button>
+                <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
+                <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
+                <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Organización & Horarios (Admin)</button>
+                <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático (Admin)</button>
             </div>
 
-            <!-- TAB 1: FORMULARIO DE INSCRIPCIÓN -->
+            <!-- TAB 1: INSCRIPCIÓN -->
             <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Formulario de Inscripción <span id="reg-mode-title">5v5</span></h3>
                 
@@ -166,7 +166,6 @@
                         <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
 
-                    <!-- CAPITÁN -->
                     <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800 space-y-2">
                         <h4 class="text-xs font-bold text-amber-400">👑 Datos del Capitán</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -177,19 +176,18 @@
                         <input type="tel" id="cap-phone" placeholder="WhatsApp de Contacto" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                     </div>
 
-                    <!-- INTEGRANTES -->
                     <div>
                         <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes de la Escuadra</h4>
                         <div id="dynamic-players-inputs" class="space-y-2"></div>
                     </div>
 
-                    <button id="btn-enviar-inscripcion" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition shadow-lg shadow-amber-500/20 cursor-pointer">
+                    <button onclick="enviarInscripcion()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition shadow-lg shadow-amber-500/20 cursor-pointer">
                         ✅ Confirmar e Inscribir Equipo
                     </button>
                 </div>
             </div>
 
-            <!-- TAB 2: LISTA DE EQUIPOS INSCRITOS -->
+            <!-- TAB 2: EQUIPOS INSCRITOS -->
             <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h3 class="text-sm font-bold text-amber-400 mb-4">Equipos Registrados</h3>
                 <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -197,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- TAB 3: ORGANIZACIÓN INTERNA Y MATCHES (SOLO ADMINS) -->
+            <!-- TAB 3: ORGANIZACIÓN MATCHES (SOLO ADMIN) -->
             <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                     <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas y Tiempos Programados</h3>
@@ -209,7 +207,7 @@
                 </div>
             </div>
 
-            <!-- TAB 4: ÁRBOL ESQUEMÁTICO DE LLAVES ("CAMINO A LA FINAL") -->
+            <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
             <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
                     <i class="fa-solid fa-sitemap"></i> Esquema Completo "Camino a la Final"
@@ -235,12 +233,12 @@
     <!-- PIN MODAL ADMIN -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
-            <button id="auth-modal-close" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center mb-4">
                 <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
                 <p class="text-xs text-slate-400 mt-1">Usa la clave `admin123`</p>
             </div>
-            <form id="auth-form">
+            <form onsubmit="handleAdminAuth(event)">
                 <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
                 <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition cursor-pointer">Verificar</button>
             </form>
@@ -268,23 +266,6 @@
         let equiposCacheObj = {}; 
         let rondaSeleccionada = 1;
         let datosBracketServidor = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('btn-mode-5v5').addEventListener('click', () => seleccionarModalidad('5v5'));
-            document.getElementById('btn-mode-3v3').addEventListener('click', () => seleccionarModalidad('3v3'));
-            document.getElementById('back-menu-btn').addEventListener('click', volverMenu);
-            document.getElementById('auth-btn').addEventListener('click', openAuthModal);
-            document.getElementById('auth-modal-close').addEventListener('click', closeAuthModal);
-            document.getElementById('auth-form').addEventListener('submit', handleAdminAuth);
-            document.getElementById('btn-enviar-inscripcion').addEventListener('click', enviarInscripcion);
-            document.getElementById('btn-generar-sorteo').addEventListener('click', generarSorteo);
-            document.getElementById('btn-reiniciar-torneo').addEventListener('click', reiniciarTorneo);
-
-            document.getElementById('tab-btn-registro').addEventListener('click', () => cambiarTab('registro'));
-            document.getElementById('tab-btn-equipos').addEventListener('click', () => cambiarTab('equipos'));
-            document.getElementById('tab-btn-bracket').addEventListener('click', () => cambiarTab('bracket'));
-            document.getElementById('tab-btn-arbol').addEventListener('click', () => cambiarTab('arbol'));
-        });
 
         function seleccionarModalidad(modo) {
             currentMode = modo;
@@ -332,8 +313,10 @@
                 if (btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
             });
 
-            document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-btn-${tab}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
+            const activeEl = document.getElementById(`tab-content-${tab}`);
+            const activeBtn = document.getElementById(`tab-btn-${tab}`);
+            if (activeEl) activeEl.classList.remove('hidden');
+            if (activeBtn) activeBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
         }
 
         function openAuthModal() {
@@ -590,7 +573,6 @@
             });
         }
 
-        // RENDERIZAR ÁRBOL ESQUEMÁTICO GRAPHICO
         function renderizarArbolEsquematico() {
             const container = document.getElementById('arbol-esquematico-container');
             container.innerHTML = '';
@@ -665,4 +647,84 @@
             let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
             let equiposParaTanda = candidatos.slice(0, maxPartidasTanda * 2);
 
-            let [hours, minutes] = startTimeStr.split(':').
+            let [hours, minutes] = startTimeStr.split(':').map(Number);
+            let currentTime = new Date();
+            currentTime.setHours(hours, minutes, 0, 0);
+
+            let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            let nuevosPartidos = [...rondaPartidosExistentes];
+
+            for (let i = 0; i < equiposParaTanda.length; i += 2) {
+                let matchStart = new Date(currentTime);
+                let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+
+                if (equiposParaTanda[i + 1]) {
+                    nuevosPartidos.push({
+                        equipo1: equiposParaTanda[i],
+                        equipo2: equiposParaTanda[i + 1],
+                        ganador: "Pendiente",
+                        timeStr: formatTime(matchStart),
+                        toleranceStr: formatTime(toleranceStart),
+                        motivo: ''
+                    });
+                } else {
+                    nuevosPartidos.push({
+                        equipo1: equiposParaTanda[i],
+                        equipo2: "PASE DIRECTO 🏆",
+                        ganador: equiposParaTanda[i],
+                        timeStr: formatTime(matchStart),
+                        toleranceStr: '-',
+                        motivo: 'Avanza por sorteo impar'
+                    });
+                }
+                currentTime = new Date(currentTime.getTime() + (duration + breakTime) * 60000);
+            }
+
+            bracketEstructura[`ronda_${rondaSeleccionada}`] = nuevosPartidos;
+
+            db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
+                if (!err) mostrarToast(`¡Tanda generada con éxito! (16 partidas añadidas)`, "success");
+            });
+        }
+
+        function declararGanador(rondaNum, idx, ganador) {
+            db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({
+                ganador: ganador,
+                motivo: 'Victoria en Arena'
+            }, () => {
+                mostrarToast(`Ganador registrado: ${ganador}`, "success");
+            });
+        }
+
+        function reiniciarTorneo() {
+            if (confirm("¿Seguro que deseas reiniciar los enfrentamientos del torneo?")) {
+                db.ref(`torneos/${currentMode}/bracket`).remove();
+                rondaSeleccionada = 1;
+                mostrarToast("Datos de partidas reiniciados", "info");
+            }
+        }
+
+        function eliminarEquipo(key) {
+            if (confirm("¿Eliminar este equipo de la lista?")) {
+                db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
+                mostrarToast("Equipo eliminado", "info");
+            }
+        }
+
+        function mostrarToast(msg, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            let color = "bg-mldark-800 border-slate-700 text-white";
+            if (type === "success") color = "bg-emerald-950 border-emerald-800 text-emerald-200";
+            if (type === "warning") color = "bg-amber-950 border-amber-800 text-amber-200";
+            if (type === "error") color = "bg-rose-950 border-rose-800 text-rose-200";
+
+            toast.className = `${color} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold`;
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
