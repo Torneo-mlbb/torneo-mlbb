@@ -78,6 +78,11 @@
             color: #000;
         }
 
+        .btn-danger {
+            background: linear-gradient(45deg, #b80b0b, var(--mlbb-red));
+            color: white;
+        }
+
         .btn-secondary {
             background: #1b2742;
             color: white;
@@ -214,6 +219,35 @@
         .leader-item {
             border-left-color: var(--mlbb-gold);
         }
+
+        .match-card {
+            background: #0a0f1d;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .match-teams {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .match-versus {
+            color: var(--mlbb-gold);
+            margin: 0 10px;
+        }
+
+        .winner-tag {
+            color: #00ff88;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -232,7 +266,7 @@
             <button id="authBtn" class="btn btn-gold" onclick="toggleAdmin()">🔑 Acceso Admin</button>
         </div>
 
-        <!-- 1. PANTALLA DE SELECCIÓN DE MODALIDAD (INICIO ESTILO BONOXS) -->
+        <!-- 1. PANTALLA DE SELECCIÓN DE MODALIDAD -->
         <div id="modalidadSelector" class="mode-selection">
             <div class="mode-card" onclick="entrarTorneo('5v5')">
                 <div class="mode-title">⚔️ TORNEO 5v5</div>
@@ -283,7 +317,7 @@
 
                 <h4 style="color: var(--mlbb-blue); margin-bottom: 8px;">🛡️ Integrantes de la Escuadra</h4>
                 <div id="jugadoresCampos">
-                    <!-- Los campos de jugadores se generan dinámicamente según sea 5v5 o 3v3 -->
+                    <!-- Dinámico -->
                 </div>
 
                 <button class="btn btn-gold" style="width: 100%; margin-top: 15px; padding: 12px;" onclick="guardarRegistro()">✅ Confirmar e Inscribir Equipo</button>
@@ -302,6 +336,7 @@
                 <h3 style="color: var(--mlbb-gold); margin-top: 0;">Llaves y Resultados</h3>
                 <div id="adminControls" style="display:none; background:#1b2742; padding:12px; border-radius:8px; margin-bottom:15px;">
                     <button class="btn" onclick="generarBracket()">🎲 Generar Sorteo de Partidas</button>
+                    <button class="btn btn-danger" onclick="limpiarBracket()" style="margin-left: 10px;">🗑️ Reiniciar Sorteo</button>
                 </div>
                 <div id="bracketContenedor">
                     <p style="color: var(--text-muted);">El cuadro de enfrentamientos estará disponible cuando inicie el torneo.</p>
@@ -328,9 +363,10 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let modoActual = null; // '5v5' o '3v3'
+        let modoActual = null;
         let esAdmin = false;
         const ADMIN_KEY = "admin123";
+        let equiposCargados = [];
 
         function entrarTorneo(modo) {
             modoActual = modo;
@@ -341,6 +377,7 @@
             
             generarCamposJugadores();
             cargarDatosTorneo();
+            cargarBracket();
         }
 
         function irInicio() {
@@ -354,7 +391,7 @@
         function generarCamposJugadores() {
             const container = document.getElementById('jugadoresCampos');
             container.innerHTML = '';
-            const cantidad = modoActual === '5v5' ? 4 : 2; // Capitán es el #1, quedan 4 o 2 restantes
+            const cantidad = modoActual === '5v5' ? 4 : 2;
 
             for (let i = 2; i <= cantidad + 1; i++) {
                 container.innerHTML += `
@@ -441,6 +478,7 @@
                 const data = snapshot.val();
                 const container = document.getElementById('listaEquiposContenedor');
                 container.innerHTML = '';
+                equiposCargados = [];
 
                 if (!data) {
                     container.innerHTML = "<p style='color:var(--text-muted);'>No hay equipos registrados aún en esta modalidad.</p>";
@@ -449,6 +487,7 @@
 
                 Object.keys(data).forEach(key => {
                     const eq = data[key];
+                    equiposCargados.push(eq.nombreEquipo);
                     let listaHtml = '';
                     
                     eq.jugadores.forEach(j => {
@@ -471,6 +510,89 @@
                     `;
                 });
             });
+        }
+
+        function generarBracket() {
+            if (equiposCargados.length < 2) {
+                alert("Se necesitan al menos 2 equipos registrados para generar el sorteo.");
+                return;
+            }
+
+            if (!confirm("¿Deseas realizar el sorteo con los equipos actualmente inscritos?")) return;
+
+            let shuffled = [...equiposCargados].sort(() => Math.random() - 0.5);
+            let partidos = [];
+
+            for (let i = 0; i < shuffled.length; i += 2) {
+                if (i + 1 < shuffled.length) {
+                    partidos.push({
+                        equipo1: shuffled[i],
+                        equipo2: shuffled[i + 1],
+                        ganador: "Pendiente"
+                    });
+                } else {
+                    partidos.push({
+                        equipo1: shuffled[i],
+                        equipo2: "PASE DIRECTO 🏆",
+                        ganador: shuffled[i]
+                    });
+                }
+            }
+
+            db.ref(`torneos/${modoActual}/bracket`).set(partidos, (err) => {
+                if (!err) alert("¡Sorteo generado con éxito!");
+            });
+        }
+
+        function cargarBracket() {
+            db.ref(`torneos/${modoActual}/bracket`).on('value', (snapshot) => {
+                const partidos = snapshot.val();
+                const container = document.getElementById('bracketContenedor');
+                container.innerHTML = '';
+
+                if (!partidos) {
+                    container.innerHTML = "<p style='color:var(--text-muted);'>El cuadro de enfrentamientos estará disponible cuando el administrador realice el sorteo.</p>";
+                    return;
+                }
+
+                partidos.forEach((p, idx) => {
+                    let adminSelect = '';
+                    if (esAdmin && p.equipo2 !== "PASE DIRECTO 🏆") {
+                        adminSelect = `
+                            <div>
+                                <label>Declarar Ganador:</label>
+                                <button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="setGanador(${idx}, '${p.equipo1}')">${p.equipo1}</button>
+                                <button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="setGanador(${idx}, '${p.equipo2}')">${p.equipo2}</button>
+                            </div>
+                        `;
+                    }
+
+                    container.innerHTML += `
+                        <div class="match-card">
+                            <div>
+                                <span style="color:var(--text-muted); font-size:0.85rem;">Partida #${idx + 1}</span>
+                                <div class="match-teams">
+                                    <span style="color:var(--mlbb-blue);">${p.equipo1}</span>
+                                    <span class="match-versus">VS</span>
+                                    <span style="color:var(--mlbb-red);">${p.equipo2}</span>
+                                </div>
+                                <div class="winner-tag">🏆 Estado / Ganador: <strong>${p.ganador}</strong></div>
+                            </div>
+                            ${adminSelect}
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function setGanador(indexMatch, equipoGanador) {
+            db.ref(`torneos/${modoActual}/bracket/${indexMatch}/ganador`).set(equipoGanador);
+        }
+
+        function limpiarBracket() {
+            if (confirm("¿Estás seguro de reiniciar las llaves del torneo?")) {
+                db.ref(`torneos/${modoActual}/bracket`).remove();
+            }
         }
 
         function limpiarFormulario() {
