@@ -843,36 +843,37 @@
       });
     }
 
-    // 2. CONTINUAR SORTEO DE LA RONDA 1 (SIGUIENTES TANDAS HASTA COMPLETAR EQUIPOS)
+    // 2. CONTINUAR SORTEO DE LA RONDA 1 (CORREGIDO CONSULTANDO LA RAÍZ COMPLETA DEL MODO)
     function continuarSorteoRonda1() {
-      db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
-        const data = snap.val();
-        if (!data) return;
-
-        let todosLosEquipos = Object.keys(data).map(key => data[key].nombreEquipo);
-        let bracketEstructura = datosBracketServidor || {};
-        let partidosRonda1 = bracketEstructura['ronda_1'] || [];
+      db.ref(`torneos/${currentMode}`).once('value', (snap) => {
+        const dataTorneo = snap.val() || {};
+        const equiposObj = dataTorneo.equipos || {};
+        const bracketObj = dataTorneo.bracket || {};
+        let partidosRonda1 = bracketObj['ronda_1'] || [];
 
         if (partidosRonda1.length === 0) {
           mostrarToast("Primero debes iniciar el sorteo con el botón verde.", "warning");
           return;
         }
 
-        let equiposYaSorteados = new Set();
+        let todosLosEquipos = Object.values(equiposObj).map(e => e.nombreEquipo.trim());
+
+        let sorteadosSet = new Set();
         partidosRonda1.forEach(p => {
-          if (p.equipo1) equiposYaSorteados.add(p.equipo1.trim().toLowerCase());
-          if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(p.equipo2.trim().toLowerCase());
+          if (p.equipo1) sorteadosSet.add(p.equipo1.trim().toLowerCase());
+          if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") {
+            sorteadosSet.add(p.equipo2.trim().toLowerCase());
+          }
         });
 
-        let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq.trim().toLowerCase()));
+        let pendientes = todosLosEquipos.filter(nombre => !sorteadosSet.has(nombre.toLowerCase()));
 
-        if (equiposPendientes.length === 0) {
+        if (pendientes.length === 0) {
           mostrarToast("Ya se sortearon todos los equipos inscritos en esta ronda.", "info");
           return;
         }
 
-        let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
-        let tandaExtra = candidatos.slice(0, 32);
+        let seleccionados = [...pendientes].sort(() => Math.random() - 0.5).slice(0, 32);
 
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
@@ -883,23 +884,23 @@
         currentTime.setHours(h, m + duration, 0, 0);
         let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        for (let i = 0; i < tandaExtra.length; i += 2) {
+        for (let i = 0; i < seleccionados.length; i += 2) {
           let matchStart = new Date(currentTime);
           let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
 
-          if (tandaExtra[i + 1]) {
+          if (seleccionados[i + 1]) {
             partidosRonda1.push({
-              equipo1: tandaExtra[i],
-              equipo2: tandaExtra[i + 1],
+              equipo1: seleccionados[i],
+              equipo2: seleccionados[i + 1],
               ganador: "Pendiente",
               timeStr: formatTime(matchStart),
               toleranceStr: formatTime(toleranceStart)
             });
           } else {
             partidosRonda1.push({
-              equipo1: tandaExtra[i],
+              equipo1: seleccionados[i],
               equipo2: "PASE DIRECTO 🏆",
-              ganador: tandaExtra[i],
+              ganador: seleccionados[i],
               timeStr: formatTime(matchStart),
               toleranceStr: '-'
             });
@@ -907,20 +908,22 @@
           currentTime = new Date(currentTime.getTime() + duration * 60000);
         }
 
-        bracketEstructura['ronda_1'] = partidosRonda1;
-
-        db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast(`¡Se agregaron ${Math.ceil(tandaExtra.length / 2)} partidos más!`, "success");
+        db.ref(`torneos/${currentMode}/bracket/ronda_1`).set(partidosRonda1, (err) => {
+          if (!err) {
+            let nuevosPartidos = Math.ceil(seleccionados.length / 2);
+            let restantes = pendientes.length - seleccionados.length;
+            mostrarToast(`¡Se agregaron ${nuevosPartidos} partidas! Quedan ${restantes} equipos pendientes.`, "success");
+          }
         });
       });
     }
 
     // 3. PASAR A LA SIGUIENTE RONDA (VALIDANDO Y SORTEANDO GANADORES AL AZAR)
     function avanzarSiguienteRonda() {
-      db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
-        const dataEquipos = snap.val() || {};
-        let todosLosEquipos = Object.keys(dataEquipos).map(k => dataEquipos[k].nombreEquipo);
-        let bracketEstructura = datosBracketServidor || {};
+      db.ref(`torneos/${currentMode}`).once('value', (snap) => {
+        const dataTorneo = snap.val() || {};
+        const equiposObj = dataTorneo.equipos || {};
+        const bracketEstructura = dataTorneo.bracket || {};
         let totalRondas = Object.keys(bracketEstructura).length;
 
         if (totalRondas === 0) {
@@ -928,6 +931,7 @@
           return;
         }
 
+        let todosLosEquipos = Object.values(equiposObj).map(e => e.nombreEquipo.trim());
         let partidosRonda1 = bracketEstructura['ronda_1'] || [];
         let equiposSorteadosR1 = new Set();
         partidosRonda1.forEach(p => {
