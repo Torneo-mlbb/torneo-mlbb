@@ -142,8 +142,11 @@
                     <button onclick="generarSorteo()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-shuffle"></i> Sortear Tanda de 16 Partidas (32 Equipos)
                     </button>
+                    <button onclick="cargarEquiposEjemplo()" class="bg-bnxblue/20 hover:bg-bnxblue/30 text-bnxblue border border-bnxblue/40 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-bolt"></i> ⚡ Cargar 32 Equipos Demo
+                    </button>
                     <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Datos de Torneo
+                        <i class="fa-solid fa-rotate-right"></i> Limpiar Todo
                     </button>
                 </div>
             </section>
@@ -416,6 +419,40 @@
                     mostrarToast("Error al registrar: " + error.message, "error");
                 }
             });
+        }
+
+        function cargarEquiposEjemplo() {
+            const nombresDemo = [
+                "Omega Esports", "Blacklist Int", "RRQ Hoshi", "ONIC Esports", "Echo Esports",
+                "Falcon Esports", "Evos Legends", "Brenz ML", "Alter Ego", "Geek Fam",
+                "Todak MLBB", "RSG Slate", "Bigetron Alpha", "Execration", "Incendio Sup",
+                "Team SMG", "DEUS VULT", "Vampire Esports", "Impunity KH", "See You Soon",
+                "The Valley", "LOUD Esports", "Red Canids", "Malvinas Gaming", "S2G Esports",
+                "Stellantis", "Apex Warriors", "Cyber Knights", "Titan Gaming", "Vipers Esports",
+                "Shadow Clan", "Dynasty Esports"
+            ];
+
+            const numPlayers = currentMode === '5v5' ? 5 : 3;
+
+            nombresDemo.forEach((nombre, idx) => {
+                let jugadores = [];
+                for (let i = 1; i <= numPlayers; i++) {
+                    jugadores.push({
+                        nick: `Player_${idx + 1}_${i}`,
+                        id: Math.floor(10000000 + Math.random() * 90000000).toString(),
+                        server: Math.floor(1000 + Math.random() * 9000).toString(),
+                        rol: i === 1 ? 'Capitán' : 'Integrante',
+                        telefono: i === 1 ? '+51999888777' : ''
+                    });
+                }
+                db.ref(`torneos/${currentMode}/equipos`).push({
+                    nombreEquipo: nombre,
+                    jugadores: jugadores
+                });
+            });
+
+            mostrarToast("⚡ ¡32 equipos de prueba cargados automáticamente!", "success");
+            cambiarTab('equipos');
         }
 
         function sincronizarDatosFirebase() {
@@ -698,10 +735,10 @@
         }
 
         function reiniciarTorneo() {
-            if (confirm("¿Seguro que deseas reiniciar los enfrentamientos del torneo?")) {
-                db.ref(`torneos/${currentMode}/bracket`).remove();
+            if (confirm("¿Seguro que deseas reiniciar los equipos y partidas del torneo?")) {
+                db.ref(`torneos/${currentMode}`).remove();
                 rondaSeleccionada = 1;
-                mostrarToast("Datos de partidas reiniciados", "info");
+                mostrarToast("Todos los datos del torneo han sido borrados", "info");
             }
         }
 
