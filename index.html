@@ -149,7 +149,7 @@
                     <div>
                         <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes del Equipo</h4>
                         <div id="dynamic-players-inputs" class="space-y-2">
-                            <!-- Inyectado dinámicamente según 5v5 o 3v3 -->
+                            <!-- Inyectado dinámicamente -->
                         </div>
                     </div>
 
@@ -201,7 +201,6 @@
 
     <!-- FIREBASE & LOGIC SCRIPT -->
     <script>
-        // Configuración Firebase Realtime Database
         const firebaseConfig = {
             apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
             authDomain: "torneomlbb-631f7.firebaseapp.com",
@@ -215,7 +214,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentMode = null; // '5v5' o '3v3'
+        let currentMode = null;
         let isAdmin = false;
         const ADMIN_PASS = "admin123";
         let equiposCache = [];
@@ -389,12 +388,29 @@
                 }
 
                 partidos.forEach((p, idx) => {
+                    let styleEquipo1 = "text-cyan-400 font-bold";
+                    let styleEquipo2 = "text-rose-400 font-bold";
+
+                    // Formato visual si ya hay un ganador declarado
+                    if (p.ganador !== "Pendiente") {
+                        if (p.ganador === p.equipo1) {
+                            styleEquipo1 = "text-emerald-400 font-black flex items-center gap-1"; 
+                            styleEquipo2 = "text-slate-600 line-through opacity-50"; 
+                        } else if (p.ganador === p.equipo2) {
+                            styleEquipo1 = "text-slate-600 line-through opacity-50"; 
+                            styleEquipo2 = "text-emerald-400 font-black flex items-center gap-1"; 
+                        }
+                    }
+
+                    const nombreEq1 = p.ganador === p.equipo1 ? `🏆 ${p.equipo1}` : p.equipo1;
+                    const nombreEq2 = p.ganador === p.equipo2 ? `🏆 ${p.equipo2}` : p.equipo2;
+
                     let adminAcciones = '';
                     if (isAdmin && p.equipo2 !== "PASE DIRECTO 🏆") {
                         adminAcciones = `
                             <div class="mt-3 pt-3 border-t border-slate-800 flex gap-2">
-                                <button onclick="declararGanador(${idx}, '${p.equipo1}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs py-1 rounded font-bold transition">Gana ${p.equipo1}</button>
-                                <button onclick="declararGanador(${idx}, '${p.equipo2}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs py-1 rounded font-bold transition">Gana ${p.equipo2}</button>
+                                <button onclick="declararGanador(${idx}, '${p.equipo1}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs py-1.5 rounded font-bold transition">Gana ${p.equipo1}</button>
+                                <button onclick="declararGanador(${idx}, '${p.equipo2}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs py-1.5 rounded font-bold transition">Gana ${p.equipo2}</button>
                             </div>
                         `;
                     }
@@ -403,12 +419,12 @@
                         <div class="bg-mldark-900 border border-slate-800 p-4 rounded-xl">
                             <div class="flex justify-between text-xs text-slate-400 mb-2">
                                 <span>Partida #${idx + 1}</span>
-                                <span class="text-amber-400 font-bold">Estado: ${p.ganador}</span>
+                                <span class="${p.ganador !== 'Pendiente' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}">Ganador: ${p.ganador}</span>
                             </div>
-                            <div class="flex justify-between items-center font-bold text-sm">
-                                <span class="text-cyan-400">${p.equipo1}</span>
-                                <span class="text-amber-500 text-xs">VS</span>
-                                <span class="text-rose-400">${p.equipo2}</span>
+                            <div class="flex justify-between items-center text-sm py-1">
+                                <span class="${styleEquipo1}">${nombreEq1}</span>
+                                <span class="text-amber-500 text-xs font-bold px-2">VS</span>
+                                <span class="${styleEquipo2}">${nombreEq2}</span>
                             </div>
                             ${adminAcciones}
                         </div>
