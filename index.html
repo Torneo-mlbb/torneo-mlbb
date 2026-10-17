@@ -773,10 +773,9 @@
     }
 
     // ==========================================
-    // LÓGICA REVISADA Y OPTIMIZADA DE SORTEO
+    // LÓGICA DE SORTEO BASADA EN ID/KEY DE FIREBASE
     // ==========================================
 
-    // 1. INICIAR SORTEO DE LA RONDA 1 (PRIMERA TANDA DE 16 MATCHES)
     function iniciarSorteoRonda1() {
       db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
         const data = snap.val();
@@ -785,8 +784,8 @@
           return;
         }
 
-        let todosLosEquipos = Object.keys(data).map(key => data[key].nombreEquipo);
-        if (todosLosEquipos.length < 2) {
+        let keys = Object.keys(data);
+        if (keys.length < 2) {
           mostrarToast("Se necesitan al menos 2 equipos inscritos.", "warning");
           return;
         }
@@ -801,8 +800,8 @@
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
-        let participantes = [...todosLosEquipos].sort(() => Math.random() - 0.5);
-        let tandaEquipos = participantes.slice(0, 32);
+        let keysMezcladas = [...keys].sort(() => Math.random() - 0.5);
+        let tandaKeys = keysMezcladas.slice(0, 32);
 
         let partidosRonda1 = [];
         let [hours, minutes] = startTimeStr.split(':').map(Number);
@@ -810,23 +809,29 @@
         currentTime.setHours(hours, minutes, 0, 0);
         let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        for (let i = 0; i < tandaEquipos.length; i += 2) {
+        for (let i = 0; i < tandaKeys.length; i += 2) {
           let matchStart = new Date(currentTime);
           let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+          let eq1Name = data[tandaKeys[i]].nombreEquipo;
 
-          if (tandaEquipos[i + 1]) {
+          if (tandaKeys[i + 1]) {
+            let eq2Name = data[tandaKeys[i + 1]].nombreEquipo;
             partidosRonda1.push({
-              equipo1: tandaEquipos[i],
-              equipo2: tandaEquipos[i + 1],
+              equipo1: eq1Name,
+              equipo1Key: tandaKeys[i],
+              equipo2: eq2Name,
+              equipo2Key: tandaKeys[i + 1],
               ganador: "Pendiente",
               timeStr: formatTime(matchStart),
               toleranceStr: formatTime(toleranceStart)
             });
           } else {
             partidosRonda1.push({
-              equipo1: tandaEquipos[i],
+              equipo1: eq1Name,
+              equipo1Key: tandaKeys[i],
               equipo2: "PASE DIRECTO 🏆",
-              ganador: tandaEquipos[i],
+              equipo2Key: "PASE_DIRECTO",
+              ganador: eq1Name,
               timeStr: formatTime(matchStart),
               toleranceStr: '-'
             });
@@ -843,7 +848,6 @@
       });
     }
 
-    // 2. CONTINUAR SORTEO DE LA RONDA 1 (CORREGIDO CONSULTANDO LA RAÍZ COMPLETA DEL MODO)
     function continuarSorteoRonda1() {
       db.ref(`torneos/${currentMode}`).once('value', (snap) => {
         const dataTorneo = snap.val() || {};
@@ -856,24 +860,21 @@
           return;
         }
 
-        let todosLosEquipos = Object.values(equiposObj).map(e => e.nombreEquipo.trim());
-
-        let sorteadosSet = new Set();
+        let keysSorteadas = new Set();
         partidosRonda1.forEach(p => {
-          if (p.equipo1) sorteadosSet.add(p.equipo1.trim().toLowerCase());
-          if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") {
-            sorteadosSet.add(p.equipo2.trim().toLowerCase());
-          }
+          if (p.equipo1Key) keysSorteadas.add(p.equipo1Key);
+          if (p.equipo2Key && p.equipo2Key !== "PASE_DIRECTO") keysSorteadas.add(p.equipo2Key);
         });
 
-        let pendientes = todosLosEquipos.filter(nombre => !sorteadosSet.has(nombre.toLowerCase()));
+        let allKeys = Object.keys(equiposObj);
+        let keysPendientes = allKeys.filter(k => !keysSorteadas.has(k));
 
-        if (pendientes.length === 0) {
+        if (keysPendientes.length === 0) {
           mostrarToast("Ya se sortearon todos los equipos inscritos en esta ronda.", "info");
           return;
         }
 
-        let seleccionados = [...pendientes].sort(() => Math.random() - 0.5).slice(0, 32);
+        let seleccionadas = [...keysPendientes].sort(() => Math.random() - 0.5).slice(0, 32);
 
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
@@ -884,23 +885,29 @@
         currentTime.setHours(h, m + duration, 0, 0);
         let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        for (let i = 0; i < seleccionados.length; i += 2) {
+        for (let i = 0; i < seleccionadas.length; i += 2) {
           let matchStart = new Date(currentTime);
           let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+          let eq1Name = equiposObj[seleccionadas[i]].nombreEquipo;
 
-          if (seleccionados[i + 1]) {
+          if (seleccionadas[i + 1]) {
+            let eq2Name = equiposObj[seleccionadas[i + 1]].nombreEquipo;
             partidosRonda1.push({
-              equipo1: seleccionados[i],
-              equipo2: seleccionados[i + 1],
+              equipo1: eq1Name,
+              equipo1Key: seleccionadas[i],
+              equipo2: eq2Name,
+              equipo2Key: seleccionadas[i + 1],
               ganador: "Pendiente",
               timeStr: formatTime(matchStart),
               toleranceStr: formatTime(toleranceStart)
             });
           } else {
             partidosRonda1.push({
-              equipo1: seleccionados[i],
+              equipo1: eq1Name,
+              equipo1Key: seleccionadas[i],
               equipo2: "PASE DIRECTO 🏆",
-              ganador: seleccionados[i],
+              equipo2Key: "PASE_DIRECTO",
+              ganador: eq1Name,
               timeStr: formatTime(matchStart),
               toleranceStr: '-'
             });
@@ -910,15 +917,14 @@
 
         db.ref(`torneos/${currentMode}/bracket/ronda_1`).set(partidosRonda1, (err) => {
           if (!err) {
-            let nuevosPartidos = Math.ceil(seleccionados.length / 2);
-            let restantes = pendientes.length - seleccionados.length;
+            let nuevosPartidos = Math.ceil(seleccionadas.length / 2);
+            let restantes = keysPendientes.length - seleccionadas.length;
             mostrarToast(`¡Se agregaron ${nuevosPartidos} partidas! Quedan ${restantes} equipos pendientes.`, "success");
           }
         });
       });
     }
 
-    // 3. PASAR A LA SIGUIENTE RONDA (VALIDANDO Y SORTEANDO GANADORES AL AZAR)
     function avanzarSiguienteRonda() {
       db.ref(`torneos/${currentMode}`).once('value', (snap) => {
         const dataTorneo = snap.val() || {};
@@ -931,16 +937,16 @@
           return;
         }
 
-        let todosLosEquipos = Object.values(equiposObj).map(e => e.nombreEquipo.trim());
+        let keysSorteadasR1 = new Set();
         let partidosRonda1 = bracketEstructura['ronda_1'] || [];
-        let equiposSorteadosR1 = new Set();
         partidosRonda1.forEach(p => {
-          if (p.equipo1) equiposSorteadosR1.add(p.equipo1.trim().toLowerCase());
-          if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") equiposSorteadosR1.add(p.equipo2.trim().toLowerCase());
+          if (p.equipo1Key) keysSorteadasR1.add(p.equipo1Key);
+          if (p.equipo2Key && p.equipo2Key !== "PASE_DIRECTO") keysSorteadasR1.add(p.equipo2Key);
         });
 
-        if (equiposSorteadosR1.size < todosLosEquipos.length) {
-          mostrarToast(`Aún quedan equipos sin sortear en la Ronda 1. Usa 'Continúa Sorteo'.`, "warning");
+        let totalEquiposInscritos = Object.keys(equiposObj).length;
+        if (keysSorteadasR1.size < totalEquiposInscritos) {
+          mostrarToast(`Faltan ${totalEquiposInscritos - keysSorteadasR1.size} equipos por sortear en Ronda 1. Presiona 'Continúa Sorteo'.`, "warning");
           return;
         }
 
@@ -949,12 +955,12 @@
         let hayPendientes = partidosUltimaRonda.some(p => p.ganador === "Pendiente");
 
         if (hayPendientes) {
-          mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara a todos los ganadores primero.`, "warning");
+          mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara todos los ganadores primero.`, "warning");
           return;
         }
 
         if (partidosUltimaRonda.length === 1) {
-          mostrarToast(`¡El torneo ya ha finalizado! Campeón: ${partidosUltimaRonda[0].ganador}`, "success");
+          mostrarToast(`¡El torneo ha finalizado! Campeón: ${partidosUltimaRonda[0].ganador}`, "success");
           return;
         }
 
