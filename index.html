@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneo Mobile Legends - MLBB</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        :root {
+            --mlbb-gold: #f3c300;
+            --mlbb-dark: #0a0e17;
+            --mlbb-card: #161f33;
+            --mlbb-blue: #00d2ff;
+            --mlbb-red: #ff4655;
+            --text-light: #f0f0f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--mlbb-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 10px;
+            background: linear-gradient(180deg, #1f2b48 0%, var(--mlbb-dark) 100%);
+            border-bottom: 2px solid var(--mlbb-gold);
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        h1 {
+            color: var(--mlbb-gold);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(243, 195, 0, 0.4);
+        }
+
+        .mode-badge {
+            display: inline-block;
+            background: var(--mlbb-gold);
+            color: var(--mlbb-dark);
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--mlbb-card);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #2a3a5c;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #1d68c9, var(--mlbb-blue));
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn-gold {
+            background: linear-gradient(45deg, #b8860b, var(--mlbb-gold));
+            color: #000;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #a71d2a, var(--mlbb-red));
+            color: white;
+        }
+
+        .admin-panel {
+            display: none;
+            background: var(--mlbb-card);
+            border: 2px solid var(--mlbb-gold);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--mlbb-gold);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #0d1322;
+            border: 1px solid #2a3a5c;
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .bracket-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .match-card {
+            background: var(--mlbb-card);
+            border: 1px solid #2a3a5c;
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #88a0c0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #2a3a5c;
+            padding-bottom: 5px;
+        }
+
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+        }
+
+        .team-name {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .winner {
+            color: var(--mlbb-gold);
+        }
+
+        .wo-text {
+            color: var(--mlbb-red);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .roster-box {
+            display: none;
+            background: #0d1322;
+            border: 1px solid #2a3a5c;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .roster-box.active {
+            display: block;
+        }
+
+        .roster-title {
+            color: var(--mlbb-gold);
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Torneo Mobile Legends</h1>
+        <div id="modeDisplay" class="mode-badge">Modo: 5v5</div>
+    </header>
+
+    <div class="status-bar">
+        <div>
+            <span id="roleStatus">Modo: Espectador</span>
+        </div>
+        <button id="authBtn" class="btn btn-gold" onclick="toggleAdmin()">🔑 Acceso Admin</button>
+    </div>
+
+    <!-- Panel de Administración -->
+    <div id="adminPanel" class="admin-panel">
+        <h3 style="color: var(--mlbb-gold); margin-top: 0;">Panel de Control Administrativo</h3>
+        
+        <div class="form-group">
+            <label for="modeSelect">Modalidad del Torneo:</label>
+            <select id="modeSelect" onchange="actualizarPlaceholderModo()">
+                <option value="5v5">5v5 - Squad Completo (5 Jugadores Obligatorios)</option>
+                <option value="3v3">3v3 - Trio Squad (3 Jugadores Obligatorios)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="teamsInput">Registro de Equipos e Integrantes:</label>
+            <p style="font-size: 0.75rem; color: #88a0c0; margin-top: -3px;">
+                Escribe el nombre del equipo seguido de sus integrantes en cada línea.<br>
+                <strong>Formato exacto:</strong> <code>NombreEquipo: Jugador1, Jugador2, Jugador3, Jugador4, Jugador5</code>
+            </p>
+            <textarea id="teamsInput" rows="6" placeholder="Alpha Squad: Nick1(ID), Nick2(ID), Nick3(ID), Nick4(ID), Nick5(ID)&#10;Omega Team: Nick1(ID), Nick2(ID), Nick3(ID), Nick4(ID), Nick5(ID)"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="toleranceInput">Tolerancia para W.O. (Minutos):</label>
+            <input type="number" id="toleranceInput" value="10" min="1">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+            <button class="btn" onclick="generarSorteo()">🎲 Validar Integrantes y Generar Sorteo</button>
+            <button class="btn btn-danger" onclick="reiniciarTorneo()">⚠️ Reiniciar Todo</button>
+        </div>
+    </div>
+
+    <!-- Contenedor del Bracket / Partidas -->
+    <main>
+        <h2 style="color: var(--mlbb-gold); font-size: 1.2rem;">Enfrentamientos y Estado en Vivo</h2>
+        <div id="bracket" class="bracket-container">
+            <p style="text-align:center; color:#88a0c0;">Cargando partidas en tiempo real...</p>
+        </div>
+    </main>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "NUMERO",
+            appId: "ID_APP"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        let esAdmin = false;
+        const ADMIN_KEY = "admin123";
+
+        function toggleAdmin() {
+            if (esAdmin) {
+                esAdmin = false;
+                document.getElementById('roleStatus').innerText = "Modo: Espectador";
+                document.getElementById('authBtn').innerText = "🔑 Acceso Admin";
+                document.getElementById('adminPanel').classList.remove('active');
+            } else {
+                const pass = prompt("Ingrese la contraseña de administrador:");
+                if (pass === ADMIN_KEY) {
+                    esAdmin = true;
+                    document.getElementById('roleStatus').innerText = "Modo: Administrador";
+                    document.getElementById('authBtn').innerText = "🔒 Salir de Admin";
+                    document.getElementById('adminPanel').classList.add('active');
+                } else if (pass !== null) {
+                    alert("Contraseña incorrecta.");
+                }
+            }
+            render();
+        }
+
+        function actualizarPlaceholderModo() {
+            const modo = document.getElementById('modeSelect').value;
+            const textarea = document.getElementById('teamsInput');
+            if (modo === "5v5") {
+                textarea.placeholder = "Alpha Squad: Nick1, Nick2, Nick3, Nick4, Nick5\nOmega Team: Nick1, Nick2, Nick3, Nick4, Nick5";
+            } else {
+                textarea.placeholder = "Alpha Trio: Nick1, Nick2, Nick3\nOmega Trio: Nick1, Nick2, Nick3";
+            }
+        }
+
+        let estadoTorneo = {
+            modalidad: "5v5",
+            tolerancia: 10,
+            partidas: []
+        };
+
+        db.ref('torneo').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                estadoTorneo = data;
+                document.getElementById('modeDisplay').innerText = `Modo: ${estadoTorneo.modalidad || '5v5'}`;
+                render();
+            } else {
+                document.getElementById('bracket').innerHTML = "<p style='text-align:center; color:#88a0c0;'>El torneo aún no ha comenzado.</p>";
+            }
+        });
+
+        function generarSorteo() {
+            const textoEquipos = document.getElementById('teamsInput').value.trim();
+            const lineas = textoEquipos.split('\n').map(e => e.trim()).filter(e => e.length > 0);
+            const modalidad = document.getElementById('modeSelect').value;
+            const cantRequerida = modalidad === "5v5" ? 5 : 3;
+
+            if (lineas.length < 2) {
+                alert("Por favor ingresa al menos 2 equipos.");
+                return;
+            }
+
+            const equiposProcesados = [];
+
+            for (let i = 0; i < lineas.length; i++) {
+                const partes = lineas[i].split(':');
+                if (partes.length < 2) {
+                    alert(`Error en la línea ${i + 1}: Debes separar el nombre del equipo de sus jugadores usando dos puntos (:).\nEjemplo: NombreEquipo: Jugador1, Jugador2...`);
+                    return;
+                }
+
+                const nombreEquipo = partes[0].trim();
+                const jugadores = partes[1].split(',').map(j => j.trim()).filter(j => j.length > 0);
+
+                if (jugadores.length !== cantRequerida) {
+                    alert(`El equipo "${nombreEquipo}" tiene ${jugadores.length} integrantes registrados.\n\nPara la modalidad ${modalidad} es OBLIGATORIO registrar exactamente ${cantRequerida} jugadores por equipo.`);
+                    return;
+                }
+
+                equiposProcesados.push({
+                    nombre: nombreEquipo,
+                    jugadores: jugadores
+                });
+            }
+
+            equiposProcesados.sort(() => Math.random() - 0.5);
+
+            const tolerancia = parseInt(document.getElementById('toleranceInput').value) || 10;
+            const partidas = [];
+            let horaActual = new Date();
+
+            for (let i = 0; i < equiposProcesados.length; i += 2) {
+                const eq1 = equiposProcesados[i];
+                const eq2 = equiposProcesados[i + 1] || { nombre: "BYE (Pasa directamente)", jugadores: [] };
+
+                const horaPartida = new Date(horaActual.getTime() + (i / 2) * 30 * 60000);
+                const horaFormateada = horaPartida.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                partidas.push({
+                    id: i / 2,
+                    equipo1: eq1,
+                    equipo2: eq2,
+                    ganador: eq2.nombre === "BYE (Pasa directamente)" ? eq1.nombre : null,
+                    estado: eq2.nombre === "BYE (Pasa directamente)" ? "Finalizado" : "Pendiente",
+                    horario: horaFormateada,
+                    esWO: false
+                });
+            }
+
+            db.ref('torneo').set({
+                modalidad: modalidad,
+                tolerancia: tolerancia,
+                partidas: partidas
+            });
+        }
+
+        function setGanador(partidaId, nombreGanador, esWO = false) {
+            if (!esAdmin) return;
+            estadoTorneo.partidas[partidaId].ganador = nombreGanador;
+            estadoTorneo.partidas[partidaId].estado = "Finalizado";
+            estadoTorneo.partidas[partidaId].esWO = esWO;
+            db.ref('torneo').set(estadoTorneo);
+        }
+
+        function toggleRoster(id) {
+            const el = document.getElementById(`roster-${id}`);
+            if (el) el.classList.toggle('active');
+        }
+
+        function reiniciarTorneo() {
+            if (!esAdmin) return;
+            if (confirm("¿Estás seguro de reiniciar todo el torneo? Se borrarán las alineaciones y resultados actuales.")) {
+                db.ref('torneo').remove();
+            }
+        }
+
+        function render() {
+            const container = document.getElementById('bracket');
+            if (!estadoTorneo.partidas || estadoTorneo.partidas.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#88a0c0;'>No hay enfrentamientos activos.</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+
+            estadoTorneo.partidas.forEach((match) => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+
+                let adminBtns = '';
+                if (esAdmin && match.estado === "Pendiente") {
+                    adminBtns = `
+                        <div style="margin-top: 10px; display: flex; gap: 5px; flex-wrap: wrap;">
+                            <button class="btn" style="font-size:0.75rem; padding:4px 8px;" onclick="setGanador(${match.id}, '${match.equipo1.nombre}')">Gana ${match.equipo1.nombre}</button>
+                            <button class="btn" style="font-size:0.75rem; padding:4px 8px;" onclick="setGanador(${match.id}, '${match.equipo2.nombre}')">Gana ${match.equipo2.nombre}</button>
+                            <button class="btn btn-danger" style="font-size:0.75rem; padding:4px 8px;" onclick="setGanador(${match.id}, '${match.equipo2.nombre}', true)">W.O. ${match.equipo1.nombre}</button>
+                            <button class="btn btn-danger" style="font-size:0.75rem; padding:4px 8px;" onclick="setGanador(${match.id}, '${match.equipo1.nombre}', true)">W.O. ${match.equipo2.nombre}</button>
+                        </div>
+                    `;
+                }
+
+                const woBadge = match.esWO ? `<span class="wo-text">[Derrota por W.O.]</span>` : '';
+
+                const listaJ1 = match.equipo1.jugadores ? match.equipo1.jugadores.map((j, idx) => `<div>${idx + 1}. ${j}</div>`).join('') : 'Sin datos';
+                const listaJ2 = match.equipo2.jugadores ? match.equipo2.jugadores.map((j, idx) => `<div>${idx + 1}. ${j}</div>`).join('') : 'Sin datos';
+
+                card.innerHTML = `
+                    <div class="match-header">
+                        <span>Partida #${match.id + 1} (${estadoTorneo.modalidad})</span>
+                        <span>Hora: ${match.horario} (Tolerancia: ${estadoTorneo.tolerancia} min)</span>
+                    </div>
+                    <div class="team-row">
+                        <span class="team-name ${match.ganador === match.equipo1.nombre ? 'winner' : ''}">${match.equipo1.nombre}</span>
+                        ${match.ganador === match.equipo1.nombre ? '🏆' : ''}
+                    </div>
+                    <div class="team-row">
+                        <span class="team-name ${match.ganador === match.equipo2.nombre ? 'winner' : ''}">${match.equipo2.nombre}</span>
+                        ${match.ganador === match.equipo2.nombre ? '🏆' : ''}
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <span style="font-size: 0.8rem; color: #88a0c0;">Estado: <strong>${match.estado}</strong> ${woBadge}</span>
+                        <button class="btn" style="font-size:0.7rem; padding:3px 8px; background:#2a3a5c;" onclick="toggleRoster(${match.id})">👥 Ver Jugadores Autorizados</button>
+                    </div>
+
+                    <div id="roster-${match.id}" class="roster-box">
+                        <div class="roster-title">🛡️ ${match.equipo1.nombre}:</div>
+                        ${listaJ1}
+                        <div class="roster-title" style="margin-top:8px;">🛡️ ${match.equipo2.nombre}:</div>
+                        ${listaJ2}
+                    </div>
+
+                    ${adminBtns}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
