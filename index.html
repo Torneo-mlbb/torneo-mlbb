@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLBB Torneos - Sincronización Realtime</title>
+    <title>MLBB Torneos - Registro & Gestión</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -58,7 +58,7 @@
                     <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-2">
                         <span class="ml-gold-gradient-text">Arena Torneos MLBB</span>
                     </h1>
-                    <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Sincronización en Tiempo Real</p>
+                    <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Registro & Organización Interna</p>
                 </div>
             </div>
 
@@ -81,44 +81,44 @@
 
         <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-        <!-- SELECCIÓN DE MODALIDAD (INICIO) -->
+        <!-- SELECCIÓN DE MODALIDAD (INICIO PÚBLICO) -->
         <section id="mode-selector-section" class="py-10 text-center">
-            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Selecciona la Modalidad de Competencia</h2>
-            <p class="text-xs text-slate-400 mb-8">Elige el torneo en el que deseas participar o gestionar</p>
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
+            <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribir a tu equipo</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div id="btn-mode-5v5" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
                     <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
                     <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
-                    <p class="text-xs text-slate-400">Capitán + 4 Integrantes de Squad</p>
+                    <p class="text-xs text-slate-400">Inscripción para Capitán + 4 Integrantes</p>
                 </div>
                 <div id="btn-mode-3v3" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
                     <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
                     <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
-                    <p class="text-xs text-slate-400">Capitán + 2 Integrantes de Trío</p>
+                    <p class="text-xs text-slate-400">Inscripción para Capitán + 2 Integrantes</p>
                 </div>
             </div>
         </section>
 
-        <!-- PANEL DE GESTIÓN DEL TORNEO -->
+        <!-- PANEL PRINCIPAL DEL TORNEO -->
         <div id="tournament-app-container" class="hidden space-y-6">
 
-            <!-- ADMIN PANEL -->
+            <!-- PANEL DE ORGANIZACIÓN ADMIN (SOLO VISIBLE PARA ADMINS) -->
             <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
                     <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders"></i> Panel de Administración (<span id="admin-mode-label">5v5</span>)
+                        <i class="fa-solid fa-sliders"></i> Panel de Organización Interna (<span id="admin-mode-label">5v5</span>)
                     </h2>
-                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">Límite: 16 Partidas por Día (4 Admins x 4 Matches)</span>
+                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">4 Admins x 4 Matches = 16 Partidas/Tanda</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Total Admins</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Admins</label>
                         <input type="number" id="cfg-admins-count" value="4" readonly class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Matches / Admin</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Matches/Admin</label>
                         <input type="number" id="cfg-matches-per-admin" value="4" readonly class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
@@ -126,11 +126,11 @@
                         <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración (min)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración Juego (m)</label>
                         <input type="number" id="cfg-match-dur" value="20" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Desc (m) / W.O. (m)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Descanso / W.O. (m)</label>
                         <div class="flex gap-1">
                             <input type="number" id="cfg-break-dur" value="10" title="Descanso" class="w-1/2 bg-mldark-800 border border-slate-700 rounded-lg px-1.5 py-1 text-xs text-white text-center">
                             <input type="number" id="cfg-tolerance" value="5" title="Tolerancia W.O." class="w-1/2 bg-mldark-800 border border-slate-700 rounded-lg px-1.5 py-1 text-xs text-white text-center">
@@ -140,24 +140,25 @@
 
                 <div class="flex flex-wrap gap-3">
                     <button id="btn-generar-sorteo" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-shuffle"></i> Sortear Lote de 16 Partidas (Tanda Actual)
+                        <i class="fa-solid fa-shuffle"></i> Sortear Tanda de 16 Partidas (32 Equipos)
                     </button>
                     <button id="btn-reiniciar-torneo" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Torneo
+                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Datos de Torneo
                     </button>
                 </div>
             </section>
 
-            <!-- TABS DE NAVEGACIÓN INTERNA -->
+            <!-- NAVEGACIÓN INTERNA (DETALLES Y LLAVES SOLO PARA ADMINS) -->
             <div class="flex gap-2 border-b border-slate-800 pb-2">
-                <button id="tab-btn-registro" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscribir Equipo</button>
-                <button id="tab-btn-equipos" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados</button>
-                <button id="tab-btn-bracket" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos</button>
+                <button id="tab-btn-registro" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
+                <button id="tab-btn-equipos" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
+                <button id="tab-btn-bracket" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Organización & Horarios (Admin)</button>
+                <button id="tab-btn-arbol" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático (Admin)</button>
             </div>
 
-            <!-- CONTENIDO TAB 1: REGISTRO DE EQUIPOS -->
+            <!-- TAB 1: FORMULARIO DE INSCRIPCIÓN -->
             <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Inscripción para Torneo <span id="reg-mode-title">5v5</span></h3>
+                <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Formulario de Inscripción <span id="reg-mode-title">5v5</span></h3>
                 
                 <div class="space-y-4 max-w-2xl">
                     <div>
@@ -167,16 +168,16 @@
 
                     <!-- CAPITÁN -->
                     <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                        <h4 class="text-xs font-bold text-amber-400">👑 Capitán / Líder (Su ID será clave de acceso al chat)</h4>
+                        <h4 class="text-xs font-bold text-amber-400">👑 Datos del Capitán</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <input type="text" id="cap-nick" placeholder="Nick del Capitán" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                            <input type="text" id="cap-id" placeholder="ID (Ej: 12345678)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                            <input type="text" id="cap-server" placeholder="Server (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-id" placeholder="ID de MLBB (Ej: 12345678)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-server" placeholder="Servidor (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                         </div>
                         <input type="tel" id="cap-phone" placeholder="WhatsApp de Contacto" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                     </div>
 
-                    <!-- INTEGRANTES CON ID Y SERVIDOR SEPARADOS -->
+                    <!-- INTEGRANTES -->
                     <div>
                         <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes de la Escuadra</h4>
                         <div id="dynamic-players-inputs" class="space-y-2"></div>
@@ -188,26 +189,37 @@
                 </div>
             </div>
 
-            <!-- CONTENIDO TAB 2: EQUIPOS -->
+            <!-- TAB 2: LISTA DE EQUIPOS INSCRITOS -->
             <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h3 class="text-sm font-bold text-amber-400 mb-4">Equipos Confirmados</h3>
+                <h3 class="text-sm font-bold text-amber-400 mb-4">Equipos Registrados</h3>
                 <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
                 </div>
             </div>
 
-            <!-- CONTENIDO TAB 3: BRACKET / MATCHES -->
+            <!-- TAB 3: ORGANIZACIÓN INTERNA Y MATCHES (SOLO ADMINS) -->
             <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                    <h3 class="text-sm font-bold text-amber-400">Cuadro de Matches y Resultados</h3>
-                    
-                    <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold">
-                        <!-- Generado por JS en vivo -->
-                    </div>
+                    <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas y Tiempos Programados</h3>
+                    <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold"></div>
                 </div>
 
                 <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <p class="text-xs text-slate-500 italic col-span-full">El cuadro de enfrentamientos aparecerá cuando el administrador realice el sorteo.</p>
+                    <p class="text-xs text-slate-500 italic col-span-full">Aún no se han generado enfrentamientos en esta tanda.</p>
+                </div>
+            </div>
+
+            <!-- TAB 4: ÁRBOL ESQUEMÁTICO DE LLAVES ("CAMINO A LA FINAL") -->
+            <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap"></i> Esquema Completo "Camino a la Final"
+                </h3>
+                <p class="text-xs text-slate-400">Representación gráfica en árbol del torneo basada en las partidas registradas.</p>
+                
+                <div class="overflow-x-auto custom-scrollbar p-4 bg-mldark-900 rounded-xl border border-slate-800 min-h-[300px] flex justify-center items-center">
+                    <div id="arbol-esquematico-container" class="flex items-center gap-8 py-4">
+                        <p class="text-xs text-slate-500 italic">Presiona "Sortear Tanda" desde el panel de Admin para construir el árbol.</p>
+                    </div>
                 </div>
             </div>
 
@@ -256,7 +268,6 @@
         let equiposCacheObj = {}; 
         let rondaSeleccionada = 1;
         let datosBracketServidor = null;
-        let chatsDesbloqueados = {}; 
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-mode-5v5').addEventListener('click', () => seleccionarModalidad('5v5'));
@@ -272,6 +283,7 @@
             document.getElementById('tab-btn-registro').addEventListener('click', () => cambiarTab('registro'));
             document.getElementById('tab-btn-equipos').addEventListener('click', () => cambiarTab('equipos'));
             document.getElementById('tab-btn-bracket').addEventListener('click', () => cambiarTab('bracket'));
+            document.getElementById('tab-btn-arbol').addEventListener('click', () => cambiarTab('arbol'));
         });
 
         function seleccionarModalidad(modo) {
@@ -304,8 +316,8 @@
                         <span class="text-[11px] font-bold text-slate-400">Jugador ${i}</span>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <input type="text" id="nick-j${i}" placeholder="Nick J${i}" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                            <input type="text" id="id-j${i}" placeholder="ID (Ej: 98765432)" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                            <input type="text" id="server-j${i}" placeholder="Server (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                            <input type="text" id="id-j${i}" placeholder="ID de MLBB" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                            <input type="text" id="server-j${i}" placeholder="Servidor" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                         </div>
                     </div>
                 `;
@@ -313,10 +325,13 @@
         }
 
         function cambiarTab(tab) {
-            ['registro', 'equipos', 'bracket'].forEach(t => {
-                document.getElementById(`tab-content-${t}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${t}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
+            ['registro', 'equipos', 'bracket', 'arbol'].forEach(t => {
+                const el = document.getElementById(`tab-content-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (el) el.classList.add('hidden');
+                if (btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
             });
+
             document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tab}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
         }
@@ -353,17 +368,24 @@
             const badge = document.getElementById('role-badge');
             const adminPanel = document.getElementById('admin-panel');
             const authBtn = document.getElementById('auth-btn');
+            const tabBracket = document.getElementById('tab-btn-bracket');
+            const tabArbol = document.getElementById('tab-btn-arbol');
 
             if (isAdmin) {
                 badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
                 badge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i> Admin`;
                 authBtn.innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Salir Admin`;
                 adminPanel.classList.remove('hidden');
+                tabBracket.classList.remove('hidden');
+                tabArbol.classList.remove('hidden');
             } else {
                 badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5";
                 badge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i> Espectador`;
                 authBtn.innerHTML = `<i class="fa-solid fa-key text-xs"></i> Admin`;
                 adminPanel.classList.add('hidden');
+                tabBracket.classList.add('hidden');
+                tabArbol.classList.add('hidden');
+                cambiarTab('registro');
             }
             if (currentMode) sincronizarDatosFirebase();
         }
@@ -376,7 +398,7 @@
             const capPhone = document.getElementById('cap-phone').value.trim();
 
             if (!nombreEquipo || !capNick || !capId || !capServer || !capPhone) {
-                mostrarToast("Completa todos los datos del capitán (Nick, ID y Server)", "warning");
+                mostrarToast("Completa todos los datos del capitán (Nick, ID y Servidor)", "warning");
                 return;
             }
 
@@ -389,7 +411,7 @@
                 const jServer = document.getElementById(`server-j${i}`).value.trim();
 
                 if (!jNick || !jId || !jServer) {
-                    mostrarToast(`Faltan datos del Jugador ${i} (Nick, ID o Server)`, "warning");
+                    mostrarToast(`Faltan datos del Jugador ${i} (Nick, ID o Servidor)`, "warning");
                     return;
                 }
                 jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
@@ -399,7 +421,7 @@
                 nombreEquipo, jugadores
             }, (error) => {
                 if (!error) {
-                    mostrarToast("¡Inscripción exitosa!", "success");
+                    mostrarToast("¡Equipo inscrito con éxito!", "success");
                     document.getElementById('team-name').value = '';
                     document.getElementById('cap-nick').value = '';
                     document.getElementById('cap-id').value = '';
@@ -421,11 +443,15 @@
                 equiposCacheObj = {};
 
                 if (!data) {
-                    container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados...</p>`;
+                    container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>`;
+                    document.getElementById('count-registered-teams').innerText = "0";
                     return;
                 }
 
-                Object.keys(data).forEach(key => {
+                const keys = Object.keys(data);
+                document.getElementById('count-registered-teams').innerText = keys.length;
+
+                keys.forEach(key => {
                     const eq = data[key];
                     equiposCacheObj[eq.nombreEquipo] = eq.jugadores;
                     let playersHtml = '';
@@ -450,6 +476,7 @@
             db.ref(`torneos/${currentMode}/bracket`).on('value', (snap) => {
                 datosBracketServidor = snap.val();
                 renderizarRondasYBracket();
+                renderizarArbolEsquematico();
             });
         }
 
@@ -461,7 +488,7 @@
             matchesContainer.innerHTML = '';
 
             if (!datosBracketServidor) {
-                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">El cuadro de enfrentamientos aparecerá cuando el administrador realice el sorteo.</p>`;
+                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado enfrentamientos en esta tanda.</p>`;
                 return;
             }
 
@@ -489,14 +516,13 @@
             const partidosRondaActual = datosBracketServidor[`ronda_${rondaSeleccionada}`] || [];
 
             if (partidosRondaActual.length === 0) {
-                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Esta ronda aún no ha sido generada o está a la espera del sorteo de la siguiente tanda de 16 partidas.</p>`;
+                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado partidos para esta ronda.</p>`;
                 return;
             }
 
             partidosRondaActual.forEach((p, idx) => {
                 let isFinished = p.ganador !== "Pendiente";
                 let isPass = p.equipo2 === "PASE DIRECTO 🏆";
-                let matchKey = `r_${rondaSeleccionada}_m_${idx}`;
 
                 let eq1Style = "bg-mldark-900 border-slate-800 text-cyan-400 font-bold";
                 let eq2Style = "bg-mldark-900 border-slate-800 text-rose-400 font-bold";
@@ -509,49 +535,6 @@
                         eq1Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
                         eq2Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
                     }
-                }
-
-                let chatSectionHtml = '';
-                if (isAdmin || chatsDesbloqueados[matchKey]) {
-                    let chatMessagesHtml = '';
-                    if (p.chat) {
-                        Object.values(p.chat).forEach(msg => {
-                            let badgeRol = msg.isAdmin ? `<span class="bg-amber-500/20 text-amber-400 text-[9px] px-1.5 py-0.5 rounded font-bold ml-1">ADMIN</span>` : '';
-                            chatMessagesHtml += `<div class="mb-1.5"><span class="font-bold text-amber-300">${msg.autor}</span>${badgeRol}: <span class="text-slate-200">${msg.texto}</span></div>`;
-                        });
-                    } else {
-                        chatMessagesHtml = `<div class="text-slate-500 italic text-[11px]">Chat seguro desbloqueado. ¡Comiencen a coordinar la sala!</div>`;
-                    }
-
-                    chatSectionHtml = `
-                        <div class="bg-mldark-900 border border-slate-800 rounded-xl p-3 mb-2">
-                            <div class="text-[11px] font-bold text-emerald-400 mb-2 flex items-center justify-between">
-                                <span><i class="fa-solid fa-lock-open mr-1"></i> Chat Privado del Match</span>
-                                <button onclick="cerrarChatPrivado('${matchKey}')" class="text-[10px] text-rose-400 underline cursor-pointer">Bloquear</button>
-                            </div>
-                            <div class="max-h-28 overflow-y-auto custom-scrollbar text-xs bg-slate-950/60 p-2 rounded-lg mb-2 border border-slate-900">
-                                ${chatMessagesHtml}
-                            </div>
-                            <div class="flex gap-1.5">
-                                <input type="text" id="chat-input-${matchKey}" placeholder="Escribe tu mensaje..." class="flex-1 bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                                <button onclick="enviarMensajeChat('${matchKey}', ${rondaSeleccionada}, ${idx})" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
-                                    <i class="fa-solid fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    chatSectionHtml = `
-                        <div class="bg-mldark-900 border border-slate-800 rounded-xl p-3 mb-2 text-center">
-                            <div class="text-[11px] font-bold text-slate-400 mb-2">
-                                <i class="fa-solid fa-lock text-amber-400 mr-1"></i> Chat Protegido por ID de MLBB
-                            </div>
-                            <p class="text-[10px] text-slate-500 mb-2">Solo los integrantes de <b class="text-cyan-400">${p.equipo1}</b> o <b class="text-rose-400">${p.equipo2}</b> pueden entrar con su ID exacto.</p>
-                            <button onclick="verificarIdParaChat('${matchKey}', '${p.equipo1}', '${p.equipo2}')" class="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs py-1.5 px-4 rounded-lg shadow cursor-pointer">
-                                🔑 Ingresar ID para validar acceso
-                            </button>
-                        </div>
-                    `;
                 }
 
                 let adminAcciones = '';
@@ -590,7 +573,7 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-2 mb-4">
+                            <div class="space-y-2 mb-2">
                                 <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
                                     <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
                                 </div>
@@ -599,10 +582,6 @@
                                     <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
                                 </div>
                             </div>
-
-                            ${chatSectionHtml}
-
-                            ${p.motivo ? `<div class="mt-2 text-[11px] text-slate-400 text-center italic bg-mldark-900 py-1 rounded-md border border-slate-800">${p.motivo}</div>` : ''}
                         </div>
 
                         ${adminAcciones}
@@ -611,45 +590,35 @@
             });
         }
 
-        function verificarIdParaChat(matchKey, eq1, eq2) {
-            let idIngresado = prompt("Escribe tu ID de MLBB registrado en tu equipo:");
-            if (!idIngresado) return;
+        // RENDERIZAR ÁRBOL ESQUEMÁTICO GRAPHICO
+        function renderizarArbolEsquematico() {
+            const container = document.getElementById('arbol-esquematico-container');
+            container.innerHTML = '';
 
-            idIngresado = idIngresado.trim();
-            let encontrado = false;
-            let nombreUsuario = "";
+            if (!datosBracketServidor) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic">Presiona "Sortear Tanda" desde el panel de Admin para construir el árbol.</p>`;
+                return;
+            }
 
-            if (equiposCacheObj[eq1]) {
-                equiposCacheObj[eq1].forEach(j => {
-                    if (j.id.toString().trim() === idIngresado) {
-                        encontrado = true;
-                        nombreUsuario = `${j.nick} (${eq1})`;
-                    }
+            const totalRondas = Object.keys(datosBracketServidor).length;
+
+            for (let r = 1; r <= totalRondas; r++) {
+                const partidos = datosBracketServidor[`ronda_${r}`] || [];
+                let columnaHtml = `<div class="flex flex-col justify-around gap-6"><div class="text-center text-xs font-bold text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
+
+                partidos.forEach((p) => {
+                    columnaHtml += `
+                        <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px]">
+                            <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">${p.equipo1}</div>
+                            <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+                            <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">${p.equipo2}</div>
+                        </div>
+                    `;
                 });
-            }
 
-            if (!encontrado && equiposCacheObj[eq2]) {
-                equiposCacheObj[eq2].forEach(j => {
-                    if (j.id.toString().trim() === idIngresado) {
-                        encontrado = true;
-                        nombreUsuario = `${j.nick} (${eq2})`;
-                    }
-                });
+                columnaHtml += `</div>`;
+                container.innerHTML += columnaHtml;
             }
-
-            if (encontrado) {
-                chatsDesbloqueados[matchKey] = nombreUsuario;
-                mostrarToast(`¡ID verificado! Bienvenido ${nombreUsuario}`, "success");
-                renderizarRondasYBracket();
-            } else {
-                mostrarToast("ID no coincide con ninguno de los participantes de este enfrentamiento", "error");
-            }
-        }
-
-        function cerrarChatPrivado(matchKey) {
-            delete chatsDesbloqueados[matchKey];
-            mostrarToast("Chat bloqueado en este dispositivo", "info");
-            renderizarRondasYBracket();
         }
 
         function seleccionarRonda(numRonda) {
@@ -657,30 +626,10 @@
             renderizarRondasYBracket();
         }
 
-        function enviarMensajeChat(matchKey, rondaNum, idx) {
-            const input = document.getElementById(`chat-input-${matchKey}`);
-            const texto = input.value.trim();
-            if (!texto) return;
-
-            let autor = isAdmin ? "Administrador" : chatsDesbloqueados[matchKey] || "Participante";
-
-            const mensajeData = {
-                autor: autor,
-                texto: texto,
-                isAdmin: isAdmin,
-                timestamp: Date.now()
-            };
-
-            db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}/chat`).push(mensajeData, (err) => {
-                if (!err) input.value = '';
-            });
-        }
-
-        // SORTEO EXACTO DE 16 PARTIDAS MÁXIMO POR TANDA (4 ADMINS x 4 MATCHES)
         function generarSorteo() {
             const numAdmins = 4;
             const matchesPerAdmin = 4;
-            const maxPartidasTanda = numAdmins * matchesPerAdmin; // Exactamente 16 partidas (32 equipos)
+            const maxPartidasTanda = numAdmins * matchesPerAdmin;
 
             const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
             const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
@@ -696,7 +645,6 @@
             let bracketEstructura = datosBracketServidor || {};
             let rondaPartidosExistentes = bracketEstructura[`ronda_${rondaSeleccionada}`] || [];
 
-            // Evitar que equipos que ya jugaron o están programados en la ronda vuelvan a salir en esta tanda
             let equiposYaSorteados = new Set();
             Object.values(bracketEstructura).forEach(ronda => {
                 if (ronda) {
@@ -710,116 +658,11 @@
             let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq));
 
             if (equiposPendientes.length === 0) {
-                mostrarToast("Todos los equipos ya jugaron en esta ronda. ¡Pasa a la siguiente ronda!", "info");
+                mostrarToast("Todos los equipos ya jugaron en esta ronda.", "info");
                 return;
             }
 
             let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
-            let equiposParaTanda = candidatos.slice(0, maxPartidasTanda * 2); // 32 equipos máximo para 16 matches
+            let equiposParaTanda = candidatos.slice(0, maxPartidasTanda * 2);
 
-            let [hours, minutes] = startTimeStr.split(':').map(Number);
-            let currentTime = new Date();
-            currentTime.setHours(hours, minutes, 0, 0);
-
-            let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            let nuevosPartidos = [...rondaPartidosExistentes];
-
-            for (let i = 0; i < equiposParaTanda.length; i += 2) {
-                let matchStart = new Date(currentTime);
-                let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-
-                if (equiposParaTanda[i + 1]) {
-                    nuevosPartidos.push({
-                        equipo1: equiposParaTanda[i],
-                        equipo2: equiposParaTanda[i + 1],
-                        ganador: "Pendiente",
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: formatTime(toleranceStart),
-                        motivo: ''
-                    });
-                } else {
-                    nuevosPartidos.push({
-                        equipo1: equiposParaTanda[i],
-                        equipo2: "PASE DIRECTO 🏆",
-                        ganador: equiposParaTanda[i],
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: '-',
-                        motivo: 'Avanza por sorteo impar'
-                    });
-                }
-                currentTime = new Date(currentTime.getTime() + (duration + breakTime) * 60000);
-            }
-
-            bracketEstructura[`ronda_${rondaSeleccionada}`] = nuevosPartidos;
-
-            db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast(`¡Tanda generada! Se sortearon ${nuevosPartidos.length - rondaPartidosExistentes.length} nuevas partidas (Límite 16).`, "success");
-            });
-        }
-
-        function declararGanador(rondaNum, idx, ganador) {
-            db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({
-                ganador: ganador,
-                motivo: 'Victoria en Arena'
-            }, () => {
-                verificarProgresoSiguienteRonda(rondaNum);
-            });
-        }
-
-        function verificarProgresoSiguienteRonda(rondaActual) {
-            const partidosRonda = datosBracketServidor[`ronda_${rondaActual}`];
-            const todosFinalizados = partidosRonda.every(p => p.ganador !== "Pendiente");
-
-            if (todosFinalizados) {
-                const ganadores = partidosRonda.map(p => p.ganador);
-                const siguienteRondaNum = rondaActual + 1;
-
-                if (ganadores.length === 1) {
-                    mostrarToast(`🏆 ¡TORNEO CONCLUIDO! Ganador: ${ganadores[0]}`, "success");
-                    return;
-                }
-
-                // Inicializar siguiente ronda vacía para que los admins controlen cuándo sortear el siguiente lote de ganadores
-                if (!datosBracketServidor[`ronda_${siguienteRondaNum}`]) {
-                    db.ref(`torneos/${currentMode}/bracket/ronda_${siguienteRondaNum}`).set([], (err) => {
-                        if (!err) {
-                            rondaSeleccionada = siguienteRondaNum;
-                            mostrarToast(`¡Todos los matches de la ronda ${rondaActual} terminaron! Ya puedes sortear la Ronda ${siguienteRondaNum}.`, "success");
-                        }
-                    });
-                }
-            }
-        }
-
-        function reiniciarTorneo() {
-            if (confirm("¿Seguro que deseas reiniciar todo el torneo?")) {
-                db.ref(`torneos/${currentMode}/bracket`).remove();
-                rondaSeleccionada = 1;
-                mostrarToast("Torneo reiniciado", "info");
-            }
-        }
-
-        function eliminarEquipo(key) {
-            if (confirm("¿Eliminar este equipo registrado?")) {
-                db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
-                mostrarToast("Equipo eliminado", "info");
-            }
-        }
-
-        function mostrarToast(msg, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            let color = "bg-mldark-800 border-slate-700 text-white";
-            if (type === "success") color = "bg-emerald-950 border-emerald-800 text-emerald-200";
-            if (type === "warning") color = "bg-amber-950 border-amber-800 text-amber-200";
-            if (type === "error") color = "bg-rose-950 border-rose-800 text-rose-200";
-
-            toast.className = `${color} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold`;
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-    </script>
-</body>
-</html>
+            let [hours, minutes] = startTimeStr.split(':').
