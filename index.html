@@ -1,1063 +1,1044 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLBB Torneos - Registro & Organización</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        mlgold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
-                        mldark: { 900: '#0a0d14', 800: '#111827', 700: '#1f2937' },
-                        bnxblue: '#00b0ff'
-                    }
-                }
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLBB Torneos - Registro & Organización</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            mlgold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+            mldark: { 900: '#0a0d14', 800: '#111827', 700: '#1f2937' },
+            bnxblue: '#00b0ff'
+          }
         }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK v8.10.1 -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        body {
-            background-color: #07090e;
-            color: #f3f4f6;
-            font-family: system-ui, -apple-system, sans-serif;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
-            background-attachment: fixed;
-        }
-        .ml-gold-gradient-text {
-            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #07090e; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-    </style>
+      }
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase SDK v8.10.1 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body {
+      background-color: #07090e;
+      color: #f3f4f6;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-image: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+    .ml-gold-gradient-text {
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #07090e;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
-    <!-- HEADER -->
-    <header class="bg-mldark-800/90 backdrop-blur-md border-b border-amber-500/25 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-shield-halved text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-2">
-                        <span class="ml-gold-gradient-text">Arena Torneos MLBB</span>
-                    </h1>
-                    <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Registro & Organización Interna</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button id="back-menu-btn" onclick="volverMenu()" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-arrow-left"></i> Menú
-                </button>
-                <div id="role-badge" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-eye text-xs"></i> Espectador
-                </div>
-                <button id="auth-btn" onclick="openAuthModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer">
-                    <i class="fa-solid fa-key text-xs"></i> Admin
-                </button>
-            </div>
+  <!-- HEADER -->
+  <header class="bg-mldark-800/90 backdrop-blur-md border-b border-amber-500/25 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-shield-halved text-lg"></i>
         </div>
-    </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
-
-        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-        <!-- SELECCIÓN DE MODALIDAD (INICIO PÚBLICO) -->
-        <section id="mode-selector-section" class="py-10 text-center">
-            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
-            <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribir a tu equipo</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
-                    <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
-                    <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
-                    <p class="text-xs text-slate-400">Inscripción para Capitán + 4 Integrantes</p>
-                </div>
-                <div onclick="seleccionarModalidad('3v3')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
-                    <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
-                    <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
-                    <p class="text-xs text-slate-400">Inscripción para Capitán + 2 Integrantes</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- PANEL PRINCIPAL DEL TORNEO -->
-        <div id="tournament-app-container" class="hidden space-y-6">
-
-            <!-- PANEL DE ORGANIZACIÓN ADMIN -->
-            <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                    <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders"></i> Control de Torneo (<span id="admin-mode-label">5v5</span>)
-                    </h2>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio Ronda</label>
-                        <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                    </div>
-                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración Juego (m)</label>
-                        <input type="number" id="cfg-match-dur" value="20" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                    </div>
-                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tolerancia W.O. (m)</label>
-                        <input type="number" id="cfg-tolerance" value="5" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                    </div>
-                </div>
-
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="iniciarSorteoRonda1()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-play"></i> Iniciar Sorteo de 16 Partidas
-                    </button>
-                    <button onclick="continuarSorteoRonda1()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-forward-step"></i> Continúa Sorteo de 16 Partidas
-                    </button>
-                    <button onclick="avanzarSiguienteRonda()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-angles-right"></i> Pasar a Siguiente Ronda
-                    </button>
-                    <button onclick="cargarEquiposEjemplo()" class="bg-bnxblue/20 hover:bg-bnxblue/30 text-bnxblue border border-bnxblue/40 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-bolt"></i> Cargar Equipos Demo
-                    </button>
-                    <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Torneo
-                    </button>
-                </div>
-            </section>
-
-            <!-- NAVEGACIÓN INTERNA -->
-            <div class="flex gap-2 border-b border-slate-800 pb-2">
-                <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
-                <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
-                <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos & Horarios</button>
-                <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
-            </div>
-
-            <!-- TAB 1: INSCRIPCIÓN -->
-            <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Formulario de Inscripción <span id="reg-mode-title">5v5</span></h3>
-                
-                <div class="space-y-4 max-w-2xl">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo / Squad:</label>
-                        <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-
-                    <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800 space-y-2">
-                        <h4 class="text-xs font-bold text-amber-400">👑 Datos del Capitán</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <input type="text" id="cap-nick" placeholder="Nick del Capitán" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                            <input type="text" id="cap-id" placeholder="ID de MLBB (Ej: 12345678)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                            <input type="text" id="cap-server" placeholder="Servidor (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                        </div>
-                        <input type="tel" id="cap-phone" placeholder="WhatsApp de Contacto" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes de la Escuadra</h4>
-                        <div id="dynamic-players-inputs" class="space-y-2"></div>
-                    </div>
-
-                    <button onclick="enviarInscripcion()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition shadow-lg shadow-amber-500/20 cursor-pointer">
-                        ✅ Confirmar e Inscribir Equipo
-                    </button>
-                </div>
-            </div>
-
-            <!-- TAB 2: EQUIPOS INSCRITOS CON BUSCADOR -->
-            <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                    <h3 class="text-sm font-bold text-amber-400">Equipos Registrados</h3>
-                    <div class="relative w-full sm:w-72">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-                        <input type="text" id="search-team-input" onkeyup="filtrarEquipos()" placeholder="Buscar equipo por nombre o iniciales..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-                <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
-                </div>
-            </div>
-
-            <!-- TAB 3: ORGANIZACIÓN MATCHES Y BUSCADOR -->
-            <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                    <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <div class="relative w-full sm:w-60">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-                            <input type="text" id="search-match-input" onkeyup="filtrarEnfrentamientos()" placeholder="Buscar en partidas..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold"></div>
-                    </div>
-                </div>
-
-                <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <p class="text-xs text-slate-500 italic col-span-full">Aún no se han generado enfrentamientos.</p>
-                </div>
-            </div>
-
-            <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
-            <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-sitemap"></i> Camino a la Final
-                </h3>
-                
-                <div class="overflow-x-auto custom-scrollbar p-4 bg-mldark-900 rounded-xl border border-slate-800 min-h-[300px] flex justify-center items-center">
-                    <div id="arbol-esquematico-container" class="flex items-center gap-8 py-4">
-                        <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
-                    </div>
-                </div>
-            </div>
-
+        <div>
+          <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-2">
+            <span class="ml-gold-gradient-text">Arena Torneos MLBB</span>
+          </h1>
+          <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Registro & Organización Interna</p>
         </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="bg-mldark-900 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-10">
-        Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
-    </footer>
-
-    <!-- PIN MODAL ADMIN -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-            <div class="text-center mb-4">
-                <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
-                <p class="text-xs text-slate-400 mt-1">Ingresa la clave autorizada de administrador</p>
-            </div>
-            <form onsubmit="handleAdminAuth(event)">
-                <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition cursor-pointer">Verificar</button>
-            </form>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="back-menu-btn" onclick="volverMenu()" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-arrow-left"></i> Menú
+        </button>
+        <div id="role-badge" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5">
+          <i class="fa-solid fa-eye text-xs"></i> Espectador
         </div>
+        <button id="auth-btn" onclick="openAuthModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer">
+          <i class="fa-solid fa-key text-xs"></i> Admin
+        </button>
+      </div>
     </div>
+  </header>
 
-    <!-- FIREBASE & LOGIC SCRIPT -->
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
-            authDomain: "torneomlbb-631f7.firebaseapp.com",
-            databaseURL: "https://torneomlbb-631f7-default-rtdb.firebaseio.com",
-            projectId: "torneomlbb-631f7",
-            storageBucket: "torneomlbb-631f7.firebasestorage.app",
-            messagingSenderId: "1087179789180",
-            appId: "1:1087179789180:web:cd22d6c989b8ca90784af9"
-        };
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <!-- SELECCIÓN DE MODALIDAD (INICIO PÚBLICO) -->
+    <section id="mode-selector-section" class="py-10 text-center">
+      <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
+      <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribir a tu equipo</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+          <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
+          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
+          <p class="text-xs text-slate-400">Inscripción para Capitán + 4 Integrantes</p>
+        </div>
+        <div onclick="seleccionarModalidad('3v3')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+          <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
+          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
+          <p class="text-xs text-slate-400">Inscripción para Capitán + 2 Integrantes</p>
+        </div>
+      </div>
+    </section>
 
-        let currentMode = null;
-        let isAdmin = false;
-        const ADMIN_PASS = "admin123";
-        let equiposCacheObj = {}; 
-        let rondaSeleccionada = 1;
-        let datosBracketServidor = null;
-        let usuarioIdAutenticado = null;
+    <!-- PANEL PRINCIPAL DEL TORNEO -->
+    <div id="tournament-app-container" class="hidden space-y-6">
+      <!-- PANEL DE ORGANIZACIÓN ADMIN -->
+      <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-sliders"></i> Control de Torneo (<span id="admin-mode-label">5v5</span>)
+          </h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio Ronda</label>
+            <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+          </div>
+          <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración Juego (m)</label>
+            <input type="number" id="cfg-match-dur" value="20" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+          </div>
+          <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tolerancia W.O. (m)</label>
+            <input type="number" id="cfg-tolerance" value="5" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="iniciarSorteoRonda1()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-play"></i> Iniciar Sorteo de 16 Partidas
+          </button>
+          <button onclick="continuarSorteoRonda1()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-forward-step"></i> Continúa Sorteo de 16 Partidas
+          </button>
+          <button onclick="avanzarSiguienteRonda()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-angles-right"></i> Pasar a Siguiente Ronda
+          </button>
+          <button onclick="cargarEquiposEjemplo()" class="bg-bnxblue/20 hover:bg-bnxblue/30 text-bnxblue border border-bnxblue/40 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-bolt"></i> Cargar Equipos Demo
+          </button>
+          <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-rotate-right"></i> Reiniciar Torneo
+          </button>
+        </div>
+      </section>
 
-        function seleccionarModalidad(modo) {
-            currentMode = modo;
-            document.getElementById('mode-selector-section').classList.add('hidden');
-            document.getElementById('tournament-app-container').classList.remove('hidden');
-            document.getElementById('back-menu-btn').classList.remove('hidden');
-            document.getElementById('reg-mode-title').innerText = modo;
-            document.getElementById('admin-mode-label').innerText = modo;
+      <!-- NAVEGACIÓN INTERNA -->
+      <div class="flex gap-2 border-b border-slate-800 pb-2">
+        <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
+        <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
+        <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos & Horarios</button>
+        <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
+      </div>
 
-            construirInputsJugadores();
-            sincronizarDatosFirebase();
+      <!-- TAB 1: INSCRIPCIÓN -->
+      <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Formulario de Inscripción <span id="reg-mode-title">5v5</span></h3>
+        <div class="space-y-4 max-w-2xl">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo / Squad:</label>
+            <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+          </div>
+          <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800 space-y-2">
+            <h4 class="text-xs font-bold text-amber-400">👑 Datos del Capitán</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input type="text" id="cap-nick" placeholder="Nick del Capitán" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+              <input type="text" id="cap-id" placeholder="ID de MLBB (Ej: 12345678)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+              <input type="text" id="cap-server" placeholder="Servidor (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+            </div>
+            <input type="tel" id="cap-phone" placeholder="WhatsApp de Contacto" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes de la Escuadra</h4>
+            <div id="dynamic-players-inputs" class="space-y-2"></div>
+          </div>
+          <button onclick="enviarInscripcion()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition shadow-lg shadow-amber-500/20 cursor-pointer">
+            ✅ Confirmar e Inscribir Equipo
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: EQUIPOS INSCRITOS CON BUSCADOR -->
+      <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <h3 class="text-sm font-bold text-amber-400">Equipos Registrados</h3>
+          <div class="relative w-full sm:w-72">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+            <input type="text" id="search-team-input" onkeyup="filtrarEquipos()" placeholder="Buscar equipo por nombre o iniciales..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
+        </div>
+      </div>
+
+      <!-- TAB 3: ORGANIZACIÓN MATCHES Y BUSCADOR -->
+      <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="relative w-full sm:w-60">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+              <input type="text" id="search-match-input" onkeyup="filtrarEnfrentamientos()" placeholder="Buscar en partidas..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold"></div>
+          </div>
+        </div>
+        <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p class="text-xs text-slate-500 italic col-span-full">Aún no se han generado enfrentamientos.</p>
+        </div>
+      </div>
+
+      <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
+      <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-sitemap"></i> Camino a la Final
+        </h3>
+        <div class="overflow-x-auto custom-scrollbar p-4 bg-mldark-900 rounded-xl border border-slate-800 min-h-[300px] flex justify-center items-center">
+          <div id="arbol-esquematico-container" class="flex items-center gap-8 py-4">
+            <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-mldark-900 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-10">
+    Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
+  </footer>
+
+  <!-- PIN MODAL ADMIN -->
+  <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      <div class="text-center mb-4">
+        <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
+        <p class="text-xs text-slate-400 mt-1">Ingresa la clave autorizada de administrador</p>
+      </div>
+      <form onsubmit="handleAdminAuth(event)">
+        <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition cursor-pointer">Verificar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FIREBASE & LOGIC SCRIPT -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
+      authDomain: "torneomlbb-631f7.firebaseapp.com",
+      databaseURL: "https://torneomlbb-631f7-default-rtdb.firebaseio.com",
+      projectId: "torneomlbb-631f7",
+      storageBucket: "torneomlbb-631f7.firebasestorage.app",
+      messagingSenderId: "1087179789180",
+      appId: "1:1087179789180:web:cd22d6c989b8ca90784af9"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentMode = null;
+    let isAdmin = false;
+    const ADMIN_PASS = "admin123";
+    let equiposCacheObj = {};
+    let rondaSeleccionada = 1;
+    let datosBracketServidor = null;
+    let usuarioIdAutenticado = null;
+
+    function seleccionarModalidad(modo) {
+      currentMode = modo;
+      document.getElementById('mode-selector-section').classList.add('hidden');
+      document.getElementById('tournament-app-container').classList.remove('hidden');
+      document.getElementById('back-menu-btn').classList.remove('hidden');
+      document.getElementById('reg-mode-title').innerText = modo;
+      document.getElementById('admin-mode-label').innerText = modo;
+      construirInputsJugadores();
+      sincronizarDatosFirebase();
+    }
+
+    function volverMenu() {
+      currentMode = null;
+      document.getElementById('mode-selector-section').classList.remove('hidden');
+      document.getElementById('tournament-app-container').classList.add('hidden');
+      document.getElementById('back-menu-btn').classList.add('hidden');
+    }
+
+    function construirInputsJugadores() {
+      const container = document.getElementById('dynamic-players-inputs');
+      container.innerHTML = '';
+      const numExtra = currentMode === '5v5' ? 4 : 2;
+      for (let i = 2; i <= numExtra + 1; i++) {
+        container.innerHTML += `
+          <div class="bg-mldark-900/60 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+            <span class="text-[11px] font-bold text-slate-400">Jugador ${i}</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input type="text" id="nick-j${i}" placeholder="Nick J${i}" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+              <input type="text" id="id-j${i}" placeholder="ID de MLBB" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+              <input type="text" id="server-j${i}" placeholder="Servidor" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function cambiarTab(tab) {
+      ['registro', 'equipos', 'bracket', 'arbol'].forEach(t => {
+        const el = document.getElementById(`tab-content-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (el) el.classList.add('hidden');
+        if (btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
+      });
+      const activeEl = document.getElementById(`tab-content-${tab}`);
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
+    }
+
+    function openAuthModal() {
+      if (isAdmin) {
+        isAdmin = false;
+        actualizarPermisosAdmin();
+        mostrarToast("Modo administrador cerrado", "info");
+      } else {
+        document.getElementById('auth-modal').classList.remove('hidden');
+      }
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    function handleAdminAuth(e) {
+      e.preventDefault();
+      const pin = document.getElementById('admin-pin').value;
+      if (pin === ADMIN_PASS) {
+        isAdmin = true;
+        closeAuthModal();
+        document.getElementById('admin-pin').value = '';
+        actualizarPermisosAdmin();
+        mostrarToast("Acceso Administrador concedido", "success");
+      } else {
+        mostrarToast("Clave incorrecta", "error");
+      }
+    }
+
+    function actualizarPermisosAdmin() {
+      const badge = document.getElementById('role-badge');
+      const adminPanel = document.getElementById('admin-panel');
+      const authBtn = document.getElementById('auth-btn');
+      const tabBracket = document.getElementById('tab-btn-bracket');
+      const tabArbol = document.getElementById('tab-btn-arbol');
+
+      if (isAdmin) {
+        badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
+        badge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i> Admin`;
+        authBtn.innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Salir Admin`;
+        adminPanel.classList.remove('hidden');
+        tabBracket.classList.remove('hidden');
+        tabArbol.classList.remove('hidden');
+      } else {
+        badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5";
+        badge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i> Espectador`;
+        authBtn.innerHTML = `<i class="fa-solid fa-key text-xs"></i> Admin`;
+        adminPanel.classList.add('hidden');
+        tabBracket.classList.remove('hidden');
+        tabArbol.classList.remove('hidden');
+      }
+      if (currentMode) sincronizarDatosFirebase();
+    }
+
+    function enviarInscripcion() {
+      const nombreEquipo = document.getElementById('team-name').value.trim();
+      const capNick = document.getElementById('cap-nick').value.trim();
+      const capId = document.getElementById('cap-id').value.trim();
+      const capServer = document.getElementById('cap-server').value.trim();
+      const capPhone = document.getElementById('cap-phone').value.trim();
+
+      if (!nombreEquipo || !capNick || !capId || !capServer || !capPhone) {
+        mostrarToast("Completa todos los datos del capitán (Nick, ID y Servidor)", "warning");
+        return;
+      }
+
+      let jugadores = [{ nick: capNick, id: capId, server: capServer, rol: 'Capitán', telefono: capPhone }];
+      const numExtra = currentMode === '5v5' ? 4 : 2;
+
+      for (let i = 2; i <= numExtra + 1; i++) {
+        const jNick = document.getElementById(`nick-j${i}`).value.trim();
+        const jId = document.getElementById(`id-j${i}`).value.trim();
+        const jServer = document.getElementById(`server-j${i}`).value.trim();
+
+        if (!jNick || !jId || !jServer) {
+          mostrarToast(`Faltan datos del Jugador ${i} (Nick, ID o Servidor)`, "warning");
+          return;
+        }
+        jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
+      }
+
+      db.ref(`torneos/${currentMode}/equipos`).push({ nombreEquipo, jugadores }, (error) => {
+        if (!error) {
+          mostrarToast("¡Equipo inscrito con éxito!", "success");
+          document.getElementById('team-name').value = '';
+          document.getElementById('cap-nick').value = '';
+          document.getElementById('cap-id').value = '';
+          document.getElementById('cap-server').value = '';
+          document.getElementById('cap-phone').value = '';
+          construirInputsJugadores();
+          cambiarTab('equipos');
+        } else {
+          mostrarToast("Error al registrar: " + error.message, "error");
+        }
+      });
+    }
+
+    function cargarEquiposEjemplo() {
+      const nombresDemo = [
+        "Omega Esports", "Blacklist Int", "RRQ Hoshi", "ONIC Esports", "Echo Esports", "Falcon Esports", "Evos Legends", "Brenz ML",
+        "Alter Ego", "Geek Fam", "Todak MLBB", "RSG Slate", "Bigetron Alpha", "Execration", "Incendio Sup", "Team SMG",
+        "DEUS VULT", "Vampire Esports", "Impunity KH", "See You Soon", "The Valley", "LOUD Esports", "Red Canids", "Malvinas Gaming",
+        "S2G Esports", "Stellantis", "Apex Warriors", "Cyber Knights", "Titan Gaming", "Vipers Esports", "Shadow Clan", "Dynasty Esports"
+      ];
+
+      const numPlayers = currentMode === '5v5' ? 5 : 3;
+      let batchData = {};
+
+      nombresDemo.forEach((nombre, idx) => {
+        let jugadores = [];
+        for (let i = 1; i <= numPlayers; i++) {
+          jugadores.push({
+            nick: `Player_${idx + 1}_${i}`,
+            id: Math.floor(10000000 + Math.random() * 90000000).toString(),
+            server: Math.floor(1000 + Math.random() * 9000).toString(),
+            rol: i === 1 ? 'Capitán' : 'Integrante',
+            telefono: i === 1 ? '+51999888777' : ''
+          });
+        }
+        let newKey = db.ref(`torneos/${currentMode}/equipos`).push().key;
+        batchData[newKey] = { nombreEquipo: nombre, jugadores: jugadores };
+      });
+
+      db.ref(`torneos/${currentMode}/equipos`).update(batchData, (err) => {
+        if (!err) {
+          mostrarToast("¡32 equipos de prueba cargados!", "success");
+          cambiarTab('equipos');
+        }
+      });
+    }
+
+    function sincronizarDatosFirebase() {
+      db.ref(`torneos/${currentMode}/equipos`).on('value', (snap) => {
+        const data = snap.val();
+        const container = document.getElementById('teams-list-container');
+        container.innerHTML = '';
+        equiposCacheObj = {};
+
+        if (!data) {
+          container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>`;
+          document.getElementById('count-registered-teams').innerText = "0";
+          return;
         }
 
-        function volverMenu() {
-            currentMode = null;
-            document.getElementById('mode-selector-section').classList.remove('hidden');
-            document.getElementById('tournament-app-container').classList.add('hidden');
-            document.getElementById('back-menu-btn').classList.add('hidden');
+        const keys = Object.keys(data);
+        document.getElementById('count-registered-teams').innerText = keys.length;
+
+        keys.forEach(key => {
+          const eq = data[key];
+          equiposCacheObj[eq.nombreEquipo] = eq.jugadores;
+          let playersHtml = '';
+          eq.jugadores.forEach(j => {
+            playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} <b class="text-slate-400">(${j.id} - ${j.server})</b></span> <span class="text-amber-400">${j.rol}</span></div>`;
+          });
+          let deleteBtn = isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : '';
+
+          container.innerHTML += `
+            <div class="team-card bg-mldark-900 border border-slate-800 p-4 rounded-xl" data-teamname="${eq.nombreEquipo.toLowerCase()}">
+              <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
+                <span class="font-bold text-amber-400 text-sm">🛡️ ${eq.nombreEquipo}</span>
+                ${deleteBtn}
+              </div>
+              <div>${playersHtml}</div>
+            </div>
+          `;
+        });
+      });
+
+      db.ref(`torneos/${currentMode}/bracket`).on('value', (snap) => {
+        datosBracketServidor = snap.val();
+        renderizarRondasYBracket();
+        renderizarArbolEsquematico();
+      });
+    }
+
+    function filtrarEquipos() {
+      const query = document.getElementById('search-team-input').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.team-card');
+      cards.forEach(card => {
+        const name = card.getAttribute('data-teamname');
+        if (name.includes(query)) card.classList.remove('hidden');
+        else card.classList.add('hidden');
+      });
+    }
+
+    function filtrarEnfrentamientos() {
+      const query = document.getElementById('search-match-input').value.toLowerCase().trim();
+      const cards = document.querySelectorAll('.match-card');
+      cards.forEach(card => {
+        const teams = card.getAttribute('data-teams');
+        if (teams.includes(query)) card.classList.remove('hidden');
+        else card.classList.add('hidden');
+      });
+    }
+
+    function renderizarRondasYBracket() {
+      const roundsContainer = document.getElementById('rounds-filter-container');
+      const matchesContainer = document.getElementById('matches-container');
+      roundsContainer.innerHTML = '';
+      matchesContainer.innerHTML = '';
+
+      if (!datosBracketServidor) {
+        matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado enfrentamientos.</p>`;
+        return;
+      }
+
+      const totalRondas = Object.keys(datosBracketServidor).length;
+      for (let r = 1; r <= totalRondas; r++) {
+        let nombreRonda = `Ronda ${r}`;
+        const partidosRonda = datosBracketServidor[`ronda_${r}`] || [];
+        const cantidadPartidos = partidosRonda.length;
+
+        if (cantidadPartidos === 4) nombreRonda = "Cuartos";
+        if (cantidadPartidos === 2) nombreRonda = "Semis";
+        if (cantidadPartidos === 1) nombreRonda = "Final";
+
+        let isActive = r === rondaSeleccionada;
+        let bgClass = isActive ? "bg-bnxblue text-black font-extrabold shadow-md" : "bg-mldark-900 text-slate-400 border border-slate-800 hover:text-white";
+
+        roundsContainer.innerHTML += `
+          <button onclick="seleccionarRonda(${r})" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition cursor-pointer ${bgClass}">
+            ${nombreRonda}
+          </button>
+        `;
+      }
+
+      const partidosRondaActual = datosBracketServidor[`ronda_${rondaSeleccionada}`] || [];
+      if (partidosRondaActual.length === 0) {
+        matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado partidos para esta ronda.</p>`;
+        return;
+      }
+
+      partidosRondaActual.forEach((p, idx) => {
+        let isFinished = p.ganador !== "Pendiente";
+        let isPass = p.equipo2 === "PASE DIRECTO 🏆";
+        let eq1Style = "bg-mldark-900 border-slate-800 text-cyan-400 font-bold";
+        let eq2Style = "bg-mldark-900 border-slate-800 text-rose-400 font-bold";
+
+        if (isFinished) {
+          if (p.ganador === p.equipo1) {
+            eq1Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+            eq2Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
+          } else if (p.ganador === p.equipo2) {
+            eq1Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
+            eq2Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+          }
         }
 
-        function construirInputsJugadores() {
-            const container = document.getElementById('dynamic-players-inputs');
-            container.innerHTML = '';
-            const numExtra = currentMode === '5v5' ? 4 : 2;
-
-            for (let i = 2; i <= numExtra + 1; i++) {
-                container.innerHTML += `
-                    <div class="bg-mldark-900/60 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-                        <span class="text-[11px] font-bold text-slate-400">Jugador ${i}</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <input type="text" id="nick-j${i}" placeholder="Nick J${i}" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                            <input type="text" id="id-j${i}" placeholder="ID de MLBB" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                            <input type="text" id="server-j${i}" placeholder="Servidor" class="bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
-                        </div>
-                    </div>
-                `;
-            }
+        let roomCodeHtml = '';
+        if (isAdmin && !isPass) {
+          roomCodeHtml = `
+            <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center gap-2">
+              <input type="text" id="room-input-${rondaSeleccionada}-${idx}" placeholder="Código de Sala MLBB" value="${p.roomCode || ''}" class="bg-mldark-900 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+              <button onclick="guardarCodigoSala(${rondaSeleccionada}, ${idx})" class="bg-bnxblue text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-bnxblue/80 transition cursor-pointer whitespace-nowrap">Guardar Código</button>
+            </div>
+          `;
+        } else if (p.roomCode) {
+          roomCodeHtml = `
+            <div class="mt-2 bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 text-center text-xs">
+              <span class="text-slate-400">🔑 Código de Sala VS:</span>
+              <b class="text-amber-400 font-mono text-sm tracking-widest">${p.roomCode}</b>
+            </div>
+          `;
         }
 
-        function cambiarTab(tab) {
-            ['registro', 'equipos', 'bracket', 'arbol'].forEach(t => {
-                const el = document.getElementById(`tab-content-${t}`);
-                const btn = document.getElementById(`tab-btn-${t}`);
-                if (el) el.classList.add('hidden');
-                if (btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
+        let adminAcciones = '';
+        if (isAdmin && !isFinished && !isPass) {
+          adminAcciones = `
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col gap-2">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Declarar Ganador</div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="declararGanador(${rondaSeleccionada}, ${idx}, '${p.equipo1}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
+                  Gana ${p.equipo1}
+                </button>
+                <button onclick="declararGanador(${rondaSeleccionada}, ${idx}, '${p.equipo2}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
+                  Gana ${p.equipo2}
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        let matchTeamsLower = `${p.equipo1} ${p.equipo2}`.toLowerCase();
+        let chatSectionHtml = !isPass ? `
+          <div class="mt-3 border-t border-slate-800/80 pt-2">
+            <button onclick="toggleChatMatch(${rondaSeleccionada}, ${idx})" class="text-xs font-bold text-slate-400 hover:text-white flex items-center justify-between w-full py-1">
+              <span><i class="fa-solid fa-comments text-amber-400 mr-1.5"></i> Chat del Enfrentamiento</span>
+              <i class="fa-solid fa-chevron-down text-xs"></i>
+            </button>
+            <div id="chat-box-${rondaSeleccionada}-${idx}" class="hidden mt-2 bg-mldark-900 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div id="chat-login-${rondaSeleccionada}-${idx}" class="space-y-2">
+                <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB para acceder al chat:</p>
+                <div class="flex gap-2">
+                  <input type="text" id="chat-userid-input-${rondaSeleccionada}-${idx}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                  <button onclick="verificarAccesoChat(${rondaSeleccionada}, ${idx}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
+                </div>
+              </div>
+              <div id="chat-body-${rondaSeleccionada}-${idx}" class="hidden space-y-2">
+                <div id="messages-list-${rondaSeleccionada}-${idx}" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 text-xs p-1 bg-mldark-800 rounded-lg"></div>
+                <div class="flex gap-2">
+                  <input type="text" id="chat-msg-input-${rondaSeleccionada}-${idx}" placeholder="Escribe un mensaje..." class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                  <button onclick="enviarMensajeChat(${rondaSeleccionada}, ${idx})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-lg hover:bg-emerald-500 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : '';
+
+        matchesContainer.innerHTML += `
+          <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${matchTeamsLower}">
+            <div>
+              <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-slate-800">
+                <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idx + 1}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
+                  ${isFinished ? 'GANADOR: ' + p.ganador : 'EN ESPERA'}
+                </span>
+              </div>
+              <div class="flex justify-between items-center bg-mldark-900 px-3 py-2 rounded-xl mb-3 text-xs border border-slate-800">
+                <div class="text-slate-300 font-medium">
+                  <i class="fa-regular fa-clock text-amber-400 mr-1"></i> Hora: <b class="text-white">${p.timeStr || '--:--'}</b>
+                </div>
+                <div class="text-slate-400 font-medium">
+                  <i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
+                </div>
+              </div>
+              <div class="space-y-2 mb-2">
+                <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
+                  <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
+                </div>
+                <div class="text-center text-[10px] font-black text-slate-600 tracking-widest">VS</div>
+                <div class="p-3 rounded-xl border ${eq2Style} flex justify-between items-center text-sm">
+                  <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
+                </div>
+              </div>
+              ${roomCodeHtml}
+              ${chatSectionHtml}
+            </div>
+            ${adminAcciones}
+          </div>
+        `;
+      });
+    }
+
+    function guardarCodigoSala(rondaNum, idx) {
+      const val = document.getElementById(`room-input-${rondaNum}-${idx}`).value.trim();
+      db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({ roomCode: val }, () => {
+        mostrarToast("Código de sala guardado", "success");
+      });
+    }
+
+    function toggleChatMatch(rondaNum, idx) {
+      const el = document.getElementById(`chat-box-${rondaNum}-${idx}`);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function verificarAccesoChat(rondaNum, idx, equipo1, equipo2) {
+      const userId = document.getElementById(`chat-userid-input-${rondaNum}-${idx}`).value.trim();
+      if (!userId) {
+        mostrarToast("Ingresa un ID válido", "warning");
+        return;
+      }
+      let tienePermiso = false;
+      let nickJugador = "";
+
+      [equipo1, equipo2].forEach(eqNombre => {
+        const jugadores = equiposCacheObj[eqNombre] || [];
+        jugadores.forEach(j => {
+          if (j.id === userId) {
+            tienePermiso = true;
+            nickJugador = j.nick;
+          }
+        });
+      });
+
+      if (isAdmin) {
+        tienePermiso = true;
+        nickJugador = "Admin";
+      }
+
+      if (tienePermiso) {
+        usuarioIdAutenticado = { nick: nickJugador, id: userId };
+        document.getElementById(`chat-login-${rondaNum}-${idx}`).classList.add('hidden');
+        document.getElementById(`chat-body-${rondaNum}-${idx}`).classList.remove('hidden');
+        escucharMensajesChat(rondaNum, idx);
+        mostrarToast(`Bienvenido al chat, ${nickJugador}`, "success");
+      } else {
+        mostrarToast("Tu ID de MLBB no pertenece a ninguno de los dos equipos de esta partida", "error");
+      }
+    }
+
+    function escucharMensajesChat(rondaNum, idx) {
+      db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).on('value', (snap) => {
+        const data = snap.val();
+        const list = document.getElementById(`messages-list-${rondaNum}-${idx}`);
+        if (!list) return;
+        list.innerHTML = '';
+        if (!data) {
+          list.innerHTML = `<p class="text-[10px] text-slate-500 italic">No hay mensajes aún en esta partida...</p>`;
+          return;
+        }
+        Object.values(data).forEach(m => {
+          list.innerHTML += `
+            <div class="p-1.5 rounded bg-mldark-900 border border-slate-800">
+              <span class="font-bold text-amber-400 text-[10px]">${m.nick}:</span>
+              <span class="text-slate-200 text-[11px]">${m.texto}</span>
+            </div>
+          `;
+        });
+        list.scrollTop = list.scrollHeight;
+      });
+    }
+
+    function enviarMensajeChat(rondaNum, idx) {
+      const input = document.getElementById(`chat-msg-input-${rondaNum}-${idx}`);
+      const texto = input.value.trim();
+      if (!texto || !usuarioIdAutenticado) return;
+
+      db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).push({
+        nick: usuarioIdAutenticado.nick,
+        texto: texto,
+        fecha: Date.now()
+      }, () => {
+        input.value = '';
+      });
+    }
+
+    function renderizarArbolEsquematico() {
+      const container = document.getElementById('arbol-esquematico-container');
+      container.innerHTML = '';
+      if (!datosBracketServidor) {
+        container.innerHTML = `<p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>`;
+        return;
+      }
+      const totalRondas = Object.keys(datosBracketServidor).length;
+      for (let r = 1; r <= totalRondas; r++) {
+        const partidos = datosBracketServidor[`ronda_${r}`] || [];
+        let columnaHtml = `<div class="flex flex-col justify-around gap-6"><div class="text-center text-xs font-bold text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
+        partidos.forEach((p) => {
+          columnaHtml += `
+            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px]">
+              <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">${p.equipo1}</div>
+              <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+              <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">${p.equipo2}</div>
+            </div>
+          `;
+        });
+        columnaHtml += `</div>`;
+        container.innerHTML += columnaHtml;
+      }
+    }
+
+    function seleccionarRonda(numRonda) {
+      rondaSeleccionada = numRonda;
+      renderizarRondasYBracket();
+    }
+
+    // ==========================================
+    // LÓGICA REVISADA Y OPTIMIZADA DE SORTEO
+    // ==========================================
+
+    // 1. INICIAR SORTEO DE LA RONDA 1 (PRIMERA TANDA DE 16 MATCHES)
+    function iniciarSorteoRonda1() {
+      db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
+        const data = snap.val();
+        if (!data) {
+          mostrarToast("No hay equipos inscritos.", "warning");
+          return;
+        }
+
+        let todosLosEquipos = Object.keys(data).map(key => data[key].nombreEquipo);
+        if (todosLosEquipos.length < 2) {
+          mostrarToast("Se necesitan al menos 2 equipos inscritos.", "warning");
+          return;
+        }
+
+        let bracketEstructura = datosBracketServidor || {};
+        if (bracketEstructura['ronda_1'] && bracketEstructura['ronda_1'].length > 0) {
+          mostrarToast("La Ronda 1 ya fue iniciada. Usa 'Continúa Sorteo' si faltan equipos.", "warning");
+          return;
+        }
+
+        const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
+        const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
+        const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
+
+        let participantes = [...todosLosEquipos].sort(() => Math.random() - 0.5);
+        let tandaEquipos = participantes.slice(0, 32);
+
+        let partidosRonda1 = [];
+        let [hours, minutes] = startTimeStr.split(':').map(Number);
+        let currentTime = new Date();
+        currentTime.setHours(hours, minutes, 0, 0);
+        let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        for (let i = 0; i < tandaEquipos.length; i += 2) {
+          let matchStart = new Date(currentTime);
+          let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+
+          if (tandaEquipos[i + 1]) {
+            partidosRonda1.push({
+              equipo1: tandaEquipos[i],
+              equipo2: tandaEquipos[i + 1],
+              ganador: "Pendiente",
+              timeStr: formatTime(matchStart),
+              toleranceStr: formatTime(toleranceStart)
             });
-
-            const activeEl = document.getElementById(`tab-content-${tab}`);
-            const activeBtn = document.getElementById(`tab-btn-${tab}`);
-            if (activeEl) activeEl.classList.remove('hidden');
-            if (activeBtn) activeBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
-        }
-
-        function openAuthModal() {
-            if (isAdmin) {
-                isAdmin = false;
-                actualizarPermisosAdmin();
-                mostrarToast("Modo administrador cerrado", "info");
-            } else {
-                document.getElementById('auth-modal').classList.remove('hidden');
-            }
-        }
-
-        function closeAuthModal() { 
-            document.getElementById('auth-modal').classList.add('hidden'); 
-        }
-
-        function handleAdminAuth(e) {
-            e.preventDefault();
-            const pin = document.getElementById('admin-pin').value;
-            if (pin === ADMIN_PASS) {
-                isAdmin = true;
-                closeAuthModal();
-                document.getElementById('admin-pin').value = '';
-                actualizarPermisosAdmin();
-                mostrarToast("Acceso Administrador concedido", "success");
-            } else {
-                mostrarToast("Clave incorrecta", "error");
-            }
-        }
-
-        function actualizarPermisosAdmin() {
-            const badge = document.getElementById('role-badge');
-            const adminPanel = document.getElementById('admin-panel');
-            const authBtn = document.getElementById('auth-btn');
-            const tabBracket = document.getElementById('tab-btn-bracket');
-            const tabArbol = document.getElementById('tab-btn-arbol');
-
-            if (isAdmin) {
-                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
-                badge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i> Admin`;
-                authBtn.innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Salir Admin`;
-                adminPanel.classList.remove('hidden');
-                tabBracket.classList.remove('hidden');
-                tabArbol.classList.remove('hidden');
-            } else {
-                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5";
-                badge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i> Espectador`;
-                authBtn.innerHTML = `<i class="fa-solid fa-key text-xs"></i> Admin`;
-                adminPanel.classList.add('hidden');
-                tabBracket.classList.remove('hidden');
-                tabArbol.classList.remove('hidden');
-            }
-            if (currentMode) sincronizarDatosFirebase();
-        }
-
-        function enviarInscripcion() {
-            const nombreEquipo = document.getElementById('team-name').value.trim();
-            const capNick = document.getElementById('cap-nick').value.trim();
-            const capId = document.getElementById('cap-id').value.trim();
-            const capServer = document.getElementById('cap-server').value.trim();
-            const capPhone = document.getElementById('cap-phone').value.trim();
-
-            if (!nombreEquipo || !capNick || !capId || !capServer || !capPhone) {
-                mostrarToast("Completa todos los datos del capitán (Nick, ID y Servidor)", "warning");
-                return;
-            }
-
-            let jugadores = [{ nick: capNick, id: capId, server: capServer, rol: 'Capitán', telefono: capPhone }];
-            const numExtra = currentMode === '5v5' ? 4 : 2;
-
-            for (let i = 2; i <= numExtra + 1; i++) {
-                const jNick = document.getElementById(`nick-j${i}`).value.trim();
-                const jId = document.getElementById(`id-j${i}`).value.trim();
-                const jServer = document.getElementById(`server-j${i}`).value.trim();
-
-                if (!jNick || !jId || !jServer) {
-                    mostrarToast(`Faltan datos del Jugador ${i} (Nick, ID o Servidor)`, "warning");
-                    return;
-                }
-                jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
-            }
-
-            db.ref(`torneos/${currentMode}/equipos`).push({
-                nombreEquipo, jugadores
-            }, (error) => {
-                if (!error) {
-                    mostrarToast("¡Equipo inscrito con éxito!", "success");
-                    document.getElementById('team-name').value = '';
-                    document.getElementById('cap-nick').value = '';
-                    document.getElementById('cap-id').value = '';
-                    document.getElementById('cap-server').value = '';
-                    document.getElementById('cap-phone').value = '';
-                    construirInputsJugadores();
-                    cambiarTab('equipos');
-                } else {
-                    mostrarToast("Error al registrar: " + error.message, "error");
-                }
+          } else {
+            partidosRonda1.push({
+              equipo1: tandaEquipos[i],
+              equipo2: "PASE DIRECTO 🏆",
+              ganador: tandaEquipos[i],
+              timeStr: formatTime(matchStart),
+              toleranceStr: '-'
             });
+          }
+          currentTime = new Date(currentTime.getTime() + duration * 60000);
         }
 
-        function cargarEquiposEjemplo() {
-            const nombresDemo = [
-                "Omega Esports", "Blacklist Int", "RRQ Hoshi", "ONIC Esports", "Echo Esports",
-                "Falcon Esports", "Evos Legends", "Brenz ML", "Alter Ego", "Geek Fam",
-                "Todak MLBB", "RSG Slate", "Bigetron Alpha", "Execration", "Incendio Sup",
-                "Team SMG", "DEUS VULT", "Vampire Esports", "Impunity KH", "See You Soon",
-                "The Valley", "LOUD Esports", "Red Canids", "Malvinas Gaming", "S2G Esports",
-                "Stellantis", "Apex Warriors", "Cyber Knights", "Titan Gaming", "Vipers Esports",
-                "Shadow Clan", "Dynasty Esports"
-            ];
+        bracketEstructura['ronda_1'] = partidosRonda1;
+        rondaSeleccionada = 1;
 
-            const numPlayers = currentMode === '5v5' ? 5 : 3;
-            let batchData = {};
+        db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
+          if (!err) mostrarToast("¡Sorteo de la primera tanda de 16 partidos iniciado!", "success");
+        });
+      });
+    }
 
-            nombresDemo.forEach((nombre, idx) => {
-                let jugadores = [];
-                for (let i = 1; i <= numPlayers; i++) {
-                    jugadores.push({
-                        nick: `Player_${idx + 1}_${i}`,
-                        id: Math.floor(10000000 + Math.random() * 90000000).toString(),
-                        server: Math.floor(1000 + Math.random() * 9000).toString(),
-                        rol: i === 1 ? 'Capitán' : 'Integrante',
-                        telefono: i === 1 ? '+51999888777' : ''
-                    });
-                }
-                let newKey = db.ref(`torneos/${currentMode}/equipos`).push().key;
-                batchData[newKey] = {
-                    nombreEquipo: nombre,
-                    jugadores: jugadores
-                };
+    // 2. CONTINUAR SORTEO DE LA RONDA 1 (SIGUIENTES TANDAS HASTA COMPLETAR EQUIPOS)
+    function continuarSorteoRonda1() {
+      db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
+        const data = snap.val();
+        if (!data) return;
+
+        let todosLosEquipos = Object.keys(data).map(key => data[key].nombreEquipo);
+        let bracketEstructura = datosBracketServidor || {};
+        let partidosRonda1 = bracketEstructura['ronda_1'] || [];
+
+        if (partidosRonda1.length === 0) {
+          mostrarToast("Primero debes iniciar el sorteo con el botón verde.", "warning");
+          return;
+        }
+
+        let equiposYaSorteados = new Set();
+        partidosRonda1.forEach(p => {
+          if (p.equipo1) equiposYaSorteados.add(p.equipo1.trim().toLowerCase());
+          if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(p.equipo2.trim().toLowerCase());
+        });
+
+        let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq.trim().toLowerCase()));
+
+        if (equiposPendientes.length === 0) {
+          mostrarToast("Ya se sortearon todos los equipos inscritos en esta ronda.", "info");
+          return;
+        }
+
+        let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
+        let tandaExtra = candidatos.slice(0, 32);
+
+        const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
+        const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
+
+        let ultimoPartido = partidosRonda1[partidosRonda1.length - 1];
+        let [h, m] = ultimoPartido.timeStr.split(':').map(Number);
+        let currentTime = new Date();
+        currentTime.setHours(h, m + duration, 0, 0);
+        let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        for (let i = 0; i < tandaExtra.length; i += 2) {
+          let matchStart = new Date(currentTime);
+          let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+
+          if (tandaExtra[i + 1]) {
+            partidosRonda1.push({
+              equipo1: tandaExtra[i],
+              equipo2: tandaExtra[i + 1],
+              ganador: "Pendiente",
+              timeStr: formatTime(matchStart),
+              toleranceStr: formatTime(toleranceStart)
             });
-
-            db.ref(`torneos/${currentMode}/equipos`).update(batchData, (err) => {
-                if (!err) {
-                    mostrarToast("¡32 equipos de prueba cargados!", "success");
-                    cambiarTab('equipos');
-                }
+          } else {
+            partidosRonda1.push({
+              equipo1: tandaExtra[i],
+              equipo2: "PASE DIRECTO 🏆",
+              ganador: tandaExtra[i],
+              timeStr: formatTime(matchStart),
+              toleranceStr: '-'
             });
+          }
+          currentTime = new Date(currentTime.getTime() + duration * 60000);
         }
 
-        function sincronizarDatosFirebase() {
-            db.ref(`torneos/${currentMode}/equipos`).on('value', (snap) => {
-                const data = snap.val();
-                const container = document.getElementById('teams-list-container');
-                container.innerHTML = '';
-                equiposCacheObj = {};
+        bracketEstructura['ronda_1'] = partidosRonda1;
 
-                if (!data) {
-                    container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>`;
-                    document.getElementById('count-registered-teams').innerText = "0";
-                    return;
-                }
+        db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
+          if (!err) mostrarToast(`¡Se agregaron ${Math.ceil(tandaExtra.length / 2)} partidos más!`, "success");
+        });
+      });
+    }
 
-                const keys = Object.keys(data);
-                document.getElementById('count-registered-teams').innerText = keys.length;
+    // 3. PASAR A LA SIGUIENTE RONDA (VALIDANDO Y SORTEANDO GANADORES AL AZAR)
+    function avanzarSiguienteRonda() {
+      db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
+        const dataEquipos = snap.val() || {};
+        let todosLosEquipos = Object.keys(dataEquipos).map(k => dataEquipos[k].nombreEquipo);
+        let bracketEstructura = datosBracketServidor || {};
+        let totalRondas = Object.keys(bracketEstructura).length;
 
-                keys.forEach(key => {
-                    const eq = data[key];
-                    equiposCacheObj[eq.nombreEquipo] = eq.jugadores;
-                    let playersHtml = '';
-                    eq.jugadores.forEach(j => {
-                        playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} <b class="text-slate-400">(${j.id} - ${j.server})</b></span> <span class="text-amber-400">${j.rol}</span></div>`;
-                    });
+        if (totalRondas === 0) {
+          mostrarToast("Aún no se ha iniciado el torneo.", "warning");
+          return;
+        }
 
-                    let deleteBtn = isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : '';
+        let partidosRonda1 = bracketEstructura['ronda_1'] || [];
+        let equiposSorteadosR1 = new Set();
+        partidosRonda1.forEach(p => {
+          if (p.equipo1) equiposSorteadosR1.add(p.equipo1.trim().toLowerCase());
+          if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") equiposSorteadosR1.add(p.equipo2.trim().toLowerCase());
+        });
 
-                    container.innerHTML += `
-                        <div class="team-card bg-mldark-900 border border-slate-800 p-4 rounded-xl" data-teamname="${eq.nombreEquipo.toLowerCase()}">
-                            <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
-                                <span class="font-bold text-amber-400 text-sm">🛡️ ${eq.nombreEquipo}</span>
-                                ${deleteBtn}
-                            </div>
-                            <div>${playersHtml}</div>
-                        </div>
-                    `;
-                });
+        if (equiposSorteadosR1.size < todosLosEquipos.length) {
+          mostrarToast(`Aún quedan equipos sin sortear en la Ronda 1. Usa 'Continúa Sorteo'.`, "warning");
+          return;
+        }
+
+        let ultimaRondaNum = totalRondas;
+        let partidosUltimaRonda = bracketEstructura[`ronda_${ultimaRondaNum}`] || [];
+        let hayPendientes = partidosUltimaRonda.some(p => p.ganador === "Pendiente");
+
+        if (hayPendientes) {
+          mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara a todos los ganadores primero.`, "warning");
+          return;
+        }
+
+        if (partidosUltimaRonda.length === 1) {
+          mostrarToast(`¡El torneo ya ha finalizado! Campeón: ${partidosUltimaRonda[0].ganador}`, "success");
+          return;
+        }
+
+        let ganadores = partidosUltimaRonda.map(p => p.ganador).sort(() => Math.random() - 0.5);
+        let partidosSiguienteRonda = [];
+
+        const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
+        const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
+        const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
+
+        let [hours, minutes] = startTimeStr.split(':').map(Number);
+        let currentTime = new Date();
+        currentTime.setHours(hours, minutes, 0, 0);
+        let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        for (let i = 0; i < ganadores.length; i += 2) {
+          let matchStart = new Date(currentTime);
+          let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+
+          if (ganadores[i + 1]) {
+            partidosSiguienteRonda.push({
+              equipo1: ganadores[i],
+              equipo2: ganadores[i + 1],
+              ganador: "Pendiente",
+              timeStr: formatTime(matchStart),
+              toleranceStr: formatTime(toleranceStart)
             });
-
-            db.ref(`torneos/${currentMode}/bracket`).on('value', (snap) => {
-                datosBracketServidor = snap.val();
-                renderizarRondasYBracket();
-                renderizarArbolEsquematico();
+          } else {
+            partidosSiguienteRonda.push({
+              equipo1: ganadores[i],
+              equipo2: "PASE DIRECTO 🏆",
+              ganador: ganadores[i],
+              timeStr: formatTime(matchStart),
+              toleranceStr: '-'
             });
+          }
+          currentTime = new Date(currentTime.getTime() + duration * 60000);
         }
 
-        function filtrarEquipos() {
-            const query = document.getElementById('search-team-input').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.team-card');
-            cards.forEach(card => {
-                const name = card.getAttribute('data-teamname');
-                if (name.includes(query)) card.classList.remove('hidden');
-                else card.classList.add('hidden');
-            });
-        }
-
-        function filtrarEnfrentamientos() {
-            const query = document.getElementById('search-match-input').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.match-card');
-            cards.forEach(card => {
-                const teams = card.getAttribute('data-teams');
-                if (teams.includes(query)) card.classList.remove('hidden');
-                else card.classList.add('hidden');
-            });
-        }
-
-        function renderizarRondasYBracket() {
-            const roundsContainer = document.getElementById('rounds-filter-container');
-            const matchesContainer = document.getElementById('matches-container');
-            
-            roundsContainer.innerHTML = '';
-            matchesContainer.innerHTML = '';
-
-            if (!datosBracketServidor) {
-                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado enfrentamientos.</p>`;
-                return;
-            }
-
-            const totalRondas = Object.keys(datosBracketServidor).length;
-
-            for (let r = 1; r <= totalRondas; r++) {
-                let nombreRonda = `Ronda ${r}`;
-                const partidosRonda = datosBracketServidor[`ronda_${r}`] || [];
-                const cantidadPartidos = partidosRonda.length;
-
-                if (cantidadPartidos === 4) nombreRonda = "Cuartos";
-                if (cantidadPartidos === 2) nombreRonda = "Semis";
-                if (cantidadPartidos === 1) nombreRonda = "Final";
-
-                let isActive = r === rondaSeleccionada;
-                let bgClass = isActive ? "bg-bnxblue text-black font-extrabold shadow-md" : "bg-mldark-900 text-slate-400 border border-slate-800 hover:text-white";
-
-                roundsContainer.innerHTML += `
-                    <button onclick="seleccionarRonda(${r})" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition cursor-pointer ${bgClass}">
-                        ${nombreRonda}
-                    </button>
-                `;
-            }
-
-            const partidosRondaActual = datosBracketServidor[`ronda_${rondaSeleccionada}`] || [];
-
-            if (partidosRondaActual.length === 0) {
-                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado partidos para esta ronda.</p>`;
-                return;
-            }
-
-            partidosRondaActual.forEach((p, idx) => {
-                let isFinished = p.ganador !== "Pendiente";
-                let isPass = p.equipo2 === "PASE DIRECTO 🏆";
-
-                let eq1Style = "bg-mldark-900 border-slate-800 text-cyan-400 font-bold";
-                let eq2Style = "bg-mldark-900 border-slate-800 text-rose-400 font-bold";
-
-                if (isFinished) {
-                    if (p.ganador === p.equipo1) {
-                        eq1Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
-                        eq2Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
-                    } else if (p.ganador === p.equipo2) {
-                        eq1Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
-                        eq2Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
-                    }
-                }
-
-                let roomCodeHtml = '';
-                if (isAdmin && !isPass) {
-                    roomCodeHtml = `
-                        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center gap-2">
-                            <input type="text" id="room-input-${rondaSeleccionada}-${idx}" placeholder="Código de Sala MLBB" value="${p.roomCode || ''}" class="bg-mldark-900 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                            <button onclick="guardarCodigoSala(${rondaSeleccionada}, ${idx})" class="bg-bnxblue text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-bnxblue/80 transition cursor-pointer whitespace-nowrap">Guardar Código</button>
-                        </div>
-                    `;
-                } else if (p.roomCode) {
-                    roomCodeHtml = `
-                        <div class="mt-2 bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 text-center text-xs">
-                            <span class="text-slate-400">🔑 Código de Sala VS:</span> <b class="text-amber-400 font-mono text-sm tracking-widest">${p.roomCode}</b>
-                        </div>
-                    `;
-                }
-
-                let adminAcciones = '';
-                if (isAdmin && !isFinished && !isPass) {
-                    adminAcciones = `
-                        <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col gap-2">
-                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Declarar Ganador</div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="declararGanador(${rondaSeleccionada}, ${idx}, '${p.equipo1}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
-                                    Gana ${p.equipo1}
-                                </button>
-                                <button onclick="declararGanador(${rondaSeleccionada}, ${idx}, '${p.equipo2}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
-                                    Gana ${p.equipo2}
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                let matchTeamsLower = `${p.equipo1} ${p.equipo2}`.toLowerCase();
-                let chatSectionHtml = !isPass ? `
-                    <div class="mt-3 border-t border-slate-800/80 pt-2">
-                        <button onclick="toggleChatMatch(${rondaSeleccionada}, ${idx})" class="text-xs font-bold text-slate-400 hover:text-white flex items-center justify-between w-full py-1">
-                            <span><i class="fa-solid fa-comments text-amber-400 mr-1.5"></i> Chat del Enfrentamiento</span>
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </button>
-                        <div id="chat-box-${rondaSeleccionada}-${idx}" class="hidden mt-2 bg-mldark-900 border border-slate-800 rounded-xl p-3 space-y-2">
-                            <div id="chat-login-${rondaSeleccionada}-${idx}" class="space-y-2">
-                                <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB para acceder al chat:</p>
-                                <div class="flex gap-2">
-                                    <input type="text" id="chat-userid-input-${rondaSeleccionada}-${idx}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                                    <button onclick="verificarAccesoChat(${rondaSeleccionada}, ${idx}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
-                                </div>
-                            </div>
-                            <div id="chat-body-${rondaSeleccionada}-${idx}" class="hidden space-y-2">
-                                <div id="messages-list-${rondaSeleccionada}-${idx}" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 text-xs p-1 bg-mldark-800 rounded-lg"></div>
-                                <div class="flex gap-2">
-                                    <input type="text" id="chat-msg-input-${rondaSeleccionada}-${idx}" placeholder="Escribe un mensaje..." class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                                    <button onclick="enviarMensajeChat(${rondaSeleccionada}, ${idx})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-lg hover:bg-emerald-500 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ` : '';
-
-                matchesContainer.innerHTML += `
-                    <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${matchTeamsLower}">
-                        <div>
-                            <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-slate-800">
-                                <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idx + 1}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
-                                    ${isFinished ? 'GANADOR: ' + p.ganador : 'EN ESPERA'}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between items-center bg-mldark-900 px-3 py-2 rounded-xl mb-3 text-xs border border-slate-800">
-                                <div class="text-slate-300 font-medium">
-                                    <i class="fa-regular fa-clock text-amber-400 mr-1"></i> Hora: <b class="text-white">${p.timeStr || '--:--'}</b>
-                                </div>
-                                <div class="text-slate-400 font-medium">
-                                    <i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2 mb-2">
-                                <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
-                                    <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
-                                </div>
-                                <div class="text-center text-[10px] font-black text-slate-600 tracking-widest">VS</div>
-                                <div class="p-3 rounded-xl border ${eq2Style} flex justify-between items-center text-sm">
-                                    <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
-                                </div>
-                            </div>
-
-                            ${roomCodeHtml}
-                            ${chatSectionHtml}
-                        </div>
-
-                        ${adminAcciones}
-                    </div>
-                `;
-            });
-        }
-
-        function guardarCodigoSala(rondaNum, idx) {
-            const val = document.getElementById(`room-input-${rondaNum}-${idx}`).value.trim();
-            db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({
-                roomCode: val
-            }, () => {
-                mostrarToast("Código de sala guardado", "success");
-            });
-        }
-
-        function toggleChatMatch(rondaNum, idx) {
-            const el = document.getElementById(`chat-box-${rondaNum}-${idx}`);
-            if (el) el.classList.toggle('hidden');
-        }
-
-        function verificarAccesoChat(rondaNum, idx, equipo1, equipo2) {
-            const userId = document.getElementById(`chat-userid-input-${rondaNum}-${idx}`).value.trim();
-            if (!userId) {
-                mostrarToast("Ingresa un ID válido", "warning");
-                return;
-            }
-
-            let tienePermiso = false;
-            let nickJugador = "";
-
-            [equipo1, equipo2].forEach(eqNombre => {
-                const jugadores = equiposCacheObj[eqNombre] || [];
-                jugadores.forEach(j => {
-                    if (j.id === userId) {
-                        tienePermiso = true;
-                        nickJugador = j.nick;
-                    }
-                });
-            });
-
-            if (isAdmin) {
-                tienePermiso = true;
-                nickJugador = "Admin";
-            }
-
-            if (tienePermiso) {
-                usuarioIdAutenticado = { nick: nickJugador, id: userId };
-                document.getElementById(`chat-login-${rondaNum}-${idx}`).classList.add('hidden');
-                document.getElementById(`chat-body-${rondaNum}-${idx}`).classList.remove('hidden');
-                escucharMensajesChat(rondaNum, idx);
-                mostrarToast(`Bienvenido al chat, ${nickJugador}`, "success");
-            } else {
-                mostrarToast("Tu ID de MLBB no pertenece a ninguno de los dos equipos de esta partida", "error");
-            }
-        }
-
-        function escucharMensajesChat(rondaNum, idx) {
-            db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).on('value', (snap) => {
-                const data = snap.val();
-                const list = document.getElementById(`messages-list-${rondaNum}-${idx}`);
-                if (!list) return;
-                list.innerHTML = '';
-
-                if (!data) {
-                    list.innerHTML = `<p class="text-[10px] text-slate-500 italic">No hay mensajes aún en esta partida...</p>`;
-                    return;
-                }
-
-                Object.values(data).forEach(m => {
-                    list.innerHTML += `
-                        <div class="p-1.5 rounded bg-mldark-900 border border-slate-800">
-                            <span class="font-bold text-amber-400 text-[10px]">${m.nick}:</span>
-                            <span class="text-slate-200 text-[11px]">${m.texto}</span>
-                        </div>
-                    `;
-                });
-                list.scrollTop = list.scrollHeight;
-            });
-        }
-
-        function enviarMensajeChat(rondaNum, idx) {
-            const input = document.getElementById(`chat-msg-input-${rondaNum}-${idx}`);
-            const texto = input.value.trim();
-            if (!texto || !usuarioIdAutenticado) return;
-
-            db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).push({
-                nick: usuarioIdAutenticado.nick,
-                texto: texto,
-                fecha: Date.now()
-            }, () => {
-                input.value = '';
-            });
-        }
-
-        function renderizarArbolEsquematico() {
-            const container = document.getElementById('arbol-esquematico-container');
-            container.innerHTML = '';
-
-            if (!datosBracketServidor) {
-                container.innerHTML = `<p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>`;
-                return;
-            }
-
-            const totalRondas = Object.keys(datosBracketServidor).length;
-
-            for (let r = 1; r <= totalRondas; r++) {
-                const partidos = datosBracketServidor[`ronda_${r}`] || [];
-                let columnaHtml = `<div class="flex flex-col justify-around gap-6"><div class="text-center text-xs font-bold text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
-
-                partidos.forEach((p) => {
-                    columnaHtml += `
-                        <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px]">
-                            <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">${p.equipo1}</div>
-                            <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-                            <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">${p.equipo2}</div>
-                        </div>
-                    `;
-                });
-
-                columnaHtml += `</div>`;
-                container.innerHTML += columnaHtml;
-            }
-        }
-
-        function seleccionarRonda(numRonda) {
-            rondaSeleccionada = numRonda;
-            renderizarRondasYBracket();
-        }
-
-        // 1. BOTÓN: INICIAR SORTEO DE LA RONDA 1 (PRIMERA TANDA)
-        function iniciarSorteoRonda1() {
-            let todosLosEquipos = Object.keys(equiposCacheObj);
-            if (todosLosEquipos.length < 2) {
-                mostrarToast("Se necesitan al menos 2 equipos inscritos para iniciar.", "warning");
-                return;
-            }
-
-            let bracketEstructura = datosBracketServidor || {};
-            if (bracketEstructura['ronda_1'] && bracketEstructura['ronda_1'].length > 0) {
-                mostrarToast("La Ronda 1 ya fue iniciada. Usa el botón 'Continúa Sorteo' si tienes más equipos.", "warning");
-                return;
-            }
-
-            const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
-            const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
-            const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
-
-            let participantes = [...todosLosEquipos].sort(() => Math.random() - 0.5);
-            let tandaEquipos = participantes.slice(0, 32); // Primeros 32 equipos (16 partidos)
-            let partidosRonda1 = [];
-
-            let [hours, minutes] = startTimeStr.split(':').map(Number);
-            let currentTime = new Date();
-            currentTime.setHours(hours, minutes, 0, 0);
-            let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            for (let i = 0; i < tandaEquipos.length; i += 2) {
-                let matchStart = new Date(currentTime);
-                let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-
-                if (tandaEquipos[i + 1]) {
-                    partidosRonda1.push({
-                        equipo1: tandaEquipos[i],
-                        equipo2: tandaEquipos[i + 1],
-                        ganador: "Pendiente",
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: formatTime(toleranceStart)
-                    });
-                } else {
-                    partidosRonda1.push({
-                        equipo1: tandaEquipos[i],
-                        equipo2: "PASE DIRECTO 🏆",
-                        ganador: tandaEquipos[i],
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: '-'
-                    });
-                }
-                currentTime = new Date(currentTime.getTime() + duration * 60000);
-            }
-
-            bracketEstructura['ronda_1'] = partidosRonda1;
-            rondaSeleccionada = 1;
-
-            db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast("¡Sorteo de la primera tanda de 16 partidos iniciado!", "success");
-            });
-        }
-
-        // 2. BOTÓN: CONTINUAR SORTEO DE LA RONDA 1 (SIGUIENTES TANDAS HASTA AGOTAR EQUIPOS)
-        function continuarSorteoRonda1() {
-            let todosLosEquipos = Object.keys(equiposCacheObj);
-            let bracketEstructura = datosBracketServidor || {};
-            let partidosRonda1 = bracketEstructura['ronda_1'] || [];
-
-            if (partidosRonda1.length === 0) {
-                mostrarToast("Primero debes iniciar el sorteo con el botón verde.", "warning");
-                return;
-            }
-
-            // Identificar qué equipos ya salieron sorteados en la Ronda 1
-            let equiposYaSorteados = new Set();
-            partidosRonda1.forEach(p => {
-                if (p.equipo1) equiposYaSorteados.add(p.equipo1);
-                if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(p.equipo2);
-            });
-
-            let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq));
-            if (equiposPendientes.length === 0) {
-                mostrarToast("Ya se sortearon todos los equipos inscritos en esta ronda.", "info");
-                return;
-            }
-
-            let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
-            let tandaExtra = candidatos.slice(0, 32); // Siguientes 32 equipos
-
-            const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
-            const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
-
-            // Calcular hora de inicio en base al último partido existente
-            let ultimoPartido = partidosRonda1[partidosRonda1.length - 1];
-            let [h, m] = ultimoPartido.timeStr.split(':').map(Number);
-            let currentTime = new Date();
-            currentTime.setHours(h, m + duration, 0, 0);
-            let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            for (let i = 0; i < tandaExtra.length; i += 2) {
-                let matchStart = new Date(currentTime);
-                let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-
-                if (tandaExtra[i + 1]) {
-                    partidosRonda1.push({
-                        equipo1: tandaExtra[i],
-                        equipo2: tandaExtra[i + 1],
-                        ganador: "Pendiente",
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: formatTime(toleranceStart)
-                    });
-                } else {
-                    partidosRonda1.push({
-                        equipo1: tandaExtra[i],
-                        equipo2: "PASE DIRECTO 🏆",
-                        ganador: tandaExtra[i],
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: '-'
-                    });
-                }
-                currentTime = new Date(currentTime.getTime() + duration * 60000);
-            }
-
-            bracketEstructura['ronda_1'] = partidosRonda1;
-            db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast("¡Se agregaron 16 partidos más de la siguiente tanda!", "success");
-            });
-        }
-
-        // 3. BOTÓN: PASAR A LA SIGUIENTE RONDA (VALIDANDO QUE NO QUEDEN PARTIDOS PENDIENTES)
-        function avançarSiguienteRonda() {
-            let bracketEstructura = datosBracketServidor || {};
-            let totalRondas = Object.keys(bracketEstructura).length;
-
-            if (totalRondas === 0) {
-                mostrarToast("Aún no hay rondas creadas.", "warning");
-                return;
-            }
-
-            // Validar si en la ronda actual hay equipos sin sortear de la lista general (si es ronda 1)
-            if (totalRondas === 1) {
-                let todosLosEquipos = Object.keys(equiposCacheObj);
-                let partidosRonda1 = bracketEstructura['ronda_1'] || [];
-                let equiposYaSorteados = new Set();
-                partidosRonda1.forEach(p => {
-                    if (p.equipo1) equiposYaSorteados.add(p.equipo1);
-                    if (p.equipo2 && p.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(p.equipo2);
-                });
-
-                if (equiposYaSorteados.size < todosLosEquipos.length) {
-                    mostrarToast("Aún hay equipos inscritos sin sortear en la Ronda 1. Usa 'Continúa Sorteo' primero.", "warning");
-                    return;
-                }
-            }
-
-            let ultimaRondaNum = totalRondas;
-            let partidosUltimaRonda = bracketEstructura[`ronda_${ultimaRondaNum}`] || [];
-
-            // RESTRICCIÓN: Validar que todos tengan ganador
-            let hayPendientes = partidosUltimaRonda.some(p => p.ganador === "Pendiente");
-            if (hayPendientes) {
-                mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara a todos los ganadores antes de continuar.`, "warning");
-                return;
-            }
-
-            if (partidosUltimaRonda.length === 1) {
-                mostrarToast(`¡El torneo ya ha finalizado! Campeón: ${partidosUltimaRonda[0].ganador}`, "success");
-                return;
-            }
-
-            let ganadores = partidosUltimaRonda.map(p => p.ganador);
-            let partidosSiguienteRonda = [];
-
-            const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
-            const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
-            const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
-
-            let [hours, minutes] = startTimeStr.split(':').map(Number);
-            let currentTime = new Date();
-            currentTime.setHours(hours, minutes, 0, 0);
-            let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            for (let i = 0; i < ganadores.length; i += 2) {
-                let matchStart = new Date(currentTime);
-                let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-
-                if (ganadores[i + 1]) {
-                    partidosSiguienteRonda.push({
-                        equipo1: ganadores[i],
-                        equipo2: ganadores[i + 1],
-                        ganador: "Pendiente",
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: formatTime(toleranceStart)
-                    });
-                } else {
-                    partidosSiguienteRonda.push({
-                        equipo1: ganadores[i],
-                        equipo2: "PASE DIRECTO 🏆",
-                        ganador: ganadores[i],
-                        timeStr: formatTime(matchStart),
-                        toleranceStr: '-'
-                    });
-                }
-                currentTime = new Date(currentTime.getTime() + duration * 60000);
-            }
-
-            let nuevaRondaNum = ultimaRondaNum + 1;
-            bracketEstructura[`ronda_${nuevaRondaNum}`] = partidosSiguienteRonda;
-            rondaSeleccionada = nuevaRondaNum;
-
-            db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada con los ganadores!`, "success");
-            });
-        }
-
-        function declararGanador(rondaNum, idx, ganador) {
-            db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({
-                ganador: ganador,
-                motivo: 'Victoria en Arena'
-            }, () => {
-                mostrarToast(`Ganador registrado: ${ganador}`, "success");
-            });
-        }
-
-        function reiniciarTorneo() {
-            if (confirm("¿Seguro que deseas reiniciar las partidas y equipos del torneo?")) {
-                db.ref(`torneos/${currentMode}`).remove();
-                rondaSeleccionada = 1;
-                mostrarToast("Se han borrado los datos del torneo.", "info");
-            }
-        }
-
-        function eliminarEquipo(key) {
-            if (confirm("¿Eliminar este equipo de la lista?")) {
-                db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
-                mostrarToast("Equipo eliminado", "info");
-            }
-        }
-
-        function mostrarToast(msg, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            let color = "bg-mldark-800 border-slate-700 text-white";
-            if (type === "success") color = "bg-emerald-950 border-emerald-800 text-emerald-200";
-            if (type === "warning") color = "bg-amber-950 border-amber-800 text-amber-200";
-            if (type === "error") color = "bg-rose-950 border-rose-800 text-rose-200";
-
-            toast.className = `${color} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold`;
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-    </script>
+        let nuevaRondaNum = ultimaRondaNum + 1;
+        bracketEstructura[`ronda_${nuevaRondaNum}`] = partidosSiguienteRonda;
+        rondaSeleccionada = nuevaRondaNum;
+
+        db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
+          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada con éxito!`, "success");
+        });
+      });
+    }
+
+    function declararGanador(rondaNum, idx, ganador) {
+      db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({
+        ganador: ganador,
+        motivo: 'Victoria en Arena'
+      }, () => {
+        mostrarToast(`Ganador registrado: ${ganador}`, "success");
+      });
+    }
+
+    function reiniciarTorneo() {
+      if (confirm("¿Seguro que deseas reiniciar las partidas y equipos del torneo?")) {
+        db.ref(`torneos/${currentMode}`).remove();
+        rondaSeleccionada = 1;
+        mostrarToast("Se han borrado los datos del torneo.", "info");
+      }
+    }
+
+    function eliminarEquipo(key) {
+      if (confirm("¿Eliminar este equipo de la lista?")) {
+        db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
+        mostrarToast("Equipo eliminado", "info");
+      }
+    }
+
+    function mostrarToast(msg, type = "info") {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      let color = "bg-mldark-800 border-slate-700 text-white";
+
+      if (type === "success") color = "bg-emerald-950 border-emerald-800 text-emerald-200";
+      if (type === "warning") color = "bg-amber-950 border-amber-800 text-amber-200";
+      if (type === "error") color = "bg-rose-950 border-rose-800 text-rose-200";
+
+      toast.className = `${color} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold`;
+      toast.innerText = msg;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
 </body>
 </html>
