@@ -85,7 +85,7 @@
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- SELECCIÓN DE MODALIDAD (INICIO PÚBLICO) -->
+    <!-- SELECCIÓN DE MODALIDAD -->
     <section id="mode-selector-section" class="py-10 text-center">
       <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
       <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribir a tu equipo</p>
@@ -112,7 +112,11 @@
             <i class="fa-solid fa-sliders"></i> Control de Torneo (<span id="admin-mode-label">5v5</span>)
           </h2>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-4">
+          <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Fecha Programada</label>
+            <input type="date" id="cfg-match-date" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+          </div>
           <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
             <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio Ronda</label>
             <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
@@ -184,7 +188,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: EQUIPOS INSCRITOS CON BUSCADOR -->
+      <!-- TAB 2: EQUIPOS INSCRITOS -->
       <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Equipos Registrados</h3>
@@ -198,7 +202,7 @@
         </div>
       </div>
 
-      <!-- TAB 3: ORGANIZACIÓN MATCHES Y BUSCADOR -->
+      <!-- TAB 3: ORGANIZACIÓN MATCHES -->
       <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
@@ -271,6 +275,15 @@
     let rondaSeleccionada = 1;
     let datosBracketServidor = null;
     let usuarioIdAutenticado = null;
+    let fechasSeleccionadasAdmin = { 1: '', 2: '', 3: '', 4: '' };
+    let ocultarConcluidosAdmin = { 1: false, 2: false, 3: false, 4: false };
+
+    // Establecer fecha de hoy por defecto en el panel de control
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      const cfgDateInput = document.getElementById('cfg-match-date');
+      if (cfgDateInput) cfgDateInput.value = hoy;
+    });
 
     function seleccionarModalidad(modo) {
       currentMode = modo;
@@ -515,6 +528,16 @@
       });
     }
 
+    function cambiarFechaMesa(adminNum, fechaVal) {
+      fechasSeleccionadasAdmin[adminNum] = fechaVal;
+      renderizarRondasYBracket();
+    }
+
+    function toggleOcultarConcluidos(adminNum) {
+      ocultarConcluidosAdmin[adminNum] = !ocultarConcluidosAdmin[adminNum];
+      renderizarRondasYBracket();
+    }
+
     function renderizarRondasYBracket() {
       const roundsContainer = document.getElementById('rounds-filter-container');
       const matchesContainer = document.getElementById('matches-container');
@@ -569,131 +592,170 @@
         return;
       }
 
-      // AGRUPAMIENTO POR ADMINISTRADOR (4 PARTIDAS POR BLOQUE)
+      // RENDERIZADO INDEPENDIENTE POR MESA / ADMINISTRADOR (1 A 4)
       for (let adminNum = 1; adminNum <= 4; adminNum++) {
         let partidosAdmin = partidosRondaActual.filter((_, idx) => (idx % 4) === (adminNum - 1));
 
         if (partidosAdmin.length === 0) continue;
 
+        // Obtener lista de fechas únicas en las partidas de esta mesa
+        let fechasDisponibles = [...new Set(partidosAdmin.map(p => p.fechaDateStr || 'Sin Fecha'))].sort();
+        let fechaFiltroActual = fechasSeleccionadasAdmin[adminNum];
+
+        // Filtrar partidas por la fecha elegida si existe un filtro activo
+        let partidosFiltrados = partidosAdmin;
+        if (fechaFiltroActual) {
+          partidosFiltrados = partidosAdmin.filter(p => p.fechaDateStr === fechaFiltroActual);
+        }
+
+        // Plegado de concluidas
+        if (ocultarConcluidosAdmin[adminNum]) {
+          partidosFiltrados = partidosFiltrados.filter(p => p.ganador === "Pendiente");
+        }
+
         let adminCardsHtml = '';
-        partidosAdmin.forEach((p) => {
-          let idxOriginal = partidosRondaActual.indexOf(p);
-          let isFinished = p.ganador !== "Pendiente";
-          let isPass = p.equipo2 === "PASE DIRECTO 🏆";
-          let eq1Style = "bg-mldark-900 border-slate-800 text-cyan-400 font-bold";
-          let eq2Style = "bg-mldark-900 border-slate-800 text-rose-400 font-bold";
+        if (partidosFiltrados.length === 0) {
+          adminCardsHtml = `<p class="text-xs text-slate-500 italic col-span-full py-4 text-center">No hay partidas pendientes o para la fecha seleccionada.</p>`;
+        } else {
+          partidosFiltrados.forEach((p) => {
+            let idxOriginal = partidosRondaActual.indexOf(p);
+            let isFinished = p.ganador !== "Pendiente";
+            let isPass = p.equipo2 === "PASE DIRECTO 🏆";
+            let eq1Style = "bg-mldark-900 border-slate-800 text-cyan-400 font-bold";
+            let eq2Style = "bg-mldark-900 border-slate-800 text-rose-400 font-bold";
 
-          if (isFinished) {
-            if (p.ganador === p.equipo1) {
-              eq1Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
-              eq2Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
-            } else if (p.ganador === p.equipo2) {
-              eq1Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
-              eq2Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+            if (isFinished) {
+              if (p.ganador === p.equipo1) {
+                eq1Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+                eq2Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
+              } else if (p.ganador === p.equipo2) {
+                eq1Style = "bg-mldark-900/50 border-slate-800 text-slate-600 line-through opacity-50";
+                eq2Style = "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-black";
+              }
             }
-          }
 
-          let roomCodeHtml = '';
-          if (isAdmin && !isPass) {
-            roomCodeHtml = `
-              <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center gap-2">
-                <input type="text" id="room-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Código de Sala MLBB" value="${p.roomCode || ''}" class="bg-mldark-900 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                <button onclick="guardarCodigoSala(${rondaSeleccionada}, ${idxOriginal})" class="bg-bnxblue text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-bnxblue/80 transition cursor-pointer whitespace-nowrap">Guardar Código</button>
+            let roomCodeHtml = '';
+            if (isAdmin && !isPass) {
+              roomCodeHtml = `
+                <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                  <input type="text" id="room-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Código de Sala MLBB" value="${p.roomCode || ''}" class="bg-mldark-900 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                  <button onclick="guardarCodigoSala(${rondaSeleccionada}, ${idxOriginal})" class="bg-bnxblue text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-bnxblue/80 transition cursor-pointer whitespace-nowrap">Guardar Código</button>
+                </div>
+              `;
+            } else if (p.roomCode) {
+              roomCodeHtml = `
+                <div class="mt-2 bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 text-center text-xs">
+                  <span class="text-slate-400">🔑 Código de Sala VS:</span>
+                  <b class="text-amber-400 font-mono text-sm tracking-widest">${p.roomCode}</b>
+                </div>
+              `;
+            }
+
+            let adminAcciones = '';
+            if (isAdmin && !isPass) {
+              adminAcciones = `
+                <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col gap-2">
+                  <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">
+                    ${isFinished ? '⚠️ Modificar Ganador (Modo Admin)' : 'Declarar Ganador'}
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
+                      Gana ${p.equipo1}
+                    </button>
+                    <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo2}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
+                      Gana ${p.equipo2}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }
+
+            let matchTeamsLower = `${p.equipo1} ${p.equipo2}`.toLowerCase();
+            let chatSectionHtml = !isPass ? `
+              <div class="mt-3 border-t border-slate-800/80 pt-2">
+                <button onclick="toggleChatMatch(${rondaSeleccionada}, ${idxOriginal})" class="text-xs font-bold text-slate-400 hover:text-white flex items-center justify-between w-full py-1">
+                  <span><i class="fa-solid fa-comments text-amber-400 mr-1.5"></i> Chat del Enfrentamiento</span>
+                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                </button>
+                <div id="chat-box-${rondaSeleccionada}-${idxOriginal}" class="hidden mt-2 bg-mldark-900 border border-slate-800 rounded-xl p-3 space-y-2">
+                  <div id="chat-login-${rondaSeleccionada}-${idxOriginal}" class="space-y-2">
+                    <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB para acceder al chat:</p>
+                    <div class="flex gap-2">
+                      <input type="text" id="chat-userid-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                      <button onclick="verificarAccesoChat(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
+                    </div>
+                  </div>
+                  <div id="chat-body-${rondaSeleccionada}-${idxOriginal}" class="hidden space-y-2">
+                    <div id="messages-list-${rondaSeleccionada}-${idxOriginal}" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 text-xs p-1 bg-mldark-800 rounded-lg"></div>
+                    <div class="flex gap-2">
+                      <input type="text" id="chat-msg-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Escribe un mensaje..." class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                      <button onclick="enviarMensajeChat(${rondaSeleccionada}, ${idxOriginal})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-lg hover:bg-emerald-500 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ` : '';
+
+            adminCardsHtml += `
+              <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${matchTeamsLower}">
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-2 pb-2 border-b border-slate-800">
+                    <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idxOriginal + 1}</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
+                      ${isFinished ? 'GANADOR: ' + p.ganador : 'EN ESPERA'}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center bg-mldark-900 px-3 py-1.5 rounded-xl mb-3 text-[11px] border border-slate-800">
+                    <div class="text-slate-300">
+                      📅 <b class="text-white">${p.fechaDateStr || 'S/F'}</b> &bull; <i class="fa-regular fa-clock text-amber-400"></i> <b class="text-white">${p.timeStr || '--:--'}</b>
+                    </div>
+                    <div class="text-slate-400">
+                      W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
+                    </div>
+                  </div>
+                  <div class="space-y-2 mb-2">
+                    <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
+                      <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
+                    </div>
+                    <div class="text-center text-[10px] font-black text-slate-600 tracking-widest">VS</div>
+                    <div class="p-3 rounded-xl border ${eq2Style} flex justify-between items-center text-sm">
+                      <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
+                    </div>
+                  </div>
+                  ${roomCodeHtml}
+                  ${chatSectionHtml}
+                </div>
+                ${adminAcciones}
               </div>
             `;
-          } else if (p.roomCode) {
-            roomCodeHtml = `
-              <div class="mt-2 bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 text-center text-xs">
-                <span class="text-slate-400">🔑 Código de Sala VS:</span>
-                <b class="text-amber-400 font-mono text-sm tracking-widest">${p.roomCode}</b>
-              </div>
-            `;
-          }
+          });
+        }
 
-          let adminAcciones = '';
-          if (isAdmin && !isPass) {
-            adminAcciones = `
-              <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col gap-2">
-                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">
-                  ${isFinished ? '⚠️ Modificar Ganador (Modo Admin)' : 'Declarar Ganador'}
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                  <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
-                    Gana ${p.equipo1}
-                  </button>
-                  <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo2}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
-                    Gana ${p.equipo2}
-                  </button>
-                </div>
-              </div>
-            `;
-          }
-
-          let matchTeamsLower = `${p.equipo1} ${p.equipo2}`.toLowerCase();
-          let chatSectionHtml = !isPass ? `
-            <div class="mt-3 border-t border-slate-800/80 pt-2">
-              <button onclick="toggleChatMatch(${rondaSeleccionada}, ${idxOriginal})" class="text-xs font-bold text-slate-400 hover:text-white flex items-center justify-between w-full py-1">
-                <span><i class="fa-solid fa-comments text-amber-400 mr-1.5"></i> Chat del Enfrentamiento</span>
-                <i class="fa-solid fa-chevron-down text-xs"></i>
-              </button>
-              <div id="chat-box-${rondaSeleccionada}-${idxOriginal}" class="hidden mt-2 bg-mldark-900 border border-slate-800 rounded-xl p-3 space-y-2">
-                <div id="chat-login-${rondaSeleccionada}-${idxOriginal}" class="space-y-2">
-                  <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB para acceder al chat:</p>
-                  <div class="flex gap-2">
-                    <input type="text" id="chat-userid-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                    <button onclick="verificarAccesoChat(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
-                  </div>
-                </div>
-                <div id="chat-body-${rondaSeleccionada}-${idxOriginal}" class="hidden space-y-2">
-                  <div id="messages-list-${rondaSeleccionada}-${idxOriginal}" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 text-xs p-1 bg-mldark-800 rounded-lg"></div>
-                  <div class="flex gap-2">
-                    <input type="text" id="chat-msg-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Escribe un mensaje..." class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                    <button onclick="enviarMensajeChat(${rondaSeleccionada}, ${idxOriginal})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-lg hover:bg-emerald-500 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ` : '';
-
-          adminCardsHtml += `
-            <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${matchTeamsLower}">
-              <div>
-                <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-slate-800">
-                  <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idxOriginal + 1}</span>
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
-                    ${isFinished ? 'GANADOR: ' + p.ganador : 'EN ESPERA'}
-                  </span>
-                </div>
-                <div class="flex justify-between items-center bg-mldark-900 px-3 py-2 rounded-xl mb-3 text-xs border border-slate-800">
-                  <div class="text-slate-300 font-medium">
-                    <i class="fa-regular fa-clock text-amber-400 mr-1"></i> Hora: <b class="text-white">${p.timeStr || '--:--'}</b>
-                  </div>
-                  <div class="text-slate-400 font-medium">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
-                  </div>
-                </div>
-                <div class="space-y-2 mb-2">
-                  <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
-                    <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
-                  </div>
-                  <div class="text-center text-[10px] font-black text-slate-600 tracking-widest">VS</div>
-                  <div class="p-3 rounded-xl border ${eq2Style} flex justify-between items-center text-sm">
-                    <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
-                  </div>
-                </div>
-                ${roomCodeHtml}
-                ${chatSectionHtml}
-              </div>
-              ${adminAcciones}
-            </div>
-          `;
+        // Construir opciones de la lista desplegable de fechas
+        let dateOptionsHtml = `<option value="">Todas las Fechas (${partidosAdmin.length} Partidos)</option>`;
+        fechasDisponibles.forEach(f => {
+          let countF = partidosAdmin.filter(p => p.fechaDateStr === f).length;
+          let selectedStr = f === fechaFiltroActual ? 'selected' : '';
+          dateOptionsHtml += `<option value="${f}" ${selectedStr}>📅 ${f} (${countF} Partidos)</option>`;
         });
+
+        let btnOcultarTexto = ocultarConcluidosAdmin[adminNum] ? 'Mostrar Finalizadas' : 'Ocultar Finalizadas';
 
         matchesContainer.innerHTML += `
           <div class="bg-mldark-900/80 border border-amber-500/20 rounded-2xl p-4 shadow-xl mb-6">
-            <div class="flex items-center gap-2 border-b border-amber-500/30 pb-3 mb-4">
-              <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-xs">#${adminNum}</span>
-              <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider">Mesa / Administrador ${adminNum}</h4>
+            <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-amber-500/30 pb-3 mb-4 gap-3">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-xs">#${adminNum}</span>
+                <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider">Mesa / Administrador ${adminNum}</h4>
+              </div>
+              <div class="flex items-center gap-2">
+                <select onchange="cambiarFechaMesa(${adminNum}, this.value)" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1.5 rounded-xl text-white font-semibold focus:outline-none focus:border-amber-500">
+                  ${dateOptionsHtml}
+                </select>
+                <button onclick="toggleOcultarConcluidos(${adminNum})" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs px-3 py-1.5 rounded-xl font-bold transition cursor-pointer">
+                  <i class="fa-solid fa-eye-slash text-xs mr-1"></i> ${btnOcultarTexto}
+                </button>
+              </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               ${adminCardsHtml}
@@ -817,10 +879,10 @@
     }
 
     // ==========================================
-    // LÓGICA DE BLOQUES PARALELOS (4 ADMINS) Y TIEMPOS
+    // LÓGICA DE BLOQUES PARALELOS CON FECHAS Y DISTRIBUCIÓN
     // ==========================================
 
-    function generarBloquesDePartidas(tandaKeys, dataEquipos, horaInicioStr, duracion, descanso, tolerancia) {
+    function generarBloquesDePartidas(tandaKeys, dataEquipos, fechaStr, horaInicioStr, duracion, descanso, tolerancia) {
       let partidosProcesados = [];
       let [hours, minutes] = horaInicioStr.split(':').map(Number);
       
@@ -831,7 +893,7 @@
 
       for (let i = 0; i < tandaKeys.length; i += 2) {
         let partidoIndex = Math.floor(i / 2); 
-        let bloqueIndex = Math.floor(partidoIndex / 4); 
+        let bloqueIndex = Math.floor(partidoIndex / 4); // 4 partidos simultáneos por turno
 
         let tiempoBloqueMs = bloqueIndex * (duracion + descanso) * 60000;
         let matchStart = new Date(baseTime.getTime() + tiempoBloqueMs);
@@ -847,6 +909,7 @@
             equipo2: eq2Name,
             equipo2Key: tandaKeys[i + 1],
             ganador: "Pendiente",
+            fechaDateStr: fechaStr,
             timeStr: formatTime(matchStart),
             toleranceStr: formatTime(toleranceStart)
           });
@@ -857,6 +920,7 @@
             equipo2: "PASE DIRECTO 🏆",
             equipo2Key: "PASE_DIRECTO",
             ganador: eq1Name,
+            fechaDateStr: fechaStr,
             timeStr: formatTime(matchStart),
             toleranceStr: '-'
           });
@@ -885,6 +949,7 @@
           return;
         }
 
+        const matchDateStr = document.getElementById('cfg-match-date').value || new Date().toISOString().split('T')[0];
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
@@ -893,13 +958,13 @@
         let keysMezcladas = [...keys].sort(() => Math.random() - 0.5);
         let tandaKeys = keysMezcladas.slice(0, 32);
 
-        let partidosRonda1 = generarBloquesDePartidas(tandaKeys, data, startTimeStr, duration, breakTime, tolerance);
+        let partidosRonda1 = generarBloquesDePartidas(tandaKeys, data, matchDateStr, startTimeStr, duration, breakTime, tolerance);
 
         bracketEstructura['ronda_1'] = partidosRonda1;
         rondaSeleccionada = 1;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast("¡Sorteo iniciado en bloques de 4 partidos simultáneos!", "success");
+          if (!err) mostrarToast("¡Sorteo iniciado en bloques organizados por Mesa y Fecha!", "success");
         });
       });
     }
@@ -932,24 +997,20 @@
 
         let seleccionadas = [...keysPendientes].sort(() => Math.random() - 0.5).slice(0, 32);
 
+        const matchDateStr = document.getElementById('cfg-match-date').value || new Date().toISOString().split('T')[0];
+        const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
-        let ultimoPartido = partidosRonda1[partidosRonda1.length - 1];
-        let [h, m] = ultimoPartido.timeStr.split(':').map(Number);
-        let nextStartTime = new Date();
-        nextStartTime.setHours(h, m + duration + breakTime, 0, 0);
-        let nextStartStr = `${String(nextStartTime.getHours()).padStart(2, '0')}:${String(nextStartTime.getMinutes()).padStart(2, '0')}`;
-
-        let nuevosPartidos = generarBloquesDePartidas(seleccionadas, equiposObj, nextStartStr, duration, breakTime, tolerance);
+        let nuevosPartidos = generarBloquesDePartidas(seleccionadas, equiposObj, matchDateStr, startTimeStr, duration, breakTime, tolerance);
         partidosRonda1 = partidosRonda1.concat(nuevosPartidos);
 
         db.ref(`torneos/${currentMode}/bracket/ronda_1`).set(partidosRonda1, (err) => {
           if (!err) {
             let cantPartidos = nuevosPartidos.length;
             let restantes = keysPendientes.length - seleccionadas.length;
-            mostrarToast(`¡Se agregaron ${cantPartidos} partidas en bloques! Quedan ${restantes} equipos pendientes.`, "success");
+            mostrarToast(`¡Se agregaron ${cantPartidos} partidas! Quedan ${restantes} equipos pendientes.`, "success");
           }
         });
       });
@@ -997,6 +1058,7 @@
         let ganadores = partidosUltimaRonda.map(p => p.ganador).sort(() => Math.random() - 0.5);
         let partidosSiguienteRonda = [];
 
+        const matchDateStr = document.getElementById('cfg-match-date').value || new Date().toISOString().split('T')[0];
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
@@ -1020,6 +1082,7 @@
               equipo1: ganadores[i],
               equipo2: ganadores[i + 1],
               ganador: "Pendiente",
+              fechaDateStr: matchDateStr,
               timeStr: formatTime(matchStart),
               toleranceStr: formatTime(toleranceStart)
             });
@@ -1028,6 +1091,7 @@
               equipo1: ganadores[i],
               equipo2: "PASE DIRECTO 🏆",
               ganador: ganadores[i],
+              fechaDateStr: matchDateStr,
               timeStr: formatTime(matchStart),
               toleranceStr: '-'
             });
