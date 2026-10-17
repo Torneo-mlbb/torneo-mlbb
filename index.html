@@ -107,22 +107,13 @@
             <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
                     <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders"></i> Panel de Organización Interna (<span id="admin-mode-label">5v5</span>)
+                        <i class="fa-solid fa-sliders"></i> Control de Torneo (<span id="admin-mode-label">5v5</span>)
                     </h2>
-                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">4 Admins x 4 Matches = 16 Partidas/Tanda</span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Admins</label>
-                        <input type="number" id="cfg-admins-count" value="4" readonly class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold">
-                    </div>
-                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Matches/Admin</label>
-                        <input type="number" id="cfg-matches-per-admin" value="4" readonly class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white text-center font-bold">
-                    </div>
-                    <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio Ronda</label>
                         <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
@@ -130,23 +121,20 @@
                         <input type="number" id="cfg-match-dur" value="20" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                     <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Descanso / W.O. (m)</label>
-                        <div class="flex gap-1">
-                            <input type="number" id="cfg-break-dur" value="10" title="Descanso" class="w-1/2 bg-mldark-800 border border-slate-700 rounded-lg px-1.5 py-1 text-xs text-white text-center">
-                            <input type="number" id="cfg-tolerance" value="5" title="Tolerancia W.O." class="w-1/2 bg-mldark-800 border border-slate-700 rounded-lg px-1.5 py-1 text-xs text-white text-center">
-                        </div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tolerancia W.O. (m)</label>
+                        <input type="number" id="cfg-tolerance" value="5" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="generarSorteo()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-shuffle"></i> Sortear Tanda de 16 Partidas (32 Equipos)
+                    <button onclick="iniciarOAvazarRonda()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-play"></i> Generar / Avanzar Enfrentamientos
                     </button>
                     <button onclick="cargarEquiposEjemplo()" class="bg-bnxblue/20 hover:bg-bnxblue/30 text-bnxblue border border-bnxblue/40 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-bolt"></i> ⚡ Cargar 32 Equipos Demo
+                        <i class="fa-solid fa-bolt"></i> Cargar Equipos de Ejemplo
                     </button>
                     <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-rotate-right"></i> Limpiar Todo
+                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Torneo
                     </button>
                 </div>
             </section>
@@ -155,8 +143,8 @@
             <div class="flex gap-2 border-b border-slate-800 pb-2">
                 <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
                 <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
-                <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Organización & Horarios (Admin)</button>
-                <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático (Admin)</button>
+                <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos & Horarios</button>
+                <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
             </div>
 
             <!-- TAB 1: INSCRIPCIÓN -->
@@ -198,28 +186,27 @@
                 </div>
             </div>
 
-            <!-- TAB 3: ORGANIZACIÓN MATCHES (SOLO ADMIN) -->
+            <!-- TAB 3: ORGANIZACIÓN MATCHES -->
             <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                    <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas y Tiempos Programados</h3>
+                    <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
                     <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold"></div>
                 </div>
 
                 <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <p class="text-xs text-slate-500 italic col-span-full">Aún no se han generado enfrentamientos en esta tanda.</p>
+                    <p class="text-xs text-slate-500 italic col-span-full">Aún no se han generado enfrentamientos.</p>
                 </div>
             </div>
 
             <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
             <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-sitemap"></i> Esquema Completo "Camino a la Final"
+                    <i class="fa-solid fa-sitemap"></i> Camino a la Final
                 </h3>
-                <p class="text-xs text-slate-400">Representación gráfica en árbol del torneo basada en las partidas registradas.</p>
                 
                 <div class="overflow-x-auto custom-scrollbar p-4 bg-mldark-900 rounded-xl border border-slate-800 min-h-[300px] flex justify-center items-center">
                     <div id="arbol-esquematico-container" class="flex items-center gap-8 py-4">
-                        <p class="text-xs text-slate-500 italic">Presiona "Sortear Tanda" desde el panel de Admin para construir el árbol.</p>
+                        <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
                     </div>
                 </div>
             </div>
@@ -369,9 +356,8 @@
                 badge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i> Espectador`;
                 authBtn.innerHTML = `<i class="fa-solid fa-key text-xs"></i> Admin`;
                 adminPanel.classList.add('hidden');
-                tabBracket.classList.add('hidden');
-                tabArbol.classList.add('hidden');
-                cambiarTab('registro');
+                tabBracket.classList.remove('hidden');
+                tabArbol.classList.remove('hidden');
             }
             if (currentMode) sincronizarDatosFirebase();
         }
@@ -426,13 +412,11 @@
                 "Omega Esports", "Blacklist Int", "RRQ Hoshi", "ONIC Esports", "Echo Esports",
                 "Falcon Esports", "Evos Legends", "Brenz ML", "Alter Ego", "Geek Fam",
                 "Todak MLBB", "RSG Slate", "Bigetron Alpha", "Execration", "Incendio Sup",
-                "Team SMG", "DEUS VULT", "Vampire Esports", "Impunity KH", "See You Soon",
-                "The Valley", "LOUD Esports", "Red Canids", "Malvinas Gaming", "S2G Esports",
-                "Stellantis", "Apex Warriors", "Cyber Knights", "Titan Gaming", "Vipers Esports",
-                "Shadow Clan", "Dynasty Esports"
+                "Team SMG"
             ];
 
             const numPlayers = currentMode === '5v5' ? 5 : 3;
+            let batchData = {};
 
             nombresDemo.forEach((nombre, idx) => {
                 let jugadores = [];
@@ -445,14 +429,19 @@
                         telefono: i === 1 ? '+51999888777' : ''
                     });
                 }
-                db.ref(`torneos/${currentMode}/equipos`).push({
+                let newKey = db.ref(`torneos/${currentMode}/equipos`).push().key;
+                batchData[newKey] = {
                     nombreEquipo: nombre,
                     jugadores: jugadores
-                });
+                };
             });
 
-            mostrarToast("⚡ ¡32 equipos de prueba cargados automáticamente!", "success");
-            cambiarTab('equipos');
+            db.ref(`torneos/${currentMode}/equipos`).update(batchData, (err) => {
+                if (!err) {
+                    mostrarToast("¡16 equipos de prueba cargados!", "success");
+                    cambiarTab('equipos');
+                }
+            });
         }
 
         function sincronizarDatosFirebase() {
@@ -508,14 +497,14 @@
             matchesContainer.innerHTML = '';
 
             if (!datosBracketServidor) {
-                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado enfrentamientos en esta tanda.</p>`;
+                matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado enfrentamientos.</p>`;
                 return;
             }
 
             const totalRondas = Object.keys(datosBracketServidor).length;
 
             for (let r = 1; r <= totalRondas; r++) {
-                let nombreRonda = `Round ${r}`;
+                let nombreRonda = `Ronda ${r}`;
                 const partidosRonda = datosBracketServidor[`ronda_${r}`] || [];
                 const cantidadPartidos = partidosRonda.length;
 
@@ -589,7 +578,7 @@
                                     <i class="fa-regular fa-clock text-amber-400 mr-1"></i> Hora: <b class="text-white">${p.timeStr || '--:--'}</b>
                                 </div>
                                 <div class="text-slate-400 font-medium">
-                                    <i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> Límite W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
+                                    <i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
                                 </div>
                             </div>
 
@@ -615,7 +604,7 @@
             container.innerHTML = '';
 
             if (!datosBracketServidor) {
-                container.innerHTML = `<p class="text-xs text-slate-500 italic">Presiona "Sortear Tanda" desde el panel de Admin para construir el árbol.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>`;
                 return;
             }
 
@@ -645,87 +634,119 @@
             renderizarRondasYBracket();
         }
 
-        // FUNCIÓN DE SORTEO CORREGIDA PARA FILTRAR ÚNICAMENTE LA RONDA ACTUAL
-        function generarSorteo() {
-            const numAdmins = 4;
-            const matchesPerAdmin = 4;
-            const maxPartidasTanda = numAdmins * matchesPerAdmin; // Máximo 16 partidas (32 equipos) por clic
-
+        // LÓGICA DE AVANCE DE RONDA SECUENCIAL (16vs, 8vs, 4vs, etc.)
+        function iniciarOAvazarRonda() {
             const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
             const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
-            const breakTime = parseInt(document.getElementById('cfg-break-dur').value) || 10;
             const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
-            let todosLosEquipos = Object.keys(equiposCacheObj);
-            if (todosLosEquipos.length < 2) {
-                mostrarToast("Se necesitan al menos 2 equipos registrados", "warning");
-                return;
-            }
-
             let bracketEstructura = datosBracketServidor || {};
-            let rondaPartidosExistentes = bracketEstructura[`ronda_${rondaSeleccionada}`] || [];
+            let totalRondas = Object.keys(bracketEstructura).length;
 
-            // REVISAR SOLAMENTE LOS EQUIPOS DE LA RONDA ACTUAL (NO DE OTRAS RONDAS)
-            let equiposYaSorteados = new Set();
-            rondaPartidosExistentes.forEach(m => {
-                if (m.equipo1) equiposYaSorteados.add(m.equipo1);
-                if (m.equipo2 && m.equipo2 !== "PASE DIRECTO 🏆") equiposYaSorteados.add(m.equipo2);
-            });
+            // CASO 1: SI NO HAY NINGUNA RONDA CREADA AÚN (INICIAR RONDA 1 CON TODOS LOS REGISTRADOS)
+            if (totalRondas === 0) {
+                let todosLosEquipos = Object.keys(equiposCacheObj);
+                if (todosLosEquipos.length < 2) {
+                    mostrarToast("Se necesitan al menos 2 equipos inscritos para iniciar.", "warning");
+                    return;
+                }
 
-            let equiposPendientes = todosLosEquipos.filter(eq => !equiposYaSorteados.has(eq));
+                let participantes = [...todosLosEquipos].sort(() => Math.random() - 0.5);
+                let partidosRonda1 = [];
 
-            if (equiposPendientes.length === 0) {
-                mostrarToast("Todos los equipos registrados ya están sorteados en esta ronda.", "info");
+                let [hours, minutes] = startTimeStr.split(':').map(Number);
+                let currentTime = new Date();
+                currentTime.setHours(hours, minutes, 0, 0);
+                let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                for (let i = 0; i < participantes.length; i += 2) {
+                    let matchStart = new Date(currentTime);
+                    let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
+
+                    if (participantes[i + 1]) {
+                        partidosRonda1.push({
+                            equipo1: participantes[i],
+                            equipo2: participantes[i + 1],
+                            ganador: "Pendiente",
+                            timeStr: formatTime(matchStart),
+                            toleranceStr: formatTime(toleranceStart)
+                        });
+                    } else {
+                        partidosRonda1.push({
+                            equipo1: participantes[i],
+                            equipo2: "PASE DIRECTO 🏆",
+                            ganador: participantes[i],
+                            timeStr: formatTime(matchStart),
+                            toleranceStr: '-'
+                        });
+                    }
+                    currentTime = new Date(currentTime.getTime() + duration * 60000);
+                }
+
+                bracketEstructura['ronda_1'] = partidosRonda1;
+                rondaSeleccionada = 1;
+
+                db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
+                    if (!err) mostrarToast("¡Ronda 1 generada con éxito!", "success");
+                });
                 return;
             }
 
-            let candidatos = [...equiposPendientes].sort(() => Math.random() - 0.5);
-            let equiposParaTanda = candidatos.slice(0, maxPartidasTanda * 2);
+            // CASO 2: AVANZAR DE LA RONDA ULTIMA A LA SIGUIENTE RONDA
+            let ultimaRondaNum = totalRondas;
+            let partidosUltimaRonda = bracketEstructura[`ronda_${ultimaRondaNum}`] || [];
+
+            // Validar si todos los partidos de la última ronda ya tienen un ganador declarado
+            let hayPendientes = partidosUltimaRonda.some(p => p.ganador === "Pendiente");
+            if (hayPendientes) {
+                mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara a los ganadores antes de continuar.`, "warning");
+                return;
+            }
+
+            if (partidosUltimaRonda.length === 1) {
+                mostrarToast(`¡El torneo ya ha finalizado! Campeón: ${partidosUltimaRonda[0].ganador}`, "success");
+                return;
+            }
+
+            // Recopilar solo a los GANADORES de la ronda previa
+            let ganadores = partidosUltimaRonda.map(p => p.ganador);
+            let partidosSiguienteRonda = [];
 
             let [hours, minutes] = startTimeStr.split(':').map(Number);
             let currentTime = new Date();
             currentTime.setHours(hours, minutes, 0, 0);
-
-            // Ajustar el horario si ya hay partidas previas en esta ronda
-            if (rondaPartidosExistentes.length > 0) {
-                const minutosSuma = rondaPartidosExistentes.length * (duration + breakTime);
-                currentTime = new Date(currentTime.getTime() + minutosSuma * 60000);
-            }
-
             let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            let nuevosPartidos = [...rondaPartidosExistentes];
-
-            for (let i = 0; i < equiposParaTanda.length; i += 2) {
+            for (let i = 0; i < ganadores.length; i += 2) {
                 let matchStart = new Date(currentTime);
                 let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
 
-                if (equiposParaTanda[i + 1]) {
-                    nuevosPartidos.push({
-                        equipo1: equiposParaTanda[i],
-                        equipo2: equiposParaTanda[i + 1],
+                if (ganadores[i + 1]) {
+                    partidosSiguienteRonda.push({
+                        equipo1: ganadores[i],
+                        equipo2: ganadores[i + 1],
                         ganador: "Pendiente",
                         timeStr: formatTime(matchStart),
-                        toleranceStr: formatTime(toleranceStart),
-                        motivo: ''
+                        toleranceStr: formatTime(toleranceStart)
                     });
                 } else {
-                    nuevosPartidos.push({
-                        equipo1: equiposParaTanda[i],
+                    partidosSiguienteRonda.push({
+                        equipo1: ganadores[i],
                         equipo2: "PASE DIRECTO 🏆",
-                        ganador: equiposParaTanda[i],
+                        ganador: ganadores[i],
                         timeStr: formatTime(matchStart),
-                        toleranceStr: '-',
-                        motivo: 'Avanza por sorteo impar'
+                        toleranceStr: '-'
                     });
                 }
-                currentTime = new Date(currentTime.getTime() + (duration + breakTime) * 60000);
+                currentTime = new Date(currentTime.getTime() + duration * 60000);
             }
 
-            bracketEstructura[`ronda_${rondaSeleccionada}`] = nuevosPartidos;
+            let nuevaRondaNum = ultimaRondaNum + 1;
+            bracketEstructura[`ronda_${nuevaRondaNum}`] = partidosSiguienteRonda;
+            rondaSeleccionada = nuevaRondaNum;
 
             db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-                if (!err) mostrarToast(`¡Se añadieron ${nuevosPartidos.length - rondaPartidosExistentes.length} nuevas partidas a la Ronda ${rondaSeleccionada}!`, "success");
+                if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada con los ganadores!`, "success");
             });
         }
 
@@ -739,10 +760,10 @@
         }
 
         function reiniciarTorneo() {
-            if (confirm("¿Seguro que deseas reiniciar los equipos y partidas del torneo?")) {
+            if (confirm("¿Seguro que deseas reiniciar las partidas y equipos del torneo?")) {
                 db.ref(`torneos/${currentMode}`).remove();
                 rondaSeleccionada = 1;
-                mostrarToast("Todos los datos del torneo han sido borrados", "info");
+                mostrarToast("Se han borrado los datos del torneo.", "info");
             }
         }
 
