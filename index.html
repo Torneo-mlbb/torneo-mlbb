@@ -112,7 +112,7 @@
             <i class="fa-solid fa-sliders"></i> Control de Torneo (<span id="admin-mode-label">5v5</span>)
           </h2>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
           <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
             <label class="block text-[11px] font-semibold text-slate-400 mb-1">Hora Inicio Ronda</label>
             <input type="time" id="cfg-start-time" value="20:30" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
@@ -120,6 +120,10 @@
           <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
             <label class="block text-[11px] font-semibold text-slate-400 mb-1">Duración Juego (m)</label>
             <input type="number" id="cfg-match-dur" value="20" min="10" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+          </div>
+          <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Descanso/Reorg. (m)</label>
+            <input type="number" id="cfg-break-dur" value="10" min="0" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
           </div>
           <div class="bg-mldark-900 p-2.5 rounded-xl border border-slate-800">
             <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tolerancia W.O. (m)</label>
@@ -773,8 +777,53 @@
     }
 
     // ==========================================
-    // LÓGICA DE SORTEO BASADA EN ID/KEY DE FIREBASE
+    // LÓGICA DE BLOQUES PARALELOS (4 ADMINS) Y TIEMPOS
     // ==========================================
+
+    function generarBloquesDePartidas(tandaKeys, dataEquipos, horaInicioStr, duracion, descanso, tolerancia) {
+      let partidosProcesados = [];
+      let [hours, minutes] = horaInicioStr.split(':').map(Number);
+      
+      let baseTime = new Date();
+      baseTime.setHours(hours, minutes, 0, 0);
+
+      let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      for (let i = 0; i < tandaKeys.length; i += 2) {
+        let partidoIndex = Math.floor(i / 2); 
+        let bloqueIndex = Math.floor(partidoIndex / 4); // Avanza turno cada 4 partidos simultáneos
+
+        let tiempoBloqueMs = bloqueIndex * (duracion + descanso) * 60000;
+        let matchStart = new Date(baseTime.getTime() + tiempoBloqueMs);
+        let toleranceStart = new Date(matchStart.getTime() + tolerancia * 60000);
+
+        let eq1Name = dataEquipos[tandaKeys[i]].nombreEquipo;
+
+        if (tandaKeys[i + 1]) {
+          let eq2Name = dataEquipos[tandaKeys[i + 1]].nombreEquipo;
+          partidosProcesados.push({
+            equipo1: eq1Name,
+            equipo1Key: tandaKeys[i],
+            equipo2: eq2Name,
+            equipo2Key: tandaKeys[i + 1],
+            ganador: "Pendiente",
+            timeStr: formatTime(matchStart),
+            toleranceStr: formatTime(toleranceStart)
+          });
+        } else {
+          partidosProcesados.push({
+            equipo1: eq1Name,
+            equipo1Key: tandaKeys[i],
+            equipo2: "PASE DIRECTO 🏆",
+            equipo2Key: "PASE_DIRECTO",
+            ganador: eq1Name,
+            timeStr: formatTime(matchStart),
+            toleranceStr: '-'
+          });
+        }
+      }
+      return partidosProcesados;
+    }
 
     function iniciarSorteoRonda1() {
       db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
@@ -798,52 +847,19 @@
 
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
+        const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
         let keysMezcladas = [...keys].sort(() => Math.random() - 0.5);
         let tandaKeys = keysMezcladas.slice(0, 32);
 
-        let partidosRonda1 = [];
-        let [hours, minutes] = startTimeStr.split(':').map(Number);
-        let currentTime = new Date();
-        currentTime.setHours(hours, minutes, 0, 0);
-        let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        for (let i = 0; i < tandaKeys.length; i += 2) {
-          let matchStart = new Date(currentTime);
-          let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-          let eq1Name = data[tandaKeys[i]].nombreEquipo;
-
-          if (tandaKeys[i + 1]) {
-            let eq2Name = data[tandaKeys[i + 1]].nombreEquipo;
-            partidosRonda1.push({
-              equipo1: eq1Name,
-              equipo1Key: tandaKeys[i],
-              equipo2: eq2Name,
-              equipo2Key: tandaKeys[i + 1],
-              ganador: "Pendiente",
-              timeStr: formatTime(matchStart),
-              toleranceStr: formatTime(toleranceStart)
-            });
-          } else {
-            partidosRonda1.push({
-              equipo1: eq1Name,
-              equipo1Key: tandaKeys[i],
-              equipo2: "PASE DIRECTO 🏆",
-              equipo2Key: "PASE_DIRECTO",
-              ganador: eq1Name,
-              timeStr: formatTime(matchStart),
-              toleranceStr: '-'
-            });
-          }
-          currentTime = new Date(currentTime.getTime() + duration * 60000);
-        }
+        let partidosRonda1 = generarBloquesDePartidas(tandaKeys, data, startTimeStr, duration, breakTime, tolerance);
 
         bracketEstructura['ronda_1'] = partidosRonda1;
         rondaSeleccionada = 1;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast("¡Sorteo de la primera tanda de 16 partidos iniciado!", "success");
+          if (!err) mostrarToast("¡Sorteo iniciado en bloques de 4 partidos simultáneos!", "success");
         });
       });
     }
@@ -877,49 +893,23 @@
         let seleccionadas = [...keysPendientes].sort(() => Math.random() - 0.5).slice(0, 32);
 
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
+        const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
         let ultimoPartido = partidosRonda1[partidosRonda1.length - 1];
         let [h, m] = ultimoPartido.timeStr.split(':').map(Number);
-        let currentTime = new Date();
-        currentTime.setHours(h, m + duration, 0, 0);
-        let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let nextStartTime = new Date();
+        nextStartTime.setHours(h, m + duration + breakTime, 0, 0);
+        let nextStartStr = `${String(nextStartTime.getHours()).padStart(2, '0')}:${String(nextStartTime.getMinutes()).padStart(2, '0')}`;
 
-        for (let i = 0; i < seleccionadas.length; i += 2) {
-          let matchStart = new Date(currentTime);
-          let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
-          let eq1Name = equiposObj[seleccionadas[i]].nombreEquipo;
-
-          if (seleccionadas[i + 1]) {
-            let eq2Name = equiposObj[seleccionadas[i + 1]].nombreEquipo;
-            partidosRonda1.push({
-              equipo1: eq1Name,
-              equipo1Key: seleccionadas[i],
-              equipo2: eq2Name,
-              equipo2Key: seleccionadas[i + 1],
-              ganador: "Pendiente",
-              timeStr: formatTime(matchStart),
-              toleranceStr: formatTime(toleranceStart)
-            });
-          } else {
-            partidosRonda1.push({
-              equipo1: eq1Name,
-              equipo1Key: seleccionadas[i],
-              equipo2: "PASE DIRECTO 🏆",
-              equipo2Key: "PASE_DIRECTO",
-              ganador: eq1Name,
-              timeStr: formatTime(matchStart),
-              toleranceStr: '-'
-            });
-          }
-          currentTime = new Date(currentTime.getTime() + duration * 60000);
-        }
+        let nuevosPartidos = generarBloquesDePartidas(seleccionadas, equiposObj, nextStartStr, duration, breakTime, tolerance);
+        partidosRonda1 = partidosRonda1.concat(nuevosPartidos);
 
         db.ref(`torneos/${currentMode}/bracket/ronda_1`).set(partidosRonda1, (err) => {
           if (!err) {
-            let nuevosPartidos = Math.ceil(seleccionadas.length / 2);
+            let cantPartidos = nuevosPartidos.length;
             let restantes = keysPendientes.length - seleccionadas.length;
-            mostrarToast(`¡Se agregaron ${nuevosPartidos} partidas! Quedan ${restantes} equipos pendientes.`, "success");
+            mostrarToast(`¡Se agregaron ${cantPartidos} partidas en bloques! Quedan ${restantes} equipos pendientes.`, "success");
           }
         });
       });
@@ -969,15 +959,20 @@
 
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
+        const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
         let [hours, minutes] = startTimeStr.split(':').map(Number);
-        let currentTime = new Date();
-        currentTime.setHours(hours, minutes, 0, 0);
+        let baseTime = new Date();
+        baseTime.setHours(hours, minutes, 0, 0);
         let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         for (let i = 0; i < ganadores.length; i += 2) {
-          let matchStart = new Date(currentTime);
+          let partidoIndex = Math.floor(i / 2);
+          let bloqueIndex = Math.floor(partidoIndex / 4);
+
+          let tiempoBloqueMs = bloqueIndex * (duration + breakTime) * 60000;
+          let matchStart = new Date(baseTime.getTime() + tiempoBloqueMs);
           let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
 
           if (ganadores[i + 1]) {
@@ -997,7 +992,6 @@
               toleranceStr: '-'
             });
           }
-          currentTime = new Date(currentTime.getTime() + duration * 60000);
         }
 
         let nuevaRondaNum = ultimaRondaNum + 1;
