@@ -178,19 +178,33 @@
                 </div>
             </div>
 
-            <!-- TAB 2: EQUIPOS INSCRITOS -->
-            <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h3 class="text-sm font-bold text-amber-400 mb-4">Equipos Registrados</h3>
+            <!-- TAB 2: EQUIPOS INSCRITOS CON BUSCADOR -->
+            <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                    <h3 class="text-sm font-bold text-amber-400">Equipos Registrados</h3>
+                    <!-- BUSCADOR TIPO GOOGLE DE EQUIPOS -->
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                        <input type="text" id="search-team-input" onkeyup="filtrarEquipos()" placeholder="Buscar equipo por nombre o iniciales..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
                 <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
                 </div>
             </div>
 
-            <!-- TAB 3: ORGANIZACIÓN MATCHES -->
+            <!-- TAB 3: ORGANIZACIÓN MATCHES Y BUSCADOR -->
             <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                     <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
-                    <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold"></div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <!-- BUSCADOR DE ENFRENTAMIENTOS -->
+                        <div class="relative w-full sm:w-60">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                            <input type="text" id="search-match-input" onkeyup="filtrarEnfrentamientos()" placeholder="Buscar en partidas..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div id="rounds-filter-container" class="flex gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold"></div>
+                    </div>
                 </div>
 
                 <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,13 +234,13 @@
         Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
     </footer>
 
-    <!-- PIN MODAL ADMIN -->
+    <!-- PIN MODAL ADMIN SIN LA PISTA DE CONTRASEÑA -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center mb-4">
                 <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
-                <p class="text-xs text-slate-400 mt-1">Usa la clave `admin123`</p>
+                <p class="text-xs text-slate-400 mt-1">Ingresa la clave autorizada de administrador</p>
             </div>
             <form onsubmit="handleAdminAuth(event)">
                 <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
@@ -256,6 +270,7 @@
         let equiposCacheObj = {}; 
         let rondaSeleccionada = 1;
         let datosBracketServidor = null;
+        let usuarioIdAutenticado = null; // Guardará el ID del jugador verificado para el chat
 
         function seleccionarModalidad(modo) {
             currentMode = modo;
@@ -471,7 +486,7 @@
                     let deleteBtn = isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : '';
 
                     container.innerHTML += `
-                        <div class="bg-mldark-900 border border-slate-800 p-4 rounded-xl">
+                        <div class="team-card bg-mldark-900 border border-slate-800 p-4 rounded-xl" data-teamname="${eq.nombreEquipo.toLowerCase()}">
                             <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
                                 <span class="font-bold text-amber-400 text-sm">🛡️ ${eq.nombreEquipo}</span>
                                 ${deleteBtn}
@@ -486,6 +501,36 @@
                 datosBracketServidor = snap.val();
                 renderizarRondasYBracket();
                 renderizarArbolEsquematico();
+            });
+        }
+
+        // FUNCIÓN BUSCADOR EN TIEMPO REAL PARA EQUIPOS
+        function filtrarEquipos() {
+            const query = document.getElementById('search-team-input').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.team-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-teamname');
+                if (name.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // FUNCIÓN BUSCADOR EN TIEMPO REAL PARA ENFRENTAMIENTOS
+        function filtrarEnfrentamientos() {
+            const query = document.getElementById('search-match-input').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.match-card');
+
+            cards.forEach(card => {
+                const teams = card.getAttribute('data-teams');
+                if (teams.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
             });
         }
 
@@ -546,6 +591,23 @@
                     }
                 }
 
+                // CÓDIGO DE SALA / ROOM ID INGRESADO POR EL ADMIN
+                let roomCodeHtml = '';
+                if (isAdmin && !isPass) {
+                    roomCodeHtml = `
+                        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                            <input type="text" id="room-input-${rondaSeleccionada}-${idx}" placeholder="Código de Sala MLBB" value="${p.roomCode || ''}" class="bg-mldark-900 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                            <button onclick="guardarCodigoSala(${rondaSeleccionada}, ${idx})" class="bg-bnxblue text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-bnxblue/80 transition cursor-pointer whitespace-nowrap">Guardar Código</button>
+                        </div>
+                    `;
+                } else if (p.roomCode) {
+                    roomCodeHtml = `
+                        <div class="mt-2 bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 text-center text-xs">
+                            <span class="text-slate-400">🔑 Código de Sala VS:</span> <b class="text-amber-400 font-mono text-sm tracking-widest">${p.roomCode}</b>
+                        </div>
+                    `;
+                }
+
                 let adminAcciones = '';
                 if (isAdmin && !isFinished && !isPass) {
                     adminAcciones = `
@@ -563,8 +625,35 @@
                     `;
                 }
 
+                // CHAT PRIVADO EXCLUSIVO PARA LOS JUGADORES DEL ENFRENTAMIENTO
+                let matchTeamsLower = `${p.equipo1} ${p.equipo2}`.toLowerCase();
+                let chatSectionHtml = !isPass ? `
+                    <div class="mt-3 border-t border-slate-800/80 pt-2">
+                        <button onclick="toggleChatMatch(${rondaSeleccionada}, ${idx})" class="text-xs font-bold text-slate-400 hover:text-white flex items-center justify-between w-full py-1">
+                            <span><i class="fa-solid fa-comments text-amber-400 mr-1.5"></i> Chat del Enfrentamiento</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="chat-box-${rondaSeleccionada}-${idx}" class="hidden mt-2 bg-mldark-900 border border-slate-800 rounded-xl p-3 space-y-2">
+                            <div id="chat-login-${rondaSeleccionada}-${idx}" class="space-y-2">
+                                <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB para acceder al chat:</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="chat-userid-input-${rondaSeleccionada}-${idx}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                                    <button onclick="verificarAccesoChat(${rondaSeleccionada}, ${idx}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
+                                </div>
+                            </div>
+                            <div id="chat-body-${rondaSeleccionada}-${idx}" class="hidden space-y-2">
+                                <div id="messages-list-${rondaSeleccionada}-${idx}" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 text-xs p-1 bg-mldark-800 rounded-lg"></div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="chat-msg-input-${rondaSeleccionada}-${idx}" placeholder="Escribe un mensaje..." class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
+                                    <button onclick="enviarMensajeChat(${rondaSeleccionada}, ${idx})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-lg hover:bg-emerald-500 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
                 matchesContainer.innerHTML += `
-                    <div class="bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                    <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${matchTeamsLower}">
                         <div>
                             <div class="flex items-center justify-between text-xs mb-3 pb-2 border-b border-slate-800">
                                 <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idx + 1}</span>
@@ -591,11 +680,102 @@
                                     <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
                                 </div>
                             </div>
+
+                            ${roomCodeHtml}
+                            ${chatSectionHtml}
                         </div>
 
                         ${adminAcciones}
                     </div>
                 `;
+            });
+        }
+
+        function guardarCodigoSala(rondaNum, idx) {
+            const val = document.getElementById(`room-input-${rondaNum}-${idx}`).value.trim();
+            db.ref(`torneos/${currentMode}/bracket/ronda_${rondaNum}/${idx}`).update({
+                roomCode: val
+            }, () => {
+                mostrarToast("Código de sala guardado", "success");
+            });
+        }
+
+        function toggleChatMatch(rondaNum, idx) {
+            const el = document.getElementById(`chat-box-${rondaNum}-${idx}`);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        function verificarAccesoChat(rondaNum, idx, equipo1, equipo2) {
+            const userId = document.getElementById(`chat-userid-input-${rondaNum}-${idx}`).value.trim();
+            if (!userId) {
+                mostrarToast("Ingresa un ID válido", "warning");
+                return;
+            }
+
+            let tienePermiso = false;
+            let nickJugador = "";
+
+            [equipo1, equipo2].forEach(eqNombre => {
+                const jugadores = equiposCacheObj[eqNombre] || [];
+                jugadores.forEach(j => {
+                    if (j.id === userId) {
+                        tienePermiso = true;
+                        nickJugador = j.nick;
+                    }
+                });
+            });
+
+            if (isAdmin) {
+                tienePermiso = true;
+                nickJugador = "Admin";
+            }
+
+            if (tienePermiso) {
+                usuarioIdAutenticado = { nick: nickJugador, id: userId };
+                document.getElementById(`chat-login-${rondaNum}-${idx}`).classList.add('hidden');
+                document.getElementById(`chat-body-${rondaNum}-${idx}`).classList.remove('hidden');
+                escucharMensajesChat(rondaNum, idx);
+                mostrarToast(`Bienvenido al chat, ${nickJugador}`, "success");
+            } else {
+                mostrarToast("Tu ID de MLBB no pertenece a ninguno de los dos equipos de esta partida", "error");
+            }
+        }
+
+        function escucharMensajesChat(rondaNum, idx) {
+            db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).on('value', (snap) => {
+                const data = snap.val();
+                const list = document.getElementById(`messages-list-${rondaNum}-${idx}`);
+                if (!list) return;
+                list.innerHTML = '';
+
+                if (!data) {
+                    list.innerHTML = `<p class="text-[10px] text-slate-500 italic">No hay mensajes aún en esta partida...</p>`;
+                    return;
+                }
+
+                Object.values(data).forEach(m => {
+                    list.innerHTML += `
+                        <div class="p-1.5 rounded bg-mldark-900 border border-slate-800">
+                            <span class="font-bold text-amber-400 text-[10px]">${m.nick}:</span>
+                            <span class="text-slate-200 text-[11px]">${m.texto}</span>
+                        </div>
+                    `;
+                });
+                list.scrollTop = list.scrollHeight;
+            });
+        }
+
+        function enviarMensajeChat(rondaNum, idx) {
+            const input = document.getElementById(`chat-msg-input-${rondaNum}-${idx}`);
+            const texto = input.value.trim();
+            if (!texto || !usuarioIdAutenticado) return;
+
+            db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).push({
+                nick: usuarioIdAutenticado.nick,
+                texto: texto,
+                fecha: Date.now()
+            }, () => {
+                input.value = '';
             });
         }
 
@@ -634,7 +814,6 @@
             renderizarRondasYBracket();
         }
 
-        // LÓGICA DE AVANCE DE RONDA SECUENCIAL (16vs, 8vs, 4vs, etc.)
         function iniciarOAvazarRonda() {
             const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
             const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
@@ -643,7 +822,6 @@
             let bracketEstructura = datosBracketServidor || {};
             let totalRondas = Object.keys(bracketEstructura).length;
 
-            // CASO 1: SI NO HAY NINGUNA RONDA CREADA AÚN (INICIAR RONDA 1 CON TODOS LOS REGISTRADOS)
             if (totalRondas === 0) {
                 let todosLosEquipos = Object.keys(equiposCacheObj);
                 if (todosLosEquipos.length < 2) {
@@ -692,14 +870,12 @@
                 return;
             }
 
-            // CASO 2: AVANZAR DE LA RONDA ULTIMA A LA SIGUIENTE RONDA
             let ultimaRondaNum = totalRondas;
             let partidosUltimaRonda = bracketEstructura[`ronda_${ultimaRondaNum}`] || [];
 
-            // Validar si todos los partidos de la última ronda ya tienen un ganador declarado
             let hayPendientes = partidosUltimaRonda.some(p => p.ganador === "Pendiente");
             if (hayPendientes) {
-                mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara a los ganadores antes de continuar.`, "warning");
+                mostrarToast(`Aún hay partidos pendientes en la Ronda ${ultimaRondaNum}. Declara a todos los ganadores antes de continuar.`, "warning");
                 return;
             }
 
@@ -708,7 +884,6 @@
                 return;
             }
 
-            // Recopilar solo a los GANADORES de la ronda previa
             let ganadores = partidosUltimaRonda.map(p => p.ganador);
             let partidosSiguienteRonda = [];
 
