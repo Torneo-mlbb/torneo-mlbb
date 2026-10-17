@@ -3,350 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arena Torneos Mobile Legends</title>
-    <!-- Firebase SDKs -->
+    <title>MLBB Torneos - Live Realtime Sync</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mlgold: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        mldark: { 900: '#0a0d14', 800: '#111827', 700: '#1f2937' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK v8.10.1 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
-        :root {
-            --mlbb-gold: #f3c300;
-            --mlbb-dark: #070b12;
-            --mlbb-card: #121a2d;
-            --mlbb-card-hover: #1b2742;
-            --mlbb-blue: #00d2ff;
-            --mlbb-red: #ff4655;
-            --border-color: #233354;
-            --text-muted: #8e9bb0;
-        }
-
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--mlbb-dark);
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
+            background-color: #07090e;
+            color: #f3f4f6;
+            font-family: system-ui, -apple-system, sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
         }
-
-        header {
-            background: linear-gradient(180deg, #162238 0%, var(--mlbb-dark) 100%);
-            border-bottom: 2px solid var(--mlbb-gold);
-            padding: 20px;
-            text-align: center;
+        .ml-gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-
-        h1 {
-            margin: 0;
-            color: var(--mlbb-gold);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.8rem;
-            text-shadow: 0 0 12px rgba(243, 195, 0, 0.4);
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #1d68c9, var(--mlbb-blue));
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-
-        .btn-gold {
-            background: linear-gradient(45deg, #b8860b, var(--mlbb-gold));
-            color: #000;
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, #b80b0b, var(--mlbb-red));
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #1b2742;
-            color: white;
-            border: 1px solid var(--border-color);
-        }
-
-        .mode-selection {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .mode-card {
-            background: var(--mlbb-card);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .mode-card:hover {
-            border-color: var(--mlbb-gold);
-            transform: translateY(-5px);
-            background: var(--mlbb-card-hover);
-        }
-
-        .mode-title {
-            font-size: 1.6rem;
-            color: var(--mlbb-gold);
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            padding: 12px 20px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-        }
-
-        .tab-btn.active {
-            color: var(--mlbb-gold);
-            border-bottom-color: var(--mlbb-gold);
-        }
-
-        .section-content {
-            display: none;
-            background: var(--mlbb-card);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .section-content.active {
-            display: block;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-            color: var(--mlbb-gold);
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            background: #0a0f1d;
-            border: 1px solid var(--border-color);
-            color: white;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-
-        .team-card {
-            background: #0a0f1d;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .team-header {
-            display: flex;
-            justify-content: space-between;
-            color: var(--mlbb-gold);
-            font-weight: bold;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-
-        .player-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 8px;
-            font-size: 0.85rem;
-        }
-
-        .player-item {
-            background: var(--mlbb-card);
-            padding: 6px 10px;
-            border-radius: 4px;
-            border-left: 3px solid var(--mlbb-blue);
-        }
-
-        .leader-item {
-            border-left-color: var(--mlbb-gold);
-        }
-
-        .match-card {
-            background: #0a0f1d;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .match-teams {
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-
-        .match-versus {
-            color: var(--mlbb-gold);
-            margin: 0 10px;
-        }
-
-        .winner-tag {
-            color: #00ff88;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0d111a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #26334d; border-radius: 4px; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
-    <header>
-        <h1>Arena Torneos MLBB</h1>
-        <p style="margin: 5px 0 0; color: var(--text-muted); font-size: 0.9rem;">Plataforma Oficial de Competencias</p>
+    <!-- HEADER -->
+    <header class="bg-mldark-800/90 backdrop-blur-md border-b border-amber-500/20 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-2">
+                        <span class="ml-gold-gradient-text">Arena Torneos MLBB</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Sincronización en Tiempo Real</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="back-menu-btn" onclick="volverMenu()" class="hidden px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Menú
+                </button>
+                <div id="role-badge" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-eye text-xs"></i> Espectador
+                </div>
+                <button onclick="openAuthModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-md shadow-amber-500/20">
+                    <i class="fa-solid fa-key text-xs"></i> Admin
+                </button>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
-        
-        <!-- Barra superior -->
-        <div class="nav-buttons">
-            <button id="backBtn" class="btn btn-secondary" onclick="irInicio()" style="display:none;">⬅ Volver al Menú</button>
-            <div id="torneoTitle" style="font-weight:bold; color:var(--mlbb-gold); font-size:1.1rem;"></div>
-            <button id="authBtn" class="btn btn-gold" onclick="toggleAdmin()">🔑 Acceso Admin</button>
-        </div>
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
 
-        <!-- 1. PANTALLA DE SELECCIÓN DE MODALIDAD -->
-        <div id="modalidadSelector" class="mode-selection">
-            <div class="mode-card" onclick="entrarTorneo('5v5')">
-                <div class="mode-title">⚔️ TORNEO 5v5</div>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Modalidad Squad Completo.<br>Requiere Capitán + 4 Jugadores.</p>
-                <button class="btn" style="margin-top: 15px;">Entrar al Torneo 5v5</button>
-            </div>
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
-            <div class="mode-card" onclick="entrarTorneo('3v3')">
-                <div class="mode-title">⚡ TORNEO 3v3</div>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Modalidad Trio Squad.<br>Requiere Capitán + 2 Jugadores.</p>
-                <button class="btn" style="margin-top: 15px;">Entrar al Torneo 3v3</button>
-            </div>
-        </div>
-
-        <!-- 2. VISTA INTERNA DEL TORNEO SELECCIONADO -->
-        <div id="vistaTorneo" style="display:none;">
+        <!-- SELECCIÓN DE MODALIDAD (INICIO) -->
+        <section id="mode-selector-section" class="py-10 text-center">
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Selecciona la Modalidad de Competencia</h2>
+            <p class="text-xs text-slate-400 mb-8">Elige el torneo en el que deseas participar o gestionar</p>
             
-            <div class="tabs">
-                <button class="tab-btn active" onclick="cambiarTab('registro')">📋 Registrar Equipo</button>
-                <button class="tab-btn" onclick="cambiarTab('equipos')">👥 Equipos Registrados</button>
-                <button class="tab-btn" onclick="cambiarTab('bracket')">⚔️ Enfrentamientos / Bracket</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+                    <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
+                    <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
+                    <p class="text-xs text-slate-400">Capitán + 4 Integrantes de Squad</p>
+                </div>
+                <div onclick="seleccionarModalidad('3v3')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+                    <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
+                    <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
+                    <p class="text-xs text-slate-400">Capitán + 2 Integrantes de Trío</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL DE GESTIÓN DEL TORNEO (OCULTO HASTA ELEGIR MODALIDAD) -->
+        <div id="tournament-app-container" class="hidden space-y-6">
+
+            <!-- ADMIN PANEL -->
+            <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Panel de Administración (<span id="admin-mode-label">5v5</span>)
+                    </h2>
+                    <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">Modo Edición Activo</span>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="generarSorteo()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-4 rounded-lg transition shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-shuffle"></i> Generar Sorteo de Partidas
+                    </button>
+                    <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2 px-4 rounded-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Reiniciar Sorteo
+                    </button>
+                </div>
+            </section>
+
+            <!-- TABS DE NAVEGACIÓN INTERNA -->
+            <div class="flex gap-2 border-b border-slate-800 pb-2">
+                <button onclick="cambiarTab('registro')" id="tab-btn-registro" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition">📋 Inscribir Equipo</button>
+                <button onclick="cambiarTab('equipos')" id="tab-btn-equipos" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition">👥 Equipos Registrados</button>
+                <button onclick="cambiarTab('bracket')" id="tab-btn-bracket" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition">⚔️ Enfrentamientos</button>
             </div>
 
-            <!-- TAB 1: FORMULARIO DE INSCRIPCIÓN -->
-            <div id="tab-registro" class="section-content active">
-                <h3 style="color: var(--mlbb-gold); margin-top: 0;">Inscripción de Equipo</h3>
+            <!-- CONTENIDO TAB 1: REGISTRO -->
+            <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Inscripción para Torneo <span id="reg-mode-title">5v5</span></h3>
                 
-                <div class="form-group">
-                    <label>Nombre del Equipo / Squad:</label>
-                    <input type="text" id="regNombreEquipo" placeholder="Ej: Vindicators MLBB">
-                </div>
-
-                <h4 style="color: var(--mlbb-blue); margin-bottom: 8px;">👑 Datos del Capitán / Líder (Jugador 1)</h4>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Nick del Líder:</label>
-                        <input type="text" id="liderNick" placeholder="Ej: KingPro">
+                <div class="space-y-4 max-w-2xl">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo / Squad:</label>
+                        <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
-                    <div class="form-group">
-                        <label>ID y Server de MLBB:</label>
-                        <input type="text" id="liderId" placeholder="Ej: 12345678 (2001)">
+
+                    <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800">
+                        <h4 class="text-xs font-bold text-amber-400 mb-2">👑 Datos del Capitán / Líder</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input type="text" id="cap-nick" placeholder="Nick del Líder" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="text" id="cap-id" placeholder="ID y Server (Ej: 1234 (2001))" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            <input type="tel" id="cap-phone" placeholder="WhatsApp del Líder" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>📱 Número de WhatsApp del Líder:</label>
-                        <input type="tel" id="liderPhone" placeholder="Ej: +51 987654321">
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes del Equipo</h4>
+                        <div id="dynamic-players-inputs" class="space-y-2">
+                            <!-- Inyectado dinámicamente según 5v5 o 3v3 -->
+                        </div>
                     </div>
-                </div>
 
-                <h4 style="color: var(--mlbb-blue); margin-bottom: 8px;">🛡️ Integrantes de la Escuadra</h4>
-                <div id="jugadoresCampos">
-                    <!-- Dinámico -->
-                </div>
-
-                <button class="btn btn-gold" style="width: 100%; margin-top: 15px; padding: 12px;" onclick="guardarRegistro()">✅ Confirmar e Inscribir Equipo</button>
-            </div>
-
-            <!-- TAB 2: EQUIPOS REGISTRADOS -->
-            <div id="tab-equipos" class="section-content">
-                <h3 style="color: var(--mlbb-gold); margin-top: 0;">Lista de Equipos Confirmados</h3>
-                <div id="listaEquiposContenedor">
-                    <p style="color: var(--text-muted);">Cargando equipos...</p>
+                    <button onclick="enviarInscripcion()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition shadow-lg shadow-amber-500/20">
+                        ✅ Confirmar e Inscribir Equipo
+                    </button>
                 </div>
             </div>
 
-            <!-- TAB 3: ENFRENTAMIENTOS / BRACKET -->
-            <div id="tab-bracket" class="section-content">
-                <h3 style="color: var(--mlbb-gold); margin-top: 0;">Llaves y Resultados</h3>
-                <div id="adminControls" style="display:none; background:#1b2742; padding:12px; border-radius:8px; margin-bottom:15px;">
-                    <button class="btn" onclick="generarBracket()">🎲 Generar Sorteo de Partidas</button>
-                    <button class="btn btn-danger" onclick="limpiarBracket()" style="margin-left: 10px;">🗑️ Reiniciar Sorteo</button>
+            <!-- CONTENIDO TAB 2: EQUIPOS -->
+            <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-amber-400 mb-4">Equipos Confirmados</h3>
+                <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
                 </div>
-                <div id="bracketContenedor">
-                    <p style="color: var(--text-muted);">El cuadro de enfrentamientos estará disponible cuando inicie el torneo.</p>
+            </div>
+
+            <!-- CONTENIDO TAB 3: BRACKET / ENFRENTAMIENTOS -->
+            <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h3 class="text-sm font-bold text-amber-400 mb-4">Cuadro de Llaves y Resultados</h3>
+                <div id="matches-container" class="space-y-4">
+                    <p class="text-xs text-slate-500 italic">El cuadro de enfrentamientos aparecerá cuando el administrador realice el sorteo.</p>
                 </div>
             </div>
 
         </div>
 
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-mldark-900 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-10">
+        Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
+    </footer>
+
+    <!-- PIN MODAL -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-4">
+                <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
+                <p class="text-xs text-slate-400 mt-1">Usa la clave `admin123`</p>
+            </div>
+            <form onsubmit="handleAdminAuth(event)">
+                <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition">Verificar</button>
+            </form>
+        </div>
     </div>
 
+    <!-- FIREBASE & LOGIC SCRIPT -->
     <script>
         // Configuración Firebase Realtime Database
         const firebaseConfig = {
@@ -356,255 +209,265 @@
             projectId: "torneomlbb-631f7",
             storageBucket: "torneomlbb-631f7.firebasestorage.app",
             messagingSenderId: "1087179789180",
-            appId: "1:1087179789180:web:cd22d6c989b8ca90784af9",
-            measurementId: "G-90CH11C594"
+            appId: "1:1087179789180:web:cd22d6c989b8ca90784af9"
         };
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let modoActual = null;
-        let esAdmin = false;
-        const ADMIN_KEY = "admin123";
-        let equiposCargados = [];
+        let currentMode = null; // '5v5' o '3v3'
+        let isAdmin = false;
+        const ADMIN_PASS = "admin123";
+        let equiposCache = [];
 
-        function entrarTorneo(modo) {
-            modoActual = modo;
-            document.getElementById('modalidadSelector').style.display = 'none';
-            document.getElementById('vistaTorneo').style.display = 'block';
-            document.getElementById('backBtn').style.display = 'inline-block';
-            document.getElementById('torneoTitle').innerText = `MODO: ${modo}`;
-            
-            generarCamposJugadores();
-            cargarDatosTorneo();
-            cargarBracket();
+        function seleccionarModalidad(modo) {
+            currentMode = modo;
+            document.getElementById('mode-selector-section').classList.add('hidden');
+            document.getElementById('tournament-app-container').classList.remove('hidden');
+            document.getElementById('back-menu-btn').classList.remove('hidden');
+            document.getElementById('reg-mode-title').innerText = modo;
+            document.getElementById('admin-mode-label').innerText = modo;
+
+            construirInputsJugadores();
+            sincronizarDatosFirebase();
         }
 
-        function irInicio() {
-            modoActual = null;
-            document.getElementById('modalidadSelector').style.display = 'grid';
-            document.getElementById('vistaTorneo').style.display = 'none';
-            document.getElementById('backBtn').style.display = 'none';
-            document.getElementById('torneoTitle').innerText = '';
+        function volverMenu() {
+            currentMode = null;
+            document.getElementById('mode-selector-section').classList.remove('hidden');
+            document.getElementById('tournament-app-container').classList.add('hidden');
+            document.getElementById('back-menu-btn').classList.add('hidden');
         }
 
-        function generarCamposJugadores() {
-            const container = document.getElementById('jugadoresCampos');
+        function construirInputsJugadores() {
+            const container = document.getElementById('dynamic-players-inputs');
             container.innerHTML = '';
-            const cantidad = modoActual === '5v5' ? 4 : 2;
+            const numExtra = currentMode === '5v5' ? 4 : 2;
 
-            for (let i = 2; i <= cantidad + 1; i++) {
+            for (let i = 2; i <= numExtra + 1; i++) {
                 container.innerHTML += `
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nick Jugador ${i}:</label>
-                            <input type="text" id="nickJ${i}" placeholder="Nick jugador ${i}">
-                        </div>
-                        <div class="form-group">
-                            <label>ID y Server Jugador ${i}:</label>
-                            <input type="text" id="idJ${i}" placeholder="ID (Server)">
-                        </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="text" id="nick-j${i}" placeholder="Nick Jugador ${i}" class="bg-mldark-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                        <input type="text" id="id-j${i}" placeholder="ID y Server Jugador ${i}" class="bg-mldark-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
                     </div>
                 `;
             }
         }
 
-        function cambiarTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.section-content').forEach(sec => sec.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+        function cambiarTab(tab) {
+            ['registro', 'equipos', 'bracket'].forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition";
+            });
+            document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tab}`).className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition";
         }
 
-        function toggleAdmin() {
-            if (esAdmin) {
-                esAdmin = false;
-                document.getElementById('authBtn').innerText = "🔑 Acceso Admin";
-                if(document.getElementById('adminControls')) document.getElementById('adminControls').style.display = 'none';
+        function openAuthModal() {
+            if (isAdmin) {
+                isAdmin = false;
+                actualizarPermisosAdmin();
+                mostrarToast("Modo administrador cerrado", "info");
             } else {
-                const pass = prompt("Ingrese la clave de administrador:");
-                if (pass === ADMIN_KEY) {
-                    esAdmin = true;
-                    document.getElementById('authBtn').innerText = "🔒 Salir Admin";
-                    if(document.getElementById('adminControls')) document.getElementById('adminControls').style.display = 'block';
-                } else if (pass !== null) {
-                    alert("Clave incorrecta.");
-                }
+                document.getElementById('auth-modal').classList.remove('hidden');
+            }
+        }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+        function handleAdminAuth(e) {
+            e.preventDefault();
+            const pin = document.getElementById('admin-pin').value;
+            if (pin === ADMIN_PASS) {
+                isAdmin = true;
+                closeAuthModal();
+                document.getElementById('admin-pin').value = '';
+                actualizarPermisosAdmin();
+                mostrarToast("Acceso Administrador concedido", "success");
+            } else {
+                mostrarToast("Clave incorrecta", "error");
             }
         }
 
-        function guardarRegistro() {
-            const equipo = document.getElementById('regNombreEquipo').value.trim();
-            const liderNick = document.getElementById('liderNick').value.trim();
-            const liderId = document.getElementById('liderId').value.trim();
-            const liderPhone = document.getElementById('liderPhone').value.trim();
+        function actualizarPermisosAdmin() {
+            const badge = document.getElementById('role-badge');
+            const adminPanel = document.getElementById('admin-panel');
+            if (isAdmin) {
+                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
+                badge.innerHTML = `<i class="fa-solid fa-user-shield text-xs"></i> Admin`;
+                adminPanel.classList.remove('hidden');
+            } else {
+                badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700 flex items-center gap-1.5";
+                badge.innerHTML = `<i class="fa-solid fa-eye text-xs"></i> Espectador`;
+                adminPanel.classList.add('hidden');
+            }
+            if (currentMode) sincronizarDatosFirebase();
+        }
 
-            if (!equipo || !liderNick || !liderId || !liderPhone) {
-                alert("Por favor completa los datos del equipo y del líder.");
+        function enviarInscripcion() {
+            const nombreEquipo = document.getElementById('team-name').value.trim();
+            const capNick = document.getElementById('cap-nick').value.trim();
+            const capId = document.getElementById('cap-id').value.trim();
+            const capPhone = document.getElementById('cap-phone').value.trim();
+
+            if (!nombreEquipo || !capNick || !capId || !capPhone) {
+                mostrarToast("Completa los datos del equipo y del capitán", "warning");
                 return;
             }
 
-            const jugadores = [{ nick: liderNick, id: liderId, esLider: true, telefono: liderPhone }];
-            const totalOtros = modoActual === '5v5' ? 4 : 2;
+            let jugadores = [{ nick: capNick, id: capId, rol: 'Capitán', telefono: capPhone }];
+            const numExtra = currentMode === '5v5' ? 4 : 2;
 
-            for (let i = 2; i <= totalOtros + 1; i++) {
-                const nick = document.getElementById(`nickJ${i}`).value.trim();
-                const idServ = document.getElementById(`idJ${i}`).value.trim();
-
-                if (!nick || !idServ) {
-                    alert(`Falta completar los datos del Jugador ${i}.`);
+            for (let i = 2; i <= numExtra + 1; i++) {
+                const jNick = document.getElementById(`nick-j${i}`).value.trim();
+                const jId = document.getElementById(`id-j${i}`).value.trim();
+                if (!jNick || !jId) {
+                    mostrarToast(`Faltan datos del Jugador ${i}`, "warning");
                     return;
                 }
-                jugadores.push({ nick: nick, id: idServ, esLider: false });
+                jugadores.push({ nick: jNick, id: jId, rol: 'Integrante' });
             }
 
-            db.ref(`torneos/${modoActual}/equipos`).push({
-                nombreEquipo: equipo,
-                jugadores: jugadores
+            db.ref(`torneos/${currentMode}/equipos`).push({
+                nombreEquipo, jugadores
             }, (error) => {
                 if (!error) {
-                    alert("¡Equipo inscrito correctamente!");
-                    limpiarFormulario();
+                    mostrarToast("¡Inscripción exitosa!", "success");
+                    document.getElementById('team-name').value = '';
+                    document.getElementById('cap-nick').value = '';
+                    document.getElementById('cap-id').value = '';
+                    document.getElementById('cap-phone').value = '';
+                    construirInputsJugadores();
                     cambiarTab('equipos');
                 } else {
-                    alert("Error al guardar registro: " + error.message);
+                    mostrarToast("Error al registrar", "error");
                 }
             });
         }
 
-        function cargarDatosTorneo() {
-            db.ref(`torneos/${modoActual}/equipos`).on('value', (snapshot) => {
-                const data = snapshot.val();
-                const container = document.getElementById('listaEquiposContenedor');
+        function sincronizarDatosFirebase() {
+            // Escuchar Equipos
+            db.ref(`torneos/${currentMode}/equipos`).on('value', (snap) => {
+                const data = snap.val();
+                const container = document.getElementById('teams-list-container');
                 container.innerHTML = '';
-                equiposCargados = [];
+                equiposCache = [];
 
                 if (!data) {
-                    container.innerHTML = "<p style='color:var(--text-muted);'>No hay equipos registrados aún en esta modalidad.</p>";
+                    container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados...</p>`;
                     return;
                 }
 
                 Object.keys(data).forEach(key => {
                     const eq = data[key];
-                    equiposCargados.push(eq.nombreEquipo);
-                    let listaHtml = '';
-                    
+                    equiposCache.push(eq.nombreEquipo);
+                    let playersHtml = '';
                     eq.jugadores.forEach(j => {
-                        const tagLider = j.esLider ? ` 👑 (Líder - Tel: ${j.telefono})` : '';
-                        listaHtml += `
-                            <div class="player-item ${j.esLider ? 'leader-item' : ''}">
-                                <strong>${j.nick}</strong> <span style="color:var(--text-muted);">(${j.id})</span>${tagLider}
-                            </div>
-                        `;
+                        playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} (${j.id})</span> <span class="text-amber-400">${j.rol}</span></div>`;
                     });
 
                     container.innerHTML += `
-                        <div class="team-card">
-                            <div class="team-header">
-                                <span>🛡️ ${eq.nombreEquipo}</span>
-                                <span>${eq.jugadores.length} Jugadores</span>
+                        <div class="bg-mldark-900 border border-slate-800 p-4 rounded-xl">
+                            <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
+                                <span class="font-bold text-amber-400 text-sm">🛡️ ${eq.nombreEquipo}</span>
+                                ${isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs"><i class="fa-solid fa-trash"></i></button>` : ''}
                             </div>
-                            <div class="player-list">${listaHtml}</div>
+                            <div>${playersHtml}</div>
                         </div>
                     `;
                 });
             });
-        }
 
-        function generarBracket() {
-            if (equiposCargados.length < 2) {
-                alert("Se necesitan al menos 2 equipos registrados para generar el sorteo.");
-                return;
-            }
-
-            if (!confirm("¿Deseas realizar el sorteo con los equipos actualmente inscritos?")) return;
-
-            let shuffled = [...equiposCargados].sort(() => Math.random() - 0.5);
-            let partidos = [];
-
-            for (let i = 0; i < shuffled.length; i += 2) {
-                if (i + 1 < shuffled.length) {
-                    partidos.push({
-                        equipo1: shuffled[i],
-                        equipo2: shuffled[i + 1],
-                        ganador: "Pendiente"
-                    });
-                } else {
-                    partidos.push({
-                        equipo1: shuffled[i],
-                        equipo2: "PASE DIRECTO 🏆",
-                        ganador: shuffled[i]
-                    });
-                }
-            }
-
-            db.ref(`torneos/${modoActual}/bracket`).set(partidos, (err) => {
-                if (!err) alert("¡Sorteo generado con éxito!");
-            });
-        }
-
-        function cargarBracket() {
-            db.ref(`torneos/${modoActual}/bracket`).on('value', (snapshot) => {
-                const partidos = snapshot.val();
-                const container = document.getElementById('bracketContenedor');
+            // Escuchar Bracket
+            db.ref(`torneos/${currentMode}/bracket`).on('value', (snap) => {
+                const partidos = snap.val();
+                const container = document.getElementById('matches-container');
                 container.innerHTML = '';
 
                 if (!partidos) {
-                    container.innerHTML = "<p style='color:var(--text-muted);'>El cuadro de enfrentamientos estará disponible cuando el administrador realice el sorteo.</p>";
+                    container.innerHTML = `<p class="text-xs text-slate-500 italic">El cuadro de llaves está pendiente de sorteo.</p>`;
                     return;
                 }
 
                 partidos.forEach((p, idx) => {
-                    let adminSelect = '';
-                    if (esAdmin && p.equipo2 !== "PASE DIRECTO 🏆") {
-                        adminSelect = `
-                            <div>
-                                <label>Declarar Ganador:</label>
-                                <button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="setGanador(${idx}, '${p.equipo1}')">${p.equipo1}</button>
-                                <button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="setGanador(${idx}, '${p.equipo2}')">${p.equipo2}</button>
+                    let adminAcciones = '';
+                    if (isAdmin && p.equipo2 !== "PASE DIRECTO 🏆") {
+                        adminAcciones = `
+                            <div class="mt-3 pt-3 border-t border-slate-800 flex gap-2">
+                                <button onclick="declararGanador(${idx}, '${p.equipo1}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs py-1 rounded font-bold transition">Gana ${p.equipo1}</button>
+                                <button onclick="declararGanador(${idx}, '${p.equipo2}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs py-1 rounded font-bold transition">Gana ${p.equipo2}</button>
                             </div>
                         `;
                     }
 
                     container.innerHTML += `
-                        <div class="match-card">
-                            <div>
-                                <span style="color:var(--text-muted); font-size:0.85rem;">Partida #${idx + 1}</span>
-                                <div class="match-teams">
-                                    <span style="color:var(--mlbb-blue);">${p.equipo1}</span>
-                                    <span class="match-versus">VS</span>
-                                    <span style="color:var(--mlbb-red);">${p.equipo2}</span>
-                                </div>
-                                <div class="winner-tag">🏆 Estado / Ganador: <strong>${p.ganador}</strong></div>
+                        <div class="bg-mldark-900 border border-slate-800 p-4 rounded-xl">
+                            <div class="flex justify-between text-xs text-slate-400 mb-2">
+                                <span>Partida #${idx + 1}</span>
+                                <span class="text-amber-400 font-bold">Estado: ${p.ganador}</span>
                             </div>
-                            ${adminSelect}
+                            <div class="flex justify-between items-center font-bold text-sm">
+                                <span class="text-cyan-400">${p.equipo1}</span>
+                                <span class="text-amber-500 text-xs">VS</span>
+                                <span class="text-rose-400">${p.equipo2}</span>
+                            </div>
+                            ${adminAcciones}
                         </div>
                     `;
                 });
             });
         }
 
-        function setGanador(indexMatch, equipoGanador) {
-            db.ref(`torneos/${modoActual}/bracket/${indexMatch}/ganador`).set(equipoGanador);
+        function generarSorteo() {
+            if (equiposCache.length < 2) {
+                mostrarToast("Se necesitan al menos 2 equipos", "warning");
+                return;
+            }
+            let mezcla = [...equiposCache].sort(() => Math.random() - 0.5);
+            let partidos = [];
+
+            for (let i = 0; i < mezcla.length; i += 2) {
+                if (mezcla[i + 1]) {
+                    partidos.push({ equipo1: mezcla[i], equipo2: mezcla[i+1], ganador: "Pendiente" });
+                } else {
+                    partidos.push({ equipo1: mezcla[i], equipo2: "PASE DIRECTO 🏆", ganador: mezcla[i] });
+                }
+            }
+
+            db.ref(`torneos/${currentMode}/bracket`).set(partidos, (err) => {
+                if (!err) mostrarToast("¡Sorteo generado con éxito!", "success");
+            });
         }
 
-        function limpiarBracket() {
-            if (confirm("¿Estás seguro de reiniciar las llaves del torneo?")) {
-                db.ref(`torneos/${modoActual}/bracket`).remove();
+        function declararGanador(idx, ganador) {
+            db.ref(`torneos/${currentMode}/bracket/${idx}/ganador`).set(ganador);
+        }
+
+        function reiniciarTorneo() {
+            if (confirm("¿Reiniciar el torneo?")) {
+                db.ref(`torneos/${currentMode}/bracket`).remove();
+                mostrarToast("Torneo reiniciado", "info");
             }
         }
 
-        function limpiarFormulario() {
-            document.getElementById('regNombreEquipo').value = '';
-            document.getElementById('liderNick').value = '';
-            document.getElementById('liderId').value = '';
-            document.getElementById('liderPhone').value = '';
-            const totalOtros = modoActual === '5v5' ? 4 : 2;
-            for (let i = 2; i <= totalOtros + 1; i++) {
-                document.getElementById(`nickJ${i}`).value = '';
-                document.getElementById(`idJ${i}`).value = '';
+        function eliminarEquipo(key) {
+            if (confirm("¿Eliminar este equipo?")) {
+                db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
+                mostrarToast("Equipo eliminado", "info");
             }
+        }
+
+        function mostrarToast(msg, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            let color = "bg-mldark-800 border-slate-700 text-white";
+            if (type === "success") color = "bg-emerald-950 border-emerald-800 text-emerald-200";
+            if (type === "warning") color = "bg-amber-950 border-amber-800 text-amber-200";
+            if (type === "error") color = "bg-rose-950 border-rose-800 text-rose-200";
+
+            toast.className = `${color} border px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold`;
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
