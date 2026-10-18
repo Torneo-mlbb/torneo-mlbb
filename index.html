@@ -50,37 +50,65 @@
       border-radius: 4px;
     }
 
-    /* ESTILOS DE LÍNEAS DE CONEXIÓN DE BRACKET */
-    .bracket-pair {
-      position: relative;
+    /* ESTILOS DE BRACKET CON ALINEACIÓN PERFECTA */
+    .bracket-round-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      min-width: 200px;
     }
-    .bracket-connector-top {
+    .bracket-match-node {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    .bracket-card {
+      background-color: #111827;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 10px;
+      width: 180px;
+      font-size: 11px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+      z-index: 2;
+    }
+    /* LÍNEAS DE CONEXIÓN */
+    .bracket-connector-group {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      height: 100%;
+    }
+    .bracket-line-top {
       position: absolute;
-      right: -24px;
-      top: 50%;
-      width: 24px;
-      height: 50%;
+      right: -30px;
+      top: 25%;
+      width: 30px;
+      height: 25%;
       border-right: 2px solid #f59e0b;
       border-top: 2px solid #f59e0b;
-      border-top-right-radius: 6px;
+      border-top-right-radius: 8px;
     }
-    .bracket-connector-bottom {
+    .bracket-line-bottom {
       position: absolute;
-      right: -24px;
-      bottom: 50%;
-      width: 24px;
-      height: 50%;
+      right: -30px;
+      bottom: 25%;
+      width: 30px;
+      height: 25%;
       border-right: 2px solid #f59e0b;
       border-bottom: 2px solid #f59e0b;
-      border-bottom-right-radius: 6px;
+      border-bottom-right-radius: 8px;
     }
-    .bracket-arrow-center {
+    .bracket-line-arrow {
       position: absolute;
-      right: -32px;
+      right: -42px;
       top: 50%;
       transform: translateY(-50%);
       color: #f59e0b;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: bold;
     }
   </style>
@@ -224,7 +252,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: EQUIPOS INSCRITOS (SOLO VISIBLE PARA ADMINS) -->
+      <!-- TAB 2: EQUIPOS INSCRITOS -->
       <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Equipos Registrados (Panel Admin)</h3>
@@ -260,8 +288,8 @@
         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
           <i class="fa-solid fa-sitemap"></i> Camino a la Final
         </h3>
-        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[350px] flex justify-start items-center">
-          <div id="arbol-esquematico-container" class="flex items-center gap-16 py-4">
+        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[450px] flex justify-start items-stretch">
+          <div id="arbol-esquematico-container" class="flex items-stretch gap-12 py-4">
             <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
           </div>
         </div>
@@ -862,6 +890,7 @@
       });
     }
 
+    // DIBUJO DEL ÁRBOL ESQUEMÁTICO CON ALINEACIÓN PERFECTA
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -875,53 +904,62 @@
         const partidos = datosBracketServidor[`ronda_${r}`] || [];
         let esUltimaColumna = r === totalRondas;
 
-        let columnaHtml = `<div class="flex flex-col justify-around gap-8 h-full"><div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
+        let columnaHtml = `<div class="bracket-round-col"><div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-4">Ronda ${r}</div><div class="flex flex-col justify-around h-full">`;
         
         for (let i = 0; i < partidos.length; i += 2) {
           let p1 = partidos[i];
           let p2 = partidos[i + 1];
 
-          let card1 = `
-            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-48 shadow-lg text-[11px] relative ${!esUltimaColumna ? 'bracket-pair' : ''}">
-              <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
+          let node1Html = `
+            <div class="bracket-match-node">
+              <div class="bracket-card">
+                <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                  ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
+                </div>
+                <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+                <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                  ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
+                </div>
               </div>
-              <div class="text-[9px] text-slate-500 my-1 text-center font-bold">VS</div>
-              <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
-              </div>
-              ${!esUltimaColumna ? '<div class="bracket-connector-top"></div>' : ''}
             </div>
           `;
 
-          let card2 = '';
+          let node2Html = '';
           if (p2) {
-            card2 = `
-              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-48 shadow-lg text-[11px] relative ${!esUltimaColumna ? 'bracket-pair' : ''}">
-                <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                  ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
+            node2Html = `
+              <div class="bracket-match-node">
+                <div class="bracket-card">
+                  <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                    ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
+                  </div>
+                  <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+                  <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                    ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
+                  </div>
                 </div>
-                <div class="text-[9px] text-slate-500 my-1 text-center font-bold">VS</div>
-                <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                  ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
-                </div>
-                ${!esUltimaColumna ? '<div class="bracket-connector-bottom"></div>' : ''}
               </div>
             `;
           }
 
-          let arrowHtml = (!esUltimaColumna && p2) ? '<div class="bracket-arrow-center">➔</div>' : '';
+          let connectorHtml = '';
+          if (!esUltimaColumna && p2) {
+            connectorHtml = `
+              <div class="bracket-line-top"></div>
+              <div class="bracket-line-bottom"></div>
+              <div class="bracket-line-arrow">➔</div>
+            `;
+          }
 
           columnaHtml += `
-            <div class="relative flex flex-col gap-6 py-2">
-              ${card1}
-              ${card2}
-              ${arrowHtml}
+            <div class="bracket-connector-group">
+              ${node1Html}
+              ${node2Html}
+              ${connectorHtml}
             </div>
           `;
         }
 
-        columnaHtml += `</div>`;
+        columnaHtml += `</div></div>`;
         container.innerHTML += columnaHtml;
       }
     }
