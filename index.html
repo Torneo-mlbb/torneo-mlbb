@@ -49,68 +49,6 @@
       background: #1f2937;
       border-radius: 4px;
     }
-
-    /* ESTILOS DE BRACKET CON ALINEACIÓN PERFECTA */
-    .bracket-round-col {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      min-width: 200px;
-    }
-    .bracket-match-node {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      margin: 12px 0;
-    }
-    .bracket-card {
-      background-color: #111827;
-      border: 1px solid #374151;
-      border-radius: 12px;
-      padding: 10px;
-      width: 180px;
-      font-size: 11px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-      z-index: 2;
-    }
-    /* LÍNEAS DE CONEXIÓN */
-    .bracket-connector-group {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      height: 100%;
-    }
-    .bracket-line-top {
-      position: absolute;
-      right: -30px;
-      top: 25%;
-      width: 30px;
-      height: 25%;
-      border-right: 2px solid #f59e0b;
-      border-top: 2px solid #f59e0b;
-      border-top-right-radius: 8px;
-    }
-    .bracket-line-bottom {
-      position: absolute;
-      right: -30px;
-      bottom: 25%;
-      width: 30px;
-      height: 25%;
-      border-right: 2px solid #f59e0b;
-      border-bottom: 2px solid #f59e0b;
-      border-bottom-right-radius: 8px;
-    }
-    .bracket-line-arrow {
-      position: absolute;
-      right: -42px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #f59e0b;
-      font-size: 14px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
@@ -223,6 +161,7 @@
         <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
         <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos & Horarios</button>
         <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
+        <button id="tab-btn-lideres" onclick="cambiarTab('lideres')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition cursor-pointer">👑 Chat Líderes & Admin</button>
       </div>
 
       <!-- TAB 1: INSCRIPCIÓN -->
@@ -294,8 +233,65 @@
           </div>
         </div>
       </div>
+
+      <!-- TAB 5: CHAT EXCLUSIVO DE LÍDERES Y ADMINS -->
+      <div id="tab-content-lideres" class="hidden bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-crown text-amber-400"></i> Sala Privada de Capitanes & Administradores
+        </h3>
+        <div id="lideres-login-view" class="bg-mldark-900 border border-slate-800 p-6 rounded-xl max-w-md mx-auto text-center space-y-3">
+          <i class="fa-solid fa-user-lock text-3xl text-amber-400"></i>
+          <h4 class="text-xs font-bold text-white">Acceso Exclusivo para Capitanes</h4>
+          <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB registrado como capitán para acceder a la sala privada de organización.</p>
+          <div class="flex gap-2">
+            <input type="text" id="lider-id-input" placeholder="ID de Capitán MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-3 py-2 rounded-lg text-white w-full">
+            <button onclick="verificarAccesoLider()" class="bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg hover:bg-amber-400 transition cursor-pointer">Verificar</button>
+          </div>
+        </div>
+        <div id="lideres-chat-view" class="hidden space-y-3">
+          <div id="lideres-messages-list" class="h-80 overflow-y-auto custom-scrollbar space-y-2 p-3 bg-mldark-900 rounded-xl border border-slate-800"></div>
+          <div class="flex gap-2">
+            <input type="text" id="lideres-msg-input" placeholder="Escribe un mensaje para los capitanes u organización..." class="bg-mldark-900 border border-slate-700 text-xs px-3 py-2 rounded-xl text-white w-full">
+            <button onclick="enviarMensajeLideres()" class="bg-amber-500 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl hover:bg-amber-400 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
+
+  <!-- MODAL / PANTALLA COMPLETA DE CHAT INDEPENDIENTE DE ENFRENTAMIENTO (TIPO WHATSAPP) -->
+  <div id="full-chat-modal" class="fixed inset-0 bg-slate-950/95 z-50 flex flex-col hidden">
+    <div class="bg-mldark-800 border-b border-slate-800 p-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="cerrarChatModal()" class="text-slate-400 hover:text-white text-base cursor-pointer"><i class="fa-solid fa-arrow-left"></i></button>
+        <div>
+          <h3 id="chat-modal-title" class="text-xs font-black text-amber-400">Match VS</h3>
+          <p id="chat-modal-subtitle" class="text-[10px] text-slate-400">Chat Privado de la Sala</p>
+        </div>
+      </div>
+      <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">🟢 Conectado</span>
+    </div>
+
+    <!-- PANTALLA DE ACCESO/AUTENTICACIÓN DE ID MLBB -->
+    <div id="chat-auth-screen" class="flex-grow flex items-center justify-center p-4">
+      <div class="bg-mldark-800 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-4 shadow-2xl">
+        <i class="fa-solid fa-comments text-3xl text-amber-400"></i>
+        <h4 class="text-sm font-bold text-white">Ingreso al Chat de Enfrentamiento</h4>
+        <p class="text-xs text-slate-400">Introduce tu ID de MLBB para verificar que perteneces a uno de los dos equipos de este juego.</p>
+        <input type="text" id="modal-user-id-input" placeholder="Tu ID de MLBB" class="w-full bg-mldark-900 border border-slate-700 text-xs px-3 py-2.5 rounded-xl text-white">
+        <button onclick="validarEIngresarChatModal()" class="w-full bg-amber-500 text-slate-950 font-bold text-xs py-2.5 rounded-xl hover:bg-amber-400 transition cursor-pointer">Ingresar al Chat</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL DE MENSAJES (SALA DE CHAT) -->
+    <div id="chat-room-screen" class="hidden flex-grow flex flex-col p-4 space-y-3 overflow-hidden max-w-3xl mx-auto w-full">
+      <div id="modal-messages-container" class="flex-grow overflow-y-auto custom-scrollbar p-3 bg-mldark-900 rounded-2xl border border-slate-800 space-y-2"></div>
+      <div class="flex gap-2">
+        <input type="text" id="modal-msg-input" placeholder="Escribe un mensaje para la sala..." class="bg-mldark-800 border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl text-white w-full focus:outline-none focus:border-amber-500">
+        <button onclick="enviarMensajeChatModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer class="bg-mldark-900 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-10">
@@ -338,9 +334,13 @@
     let equiposCacheObj = {};
     let rondaSeleccionada = 1;
     let datosBracketServidor = null;
-    let usuarioIdAutenticado = null;
     let fechasSeleccionadasAdmin = { 1: '', 2: '', 3: '', 4: '' };
     let ocultarConcluidosAdmin = { 1: false, 2: false, 3: false, 4: false };
+
+    // Chat Modal Estado
+    let chatModalActiveInfo = null;
+    let chatModalUser = null;
+    let liderUsuarioAutenticado = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       const hoy = new Date().toISOString().split('T')[0];
@@ -385,7 +385,7 @@
     }
 
     function cambiarTab(tab) {
-      ['registro', 'equipos', 'bracket', 'arbol'].forEach(t => {
+      ['registro', 'equipos', 'bracket', 'arbol', 'lideres'].forEach(t => {
         const el = document.getElementById(`tab-content-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
         if (el) el.classList.add('hidden');
@@ -722,28 +722,12 @@
             }
 
             let matchTeamsLower = `${p.equipo1} ${p.equipo2}`.toLowerCase();
-            let chatSectionHtml = !isPass ? `
+            let chatBtnHtml = !isPass ? `
               <div class="mt-3 border-t border-slate-800/80 pt-2">
-                <button onclick="toggleChatMatch(${rondaSeleccionada}, ${idxOriginal})" class="text-xs font-bold text-slate-400 hover:text-white flex items-center justify-between w-full py-1">
-                  <span><i class="fa-solid fa-comments text-amber-400 mr-1.5"></i> Chat del Enfrentamiento</span>
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                <button onclick="abrirChatModal(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}', '${p.equipo2}')" class="w-full bg-mldark-900 hover:bg-slate-800 border border-slate-700 text-amber-400 font-bold text-xs py-2 px-3 rounded-xl transition flex items-center justify-between cursor-pointer">
+                  <span><i class="fa-solid fa-comments text-amber-400 mr-2"></i> Abrir Chat de Enfrentamiento</span>
+                  <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
-                <div id="chat-box-${rondaSeleccionada}-${idxOriginal}" class="hidden mt-2 bg-mldark-900 border border-slate-800 rounded-xl p-3 space-y-2">
-                  <div id="chat-login-${rondaSeleccionada}-${idxOriginal}" class="space-y-2">
-                    <p class="text-[11px] text-slate-400">Ingresa tu ID de MLBB para acceder al chat:</p>
-                    <div class="flex gap-2">
-                      <input type="text" id="chat-userid-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                      <button onclick="verificarAccesoChat(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
-                    </div>
-                  </div>
-                  <div id="chat-body-${rondaSeleccionada}-${idxOriginal}" class="hidden space-y-2">
-                    <div id="messages-list-${rondaSeleccionada}-${idxOriginal}" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 text-xs p-1 bg-mldark-800 rounded-lg"></div>
-                    <div class="flex gap-2">
-                      <input type="text" id="chat-msg-input-${rondaSeleccionada}-${idxOriginal}" placeholder="Escribe un mensaje..." class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                      <button onclick="enviarMensajeChat(${rondaSeleccionada}, ${idxOriginal})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1 rounded-lg hover:bg-emerald-500 transition cursor-pointer"><i class="fa-solid fa-paper-plane"></i></button>
-                    </div>
-                  </div>
-                </div>
               </div>
             ` : '';
 
@@ -773,7 +757,7 @@
                       <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
                     </div>
                   </div>
-                  ${chatSectionHtml}
+                  ${chatBtnHtml}
                 </div>
                 ${adminAcciones}
               </div>
@@ -814,75 +798,102 @@
       }
     }
 
-    function toggleChatMatch(rondaNum, idx) {
-      const el = document.getElementById(`chat-box-${rondaNum}-${idx}`);
-      if (el) el.classList.toggle('hidden');
+    // LÓGICA DE CHAT INDEPENDIENTE EN MODAL (TIPO WHATSAPP)
+    function abrirChatModal(rondaNum, idx, equipo1, equipo2) {
+      chatModalActiveInfo = { rondaNum, idx, equipo1, equipo2 };
+      document.getElementById('chat-modal-title').innerText = `${equipo1} VS ${equipo2}`;
+      document.getElementById('chat-modal-subtitle').innerText = `Ronda ${rondaNum} - Match #${idx + 1}`;
+      document.getElementById('full-chat-modal').classList.remove('hidden');
+
+      if (chatModalUser || isAdmin) {
+        document.getElementById('chat-auth-screen').classList.add('hidden');
+        document.getElementById('chat-room-screen').classList.remove('hidden');
+        escucharMensajesChatModal();
+      } else {
+        document.getElementById('chat-auth-screen').classList.remove('hidden');
+        document.getElementById('chat-room-screen').classList.add('hidden');
+      }
     }
 
-    function verificarAccesoChat(rondaNum, idx, equipo1, equipo2) {
-      const userId = document.getElementById(`chat-userid-input-${rondaNum}-${idx}`).value.trim();
-      if (!userId) {
-        mostrarToast("Ingresa un ID válido", "warning");
+    function cerrarChatModal() {
+      document.getElementById('full-chat-modal').classList.add('hidden');
+    }
+
+    function validarEIngresarChatModal() {
+      const userId = document.getElementById('modal-user-id-input').value.trim();
+      if (!userId && !isAdmin) {
+        mostrarToast("Ingresa un ID válido de MLBB", "warning");
         return;
       }
+
       let tienePermiso = false;
       let nickJugador = "";
-
-      [equipo1, equipo2].forEach(eqNombre => {
-        const jugadores = equiposCacheObj[eqNombre] || [];
-        jugadores.forEach(j => {
-          if (j.id === userId) {
-            tienePermiso = true;
-            nickJugador = j.nick;
-          }
-        });
-      });
 
       if (isAdmin) {
         tienePermiso = true;
         nickJugador = "Admin";
+      } else {
+        [chatModalActiveInfo.equipo1, chatModalActiveInfo.equipo2].forEach(eqNombre => {
+          const jugadores = equiposCacheObj[eqNombre] || [];
+          jugadores.forEach(j => {
+            if (j.id === userId) {
+              tienePermiso = true;
+              nickJugador = j.nick;
+            }
+          });
+        });
       }
 
       if (tienePermiso) {
-        usuarioIdAutenticado = { nick: nickJugador, id: userId };
-        document.getElementById(`chat-login-${rondaNum}-${idx}`).classList.add('hidden');
-        document.getElementById(`chat-body-${rondaNum}-${idx}`).classList.remove('hidden');
-        escucharMensajesChat(rondaNum, idx);
+        chatModalUser = { nick: nickJugador, id: userId };
+        document.getElementById('chat-auth-screen').classList.add('hidden');
+        document.getElementById('chat-room-screen').classList.remove('hidden');
+        escucharMensajesChatModal();
         mostrarToast(`Bienvenido al chat, ${nickJugador}`, "success");
       } else {
         mostrarToast("Tu ID de MLBB no pertenece a ninguno de los dos equipos de esta partida", "error");
       }
     }
 
-    function escucharMensajesChat(rondaNum, idx) {
+    function escucharMensajesChatModal() {
+      const { rondaNum, idx } = chatModalActiveInfo;
       db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).on('value', (snap) => {
         const data = snap.val();
-        const list = document.getElementById(`messages-list-${rondaNum}-${idx}`);
-        if (!list) return;
-        list.innerHTML = '';
+        const container = document.getElementById('modal-messages-container');
+        container.innerHTML = '';
         if (!data) {
-          list.innerHTML = `<p class="text-[10px] text-slate-500 italic">No hay mensajes aún en esta partida...</p>`;
+          container.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No hay mensajes en esta sala...</p>`;
           return;
         }
+
         Object.values(data).forEach(m => {
-          list.innerHTML += `
-            <div class="p-1.5 rounded bg-mldark-900 border border-slate-800">
-              <span class="font-bold text-amber-400 text-[10px]">${m.nick}:</span>
-              <span class="text-slate-200 text-[11px]">${m.texto}</span>
+          let esMio = chatModalUser && m.nick === chatModalUser.nick;
+          let alignClass = esMio ? 'justify-end' : 'justify-start';
+          let bubbleClass = esMio ? 'bg-amber-500/20 border-amber-500/30 text-amber-200' : 'bg-mldark-800 border-slate-700 text-slate-200';
+
+          container.innerHTML += `
+            <div class="flex ${alignClass}">
+              <div class="max-w-xs md:max-w-md p-2.5 rounded-xl border text-xs shadow-md ${bubbleClass}">
+                <div class="font-bold text-[10px] text-amber-400 mb-0.5">${m.nick}</div>
+                <div>${m.texto}</div>
+              </div>
             </div>
           `;
         });
-        list.scrollTop = list.scrollHeight;
+        container.scrollTop = container.scrollHeight;
       });
     }
 
-    function enviarMensajeChat(rondaNum, idx) {
-      const input = document.getElementById(`chat-msg-input-${rondaNum}-${idx}`);
+    function enviarMensajeChatModal() {
+      const input = document.getElementById('modal-msg-input');
       const texto = input.value.trim();
-      if (!texto || !usuarioIdAutenticado) return;
+      if (!texto) return;
+
+      const userNick = isAdmin ? "Admin" : (chatModalUser ? chatModalUser.nick : "Jugador");
+      const { rondaNum, idx } = chatModalActiveInfo;
 
       db.ref(`torneos/${currentMode}/chats/ronda_${rondaNum}_match_${idx}`).push({
-        nick: usuarioIdAutenticado.nick,
+        nick: userNick,
         texto: texto,
         fecha: Date.now()
       }, () => {
@@ -890,7 +901,72 @@
       });
     }
 
-    // DIBUJO DEL ÁRBOL ESQUEMÁTICO CON ALINEACIÓN PERFECTA
+    // LÓGICA DE CHAT EXCLUSIVO DE LÍDERES
+    function verificarAccesoLider() {
+      const inputId = document.getElementById('lider-id-input').value.trim();
+      let esCapitan = false;
+      let capNick = "";
+
+      if (isAdmin) {
+        esCapitan = true;
+        capNick = "Admin";
+      } else {
+        Object.values(equiposCacheObj).forEach(jugadores => {
+          const cap = jugadores.find(j => j.rol === 'Capitán');
+          if (cap && cap.id === inputId) {
+            esCapitan = true;
+            capNick = cap.nick;
+          }
+        });
+      }
+
+      if (esCapitan) {
+        liderUsuarioAutenticado = { nick: capNick, id: inputId };
+        document.getElementById('lideres-login-view').classList.add('hidden');
+        document.getElementById('lideres-chat-view').classList.remove('hidden');
+        escucharMensajesLideres();
+        mostrarToast(`Acceso concedido a la sala de líderes, ${capNick}`, "success");
+      } else {
+        mostrarToast("Tu ID de MLBB no figura como Capitán de ningún equipo", "error");
+      }
+    }
+
+    function escucharMensajesLideres() {
+      db.ref(`torneos/${currentMode}/chats_lideres`).on('value', (snap) => {
+        const data = snap.val();
+        const list = document.getElementById('lideres-messages-list');
+        list.innerHTML = '';
+        if (!data) {
+          list.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No hay mensajes en el canal de líderes...</p>`;
+          return;
+        }
+
+        Object.values(data).forEach(m => {
+          list.innerHTML += `
+            <div class="p-2.5 rounded-xl bg-mldark-800 border border-slate-700 text-xs">
+              <span class="font-bold text-amber-400">👑 ${m.nick}:</span>
+              <span class="text-slate-200 ml-1.5">${m.texto}</span>
+            </div>
+          `;
+        });
+        list.scrollTop = list.scrollHeight;
+      });
+    }
+
+    function enviarMensajeLideres() {
+      const input = document.getElementById('lideres-msg-input');
+      const texto = input.value.trim();
+      if (!texto || !liderUsuarioAutenticado) return;
+
+      db.ref(`torneos/${currentMode}/chats_lideres`).push({
+        nick: liderUsuarioAutenticado.nick,
+        texto: texto,
+        fecha: Date.now()
+      }, () => {
+        input.value = '';
+      });
+    }
+
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
