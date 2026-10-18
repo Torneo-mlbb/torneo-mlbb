@@ -49,6 +49,20 @@
       background: #1f2937;
       border-radius: 4px;
     }
+    /* ESTILOS DE LÍNEAS Y FLECHAS EN ÁRBOL */
+    .tree-connector {
+      position: relative;
+    }
+    .tree-connector::after {
+      content: '➔';
+      position: absolute;
+      right: -24px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #f59e0b;
+      font-size: 14px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
@@ -135,12 +149,14 @@
           </div>
         </div>
         <div class="flex flex-wrap gap-3">
-          <button onclick="iniciarSorteoRonda1()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-play"></i> Iniciar Sorteo de 16 Partidas
-          </button>
-          <button onclick="continuarSorteoRonda1()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-forward-step"></i> Continúa Sorteo de 16 Partidas
-          </button>
+          <div id="admin-sorteo-btns" class="flex flex-wrap gap-3">
+            <button onclick="iniciarSorteoRonda1()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-play"></i> Iniciar Sorteo de 16 Partidas
+            </button>
+            <button onclick="continuarSorteoRonda1()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-forward-step"></i> Continúa Sorteo de 16 Partidas
+            </button>
+          </div>
           <button onclick="avanzarSiguienteRonda()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-angles-right"></i> Pasar a Siguiente Ronda
           </button>
@@ -224,8 +240,8 @@
         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
           <i class="fa-solid fa-sitemap"></i> Camino a la Final
         </h3>
-        <div class="overflow-x-auto custom-scrollbar p-4 bg-mldark-900 rounded-xl border border-slate-800 min-h-[300px] flex justify-center items-center">
-          <div id="arbol-esquematico-container" class="flex items-center gap-8 py-4">
+        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[350px] flex justify-start items-center">
+          <div id="arbol-esquematico-container" class="flex items-center gap-12 py-4">
             <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
           </div>
         </div>
@@ -278,7 +294,6 @@
     let fechasSeleccionadasAdmin = { 1: '', 2: '', 3: '', 4: '' };
     let ocultarConcluidosAdmin = { 1: false, 2: false, 3: false, 4: false };
 
-    // Establecer fecha de hoy por defecto en el panel de control
     document.addEventListener('DOMContentLoaded', () => {
       const hoy = new Date().toISOString().split('T')[0];
       const cfgDateInput = document.getElementById('cfg-match-date');
@@ -541,16 +556,26 @@
     function renderizarRondasYBracket() {
       const roundsContainer = document.getElementById('rounds-filter-container');
       const matchesContainer = document.getElementById('matches-container');
+      const sorteoBtnsEl = document.getElementById('admin-sorteo-btns');
+
       roundsContainer.innerHTML = '';
       matchesContainer.innerHTML = '';
 
       if (!datosBracketServidor) {
         matchesContainer.innerHTML = `<p class="text-xs text-slate-500 italic col-span-full py-6 text-center">Aún no se han generado enfrentamientos.</p>`;
+        if (sorteoBtnsEl) sorteoBtnsEl.classList.remove('hidden');
         return;
       }
 
       const totalRondas = Object.keys(datosBracketServidor).length;
       
+      // Ocultar botones de sorteo aleatorio si ya se superó la Ronda 1
+      if (totalRondas > 1 && sorteoBtnsEl) {
+        sorteoBtnsEl.classList.add('hidden');
+      } else if (sorteoBtnsEl) {
+        sorteoBtnsEl.classList.remove('hidden');
+      }
+
       for (let r = 1; r <= totalRondas; r++) {
         let nombreRonda = `Ronda ${r}`;
         const partidosRonda = datosBracketServidor[`ronda_${r}`] || [];
@@ -592,23 +617,19 @@
         return;
       }
 
-      // RENDERIZADO INDEPENDIENTE POR MESA / ADMINISTRADOR (1 A 4)
       for (let adminNum = 1; adminNum <= 4; adminNum++) {
         let partidosAdmin = partidosRondaActual.filter((_, idx) => (idx % 4) === (adminNum - 1));
 
         if (partidosAdmin.length === 0) continue;
 
-        // Obtener lista de fechas únicas en las partidas de esta mesa
         let fechasDisponibles = [...new Set(partidosAdmin.map(p => p.fechaDateStr || 'Sin Fecha'))].sort();
         let fechaFiltroActual = fechasSeleccionadasAdmin[adminNum];
 
-        // Filtrar partidas por la fecha elegida si existe un filtro activo
         let partidosFiltrados = partidosAdmin;
         if (fechaFiltroActual) {
           partidosFiltrados = partidosAdmin.filter(p => p.fechaDateStr === fechaFiltroActual);
         }
 
-        // Plegado de concluidas
         if (ocultarConcluidosAdmin[adminNum]) {
           partidosFiltrados = partidosFiltrados.filter(p => p.ganador === "Pendiente");
         }
@@ -731,7 +752,6 @@
           });
         }
 
-        // Construir opciones de la lista desplegable de fechas
         let dateOptionsHtml = `<option value="">Todas las Fechas (${partidosAdmin.length} Partidos)</option>`;
         fechasDisponibles.forEach(f => {
           let countF = partidosAdmin.filter(p => p.fechaDateStr === f).length;
@@ -848,6 +868,7 @@
       });
     }
 
+    // DIBUJO DEL ÁRBOL ESQUEMÁTICO CON FLECHAS Y CONECTORES
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -858,13 +879,21 @@
       const totalRondas = Object.keys(datosBracketServidor).length;
       for (let r = 1; r <= totalRondas; r++) {
         const partidos = datosBracketServidor[`ronda_${r}`] || [];
-        let columnaHtml = `<div class="flex flex-col justify-around gap-6"><div class="text-center text-xs font-bold text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
+        let esUltimaColumna = r === totalRondas;
+
+        let columnaHtml = `<div class="flex flex-col justify-around gap-6 h-full"><div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
+        
         partidos.forEach((p) => {
+          let connectorClass = !esUltimaColumna ? 'tree-connector' : '';
           columnaHtml += `
-            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px]">
-              <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">${p.equipo1}</div>
-              <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-              <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">${p.equipo2}</div>
+            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-48 shadow-lg text-[11px] ${connectorClass}">
+              <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                ${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}
+              </div>
+              <div class="text-[9px] text-slate-500 my-1 text-center font-bold">VS</div>
+              <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                ${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}
+              </div>
             </div>
           `;
         });
@@ -878,10 +907,6 @@
       renderizarRondasYBracket();
     }
 
-    // ==========================================
-    // LÓGICA DE BLOQUES PARALELOS CON FECHAS Y DISTRIBUCIÓN
-    // ==========================================
-
     function generarBloquesDePartidas(tandaKeys, dataEquipos, fechaStr, horaInicioStr, duracion, descanso, tolerancia) {
       let partidosProcesados = [];
       let [hours, minutes] = horaInicioStr.split(':').map(Number);
@@ -893,7 +918,7 @@
 
       for (let i = 0; i < tandaKeys.length; i += 2) {
         let partidoIndex = Math.floor(i / 2); 
-        let bloqueIndex = Math.floor(partidoIndex / 4); // 4 partidos simultáneos por turno
+        let bloqueIndex = Math.floor(partidoIndex / 4);
 
         let tiempoBloqueMs = bloqueIndex * (duracion + descanso) * 60000;
         let matchStart = new Date(baseTime.getTime() + tiempoBloqueMs);
@@ -1016,6 +1041,7 @@
       });
     }
 
+    // AVANCE DIRECTO NO ALEATORIO (LLAVE FIJA: MATCH 1 vs MATCH 2)
     function avanzarSiguienteRonda() {
       db.ref(`torneos/${currentMode}`).once('value', (snap) => {
         const dataTorneo = snap.val() || {};
@@ -1055,7 +1081,8 @@
           return;
         }
 
-        let ganadores = partidosUltimaRonda.map(p => p.ganador).sort(() => Math.random() - 0.5);
+        // MANTENER ORDEN DIRECTO DE LA LLAVE (Match 1 vs Match 2, Match 3 vs Match 4)
+        let ganadoresEnOrden = partidosUltimaRonda.map(p => p.ganador);
         let partidosSiguienteRonda = [];
 
         const matchDateStr = document.getElementById('cfg-match-date').value || new Date().toISOString().split('T')[0];
@@ -1069,7 +1096,7 @@
         baseTime.setHours(hours, minutes, 0, 0);
         let formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        for (let i = 0; i < ganadores.length; i += 2) {
+        for (let i = 0; i < ganadoresEnOrden.length; i += 2) {
           let partidoIndex = Math.floor(i / 2);
           let bloqueIndex = Math.floor(partidoIndex / 4);
 
@@ -1077,10 +1104,10 @@
           let matchStart = new Date(baseTime.getTime() + tiempoBloqueMs);
           let toleranceStart = new Date(matchStart.getTime() + tolerance * 60000);
 
-          if (ganadores[i + 1]) {
+          if (ganadoresEnOrden[i + 1]) {
             partidosSiguienteRonda.push({
-              equipo1: ganadores[i],
-              equipo2: ganadores[i + 1],
+              equipo1: ganadoresEnOrden[i],
+              equipo2: ganadoresEnOrden[i + 1],
               ganador: "Pendiente",
               fechaDateStr: matchDateStr,
               timeStr: formatTime(matchStart),
@@ -1088,9 +1115,9 @@
             });
           } else {
             partidosSiguienteRonda.push({
-              equipo1: ganadores[i],
+              equipo1: ganadoresEnOrden[i],
               equipo2: "PASE DIRECTO 🏆",
-              ganador: ganadores[i],
+              ganador: ganadoresEnOrden[i],
               fechaDateStr: matchDateStr,
               timeStr: formatTime(matchStart),
               toleranceStr: '-'
@@ -1103,7 +1130,7 @@
         rondaSeleccionada = nuevaRondaNum;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada con éxito!`, "success");
+          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada de forma directa y ordenada!`, "success");
         });
       });
     }
