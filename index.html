@@ -351,7 +351,7 @@
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <h3 class="text-sm font-bold text-amber-400 flex items-center justify-between">
           <span class="flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> Camino a la Final</span>
-          <span class="text-[11px] text-slate-400 font-normal">Alineación Dinámica SVG Exacta</span>
+          <span class="text-[11px] text-slate-400 font-normal">Alineación Dinámica SVG Curva Exacta</span>
         </h3>
         
         <div class="tree-scroll-wrapper custom-scrollbar bg-mldark-900 rounded-xl border border-slate-800">
@@ -1132,7 +1132,7 @@
       setTimeout(() => redibujarConectoresSVG(), 50);
     }
 
-    /* REDIBUJADO SVG: TOMA LAS COORDENADAS EXACTAS Y TRAZA LAS CORTES DE CADA RONDA Y DE LA FINAL */
+    /* REDIBUJADO SVG CON CURVAS BÉZIER Y CONEXIÓN PERFECTA AL CENTRO DE LA FINAL */
     function redibujarConectoresSVG() {
       const svg = document.getElementById('tree-svg-overlay');
       const wrapper = document.querySelector('.tree-scroll-wrapper');
@@ -1146,17 +1146,18 @@
       svg.setAttribute('height', wrapper.scrollHeight);
       svg.innerHTML = '';
 
-      // Definimos la punta de flecha en el SVG
+      // Marcador de flecha suave y estilizado
       const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
       defs.innerHTML = `
-        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+        <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f59e0b" />
         </marker>
       `;
       svg.appendChild(defs);
 
       const totalRondas = Object.keys(datosBracketServidor).length;
 
+      // Dibuja las conexiones entre rondas normales con curvas suaves (Bézier)
       for (let r = 1; r < totalRondas; r++) {
         const partidosOrigen = datosBracketServidor[`ronda_${r}`] || [];
 
@@ -1181,34 +1182,36 @@
               const r2 = card2.getBoundingClientRect();
               const y2 = (r2.top + r2.height / 2 - rectWrapper.top) + scrollTop;
 
-              // Camino desde Tarjeta 1
+              // Curva suave desde la tarjeta superior
               const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              path1.setAttribute('d', `M ${x1} ${y1} H ${xMid} V ${yDest}`);
+              path1.setAttribute('d', `M ${x1} ${y1} C ${xMid} ${y1}, ${xMid} ${yDest}, ${xMid} ${yDest}`);
               path1.setAttribute('stroke', '#f59e0b');
               path1.setAttribute('stroke-width', '2');
               path1.setAttribute('fill', 'none');
+              path1.setAttribute('stroke-linecap', 'round');
               svg.appendChild(path1);
 
-              // Camino desde Tarjeta 2
+              // Curva suave desde la tarjeta inferior
               const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              path2.setAttribute('d', `M ${x1} ${y2} H ${xMid} V ${yDest}`);
+              path2.setAttribute('d', `M ${x1} ${y2} C ${xMid} ${y2}, ${xMid} ${yDest}, ${xMid} ${yDest}`);
               path2.setAttribute('stroke', '#f59e0b');
               path2.setAttribute('stroke-width', '2');
               path2.setAttribute('fill', 'none');
+              path2.setAttribute('stroke-linecap', 'round');
               svg.appendChild(path2);
 
-              // Camino central con flecha al destino
+              // Línea recta conectora con flecha apuntando al centro exacto de la siguiente tarjeta
               const pathCenter = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              pathCenter.setAttribute('d', `M ${xMid} ${yDest} H ${xDest - 4}`);
+              pathCenter.setAttribute('d', `M ${xMid} ${yDest} L ${xDest - 5} ${yDest}`);
               pathCenter.setAttribute('stroke', '#f59e0b');
               pathCenter.setAttribute('stroke-width', '2');
               pathCenter.setAttribute('fill', 'none');
               pathCenter.setAttribute('marker-end', 'url(#arrow)');
               svg.appendChild(pathCenter);
             } else {
-              // Conexión cuando hay número impar de cuadros
+              // Conexión cuando hay número impar de tarjetas
               const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              path.setAttribute('d', `M ${x1} ${y1} H ${xMid} V ${yDest} H ${xDest - 4}`);
+              path.setAttribute('d', `M ${x1} ${y1} C ${xMid} ${y1}, ${xMid} ${yDest}, ${xDest - 5} ${yDest}`);
               path.setAttribute('stroke', '#f59e0b');
               path.setAttribute('stroke-width', '2');
               path.setAttribute('fill', 'none');
@@ -1219,24 +1222,29 @@
         }
       }
 
-      // CONEXIÓN DIRECTA HACIA EL CUADRO DEL CAMPEÓN / FINAL
+      // CONEXIÓN Y ALINEACIÓN PERFECTA HACIA LA FINAL / CAMPEÓN
       const finalCard = document.getElementById(`card-r${totalRondas}-m0`);
       const semiCard = document.getElementById(`card-r${totalRondas - 1}-m0`);
+
       if (finalCard && semiCard && totalRondas > 1) {
         const rSemi = semiCard.getBoundingClientRect();
         const rFinal = finalCard.getBoundingClientRect();
 
+        // Centro vertical exacto de la tarjeta semifinal y final
         const xSemi = (rSemi.right - rectWrapper.left) + scrollLeft;
         const ySemi = (rSemi.top + rSemi.height / 2 - rectWrapper.top) + scrollTop;
 
         const xFinal = (rFinal.left - rectWrapper.left) + scrollLeft;
         const yFinal = (rFinal.top + rFinal.height / 2 - rectWrapper.top) + scrollTop;
 
+        const xMidFinal = xSemi + (xFinal - xSemi) / 2;
+
         const pathFinal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        pathFinal.setAttribute('d', `M ${xSemi} ${ySemi} H ${xSemi + (xFinal - xSemi) / 2} V ${yFinal} H ${xFinal - 4}`);
+        pathFinal.setAttribute('d', `M ${xSemi} ${ySemi} C ${xMidFinal} ${ySemi}, ${xMidFinal} ${yFinal}, ${xFinal - 5} ${yFinal}`);
         pathFinal.setAttribute('stroke', '#f59e0b');
-        pathFinal.setAttribute('stroke-width', '2');
+        pathFinal.setAttribute('stroke-width', '2.5');
         pathFinal.setAttribute('fill', 'none');
+        pathFinal.setAttribute('stroke-linecap', 'round');
         pathFinal.setAttribute('marker-end', 'url(#arrow)');
         svg.appendChild(pathFinal);
       }
