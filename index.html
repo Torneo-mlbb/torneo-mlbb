@@ -50,56 +50,56 @@
       border-radius: 4px;
     }
 
-    /* CONECTORES PERFECTOS PARA ÁRBOL DE TORNEO EN CUALQUIER RONDA */
+    /* CONTENEDOR DEL ÁRBOL CON OVERLAY SVG PARA CONEXIONES PERFECTAS */
+    .tree-scroll-wrapper {
+      position: relative;
+      overflow-x: auto;
+      min-height: 650px;
+      padding: 24px;
+    }
+
+    #arbol-esquematico-container {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      gap: 90px;
+      align-items: stretch;
+      min-width: max-content;
+      z-index: 2;
+    }
+
     .tree-column {
       display: flex;
       flex-direction: column;
       justify-content: space-around;
-      min-width: 220px;
+      min-width: 200px;
     }
 
-    .tree-pair-wrapper {
-      position: relative;
+    .tree-match-wrapper {
       display: flex;
-      flex-direction: column;
-      justify-content: space-around;
       align-items: center;
-      flex-grow: 1;
-      padding-right: 30px;
+      justify-content: center;
+      margin: 12px 0;
+      min-height: 70px;
     }
 
-    /* LA LLAVE AMARILLA SE ADAPTA AL ALTO DEL PAR */
-    .bracket-line-top {
-      position: absolute;
-      right: 12px;
-      top: 25%;
-      width: 18px;
-      height: 25%;
-      border-right: 2px solid #f59e0b;
-      border-top: 2px solid #f59e0b;
-      border-top-right-radius: 6px;
+    .tree-card {
+      width: 190px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .tree-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
     }
 
-    .bracket-line-bottom {
+    #tree-svg-overlay {
       position: absolute;
-      right: 12px;
-      bottom: 25%;
-      width: 18px;
-      height: 25%;
-      border-right: 2px solid #f59e0b;
-      border-bottom: 2px solid #f59e0b;
-      border-bottom-right-radius: 6px;
-    }
-
-    .bracket-arrow-center {
-      position: absolute;
-      right: -6px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #f59e0b;
-      font-size: 14px;
-      font-weight: bold;
-      z-index: 10;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
     }
   </style>
 </head>
@@ -137,7 +137,7 @@
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- SELECCIÓN DE MODALIDAD CON 1VS1, 3VS3 Y 5VS5 -->
+    <!-- SELECCIÓN DE MODALIDAD -->
     <section id="mode-selector-section" class="py-10 text-center">
       <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
       <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribirte o inscribir a tu equipo</p>
@@ -163,7 +163,7 @@
     <!-- PANEL PRINCIPAL DEL TORNEO -->
     <div id="tournament-app-container" class="hidden space-y-6">
       
-      <!-- PANEL DE ORGANIZACIÓN ADMIN -->
+      <!-- PANEL ADMIN -->
       <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
@@ -171,7 +171,6 @@
           </h2>
         </div>
 
-        <!-- GENERADOR DE CÓDIGOS DE PAGO PARA ADMIN -->
         <div class="bg-mldark-900 border border-amber-500/30 p-4 rounded-xl space-y-3">
           <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
             <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pago Consumibles
@@ -207,13 +206,14 @@
             <input type="number" id="cfg-tolerance" value="5" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
           </div>
         </div>
+
         <div class="flex flex-wrap gap-3">
           <div id="admin-sorteo-btns" class="flex flex-wrap gap-3">
             <button onclick="iniciarSorteoRonda1()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-              <i class="fa-solid fa-play"></i> Iniciar Sorteo de 16 Partidas
+              <i class="fa-solid fa-play"></i> Iniciar Sorteo de Partidas
             </button>
             <button onclick="continuarSorteoRonda1()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-              <i class="fa-solid fa-forward-step"></i> Continúa Sorteo de 16 Partidas
+              <i class="fa-solid fa-forward-step"></i> Continúa Sorteo Partidas
             </button>
           </div>
           <button onclick="avanzarSiguienteRonda()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
@@ -228,7 +228,7 @@
         </div>
       </section>
 
-      <!-- NAVEGACIÓN INTERNA -->
+      <!-- TAB NAVEGACIÓN -->
       <div class="flex gap-2 border-b border-slate-800 pb-2">
         <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
         <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Participantes/Equipos (<span id="count-registered-teams">0</span>)</button>
@@ -236,11 +236,10 @@
         <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
       </div>
 
-      <!-- TAB 1: INSCRIPCIÓN PASO A PASO -->
+      <!-- TAB 1: INSCRIPCIÓN -->
       <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
         <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Proceso de Inscripción <span id="reg-mode-title">5v5</span></h3>
         
-        <!-- PASO 1: YAPE E INSTRUCCIONES -->
         <div id="wizard-step-1" class="space-y-4 max-w-2xl">
           <div class="bg-mldark-900 border border-amber-500/30 p-5 rounded-2xl space-y-3">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -277,7 +276,6 @@
           </button>
         </div>
 
-        <!-- PASO 2: FORMULARIO -->
         <div id="wizard-step-2" class="hidden space-y-4 max-w-2xl">
           <div class="flex items-center justify-between">
             <button onclick="volverPasoYape()" class="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1 cursor-pointer">
@@ -318,7 +316,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: EQUIPOS INSCRITOS -->
+      <!-- TAB 2: EQUIPOS -->
       <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Participantes / Equipos Registrados</h3>
@@ -332,7 +330,7 @@
         </div>
       </div>
 
-      <!-- TAB 3: ORGANIZACIÓN MATCHES -->
+      <!-- TAB 3: BRACKET -->
       <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
@@ -349,17 +347,21 @@
         </div>
       </div>
 
-      <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
+      <!-- TAB 4: ÁRBOL ESQUEMÁTICO CON OVERLAY SVG -->
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
-          <i class="fa-solid fa-sitemap"></i> Camino a la Final
+        <h3 class="text-sm font-bold text-amber-400 flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> Camino a la Final</span>
+          <span class="text-[11px] text-slate-400 font-normal">Alineación Dinámica SVG Exacta</span>
         </h3>
-        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[500px] flex justify-start items-stretch">
-          <div id="arbol-esquematico-container" class="flex items-stretch gap-10 py-4 w-full">
+        
+        <div class="tree-scroll-wrapper custom-scrollbar bg-mldark-900 rounded-xl border border-slate-800">
+          <svg id="tree-svg-overlay"></svg>
+          <div id="arbol-esquematico-container">
             <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
           </div>
         </div>
       </div>
+
     </div>
   </main>
 
@@ -368,7 +370,7 @@
     Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
   </footer>
 
-  <!-- PIN MODAL ADMIN -->
+  <!-- MODAL ADMIN -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
@@ -383,7 +385,7 @@
     </div>
   </div>
 
-  <!-- FIREBASE & LOGIC SCRIPT -->
+  <!-- SCRIPT LÓGICO -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
@@ -413,6 +415,10 @@
       const hoy = new Date().toISOString().split('T')[0];
       const cfgDateInput = document.getElementById('cfg-match-date');
       if (cfgDateInput) cfgDateInput.value = hoy;
+
+      window.addEventListener('resize', () => {
+        if (datosBracketServidor) redibujarConectoresSVG();
+      });
     });
 
     function seleccionarModalidad(modo) {
@@ -572,6 +578,10 @@
       const activeBtn = document.getElementById(`tab-btn-${tab}`);
       if (activeEl) activeEl.classList.remove('hidden');
       if (activeBtn) activeBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
+
+      if (tab === 'arbol') {
+        setTimeout(() => redibujarConectoresSVG(), 50);
+      }
     }
 
     function openAuthModal() {
@@ -652,7 +662,7 @@
 
       db.ref(`torneos/${currentMode}/equipos`).update(batchData, (err) => {
         if (!err) {
-          mostrarToast("¡32 registros de prueba cargados!", "success");
+          mostrarToast("¡Equipos demo cargados!", "success");
           cambiarTab('equipos');
         }
       });
@@ -1075,7 +1085,7 @@
       });
     }
 
-    /* ÁRBOLES ESQUEMÁTICOS CON LLAVES Y FLECHAS CENTRADAS */
+    /* RENDERIZADO DEL ÁRBOL CON IDENTIFICADORES Y CONEXIÓN SVG DINÁMICA CÁLCULADA CADA VEZ */
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -1089,68 +1099,124 @@
 
       for (let r = 1; r <= totalRondas; r++) {
         const partidos = datosBracketServidor[`ronda_${r}`] || [];
-        const esUltimaColumna = (r === totalRondas);
 
         let columnaHtml = `
-          <div class="tree-column flex-grow">
+          <div class="tree-column" data-ronda="${r}">
             <div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-2 mb-2">
               ${partidos.length === 1 ? '🏆 Final' : 'Ronda ' + r}
             </div>
-            <div class="flex flex-col justify-around flex-grow h-full py-2">
         `;
 
-        for (let i = 0; i < partidos.length; i += 2) {
-          let p1 = partidos[i];
-          let p2 = partidos[i + 1];
-
-          let card1 = `
-            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
-              <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
-              </div>
-              <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-              <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
-              </div>
-            </div>
-          `;
-
-          let card2 = '';
-          if (p2) {
-            card2 = `
-              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
-                <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                  ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
-                </div>
-                <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-                <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                  ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
-                </div>
-              </div>
-            `;
-          } else {
-            card2 = `<div class="w-44 h-12 opacity-0"></div>`;
-          }
-
-          let connectorLines = (!esUltimaColumna && p2) ? `
-            <div class="bracket-line-top"></div>
-            <div class="bracket-line-bottom"></div>
-            <div class="bracket-arrow-center">➔</div>
-          ` : (!esUltimaColumna && !p2 ? `
-            <div class="bracket-arrow-center" style="right: -10px;">➔</div>
-          ` : '');
+        for (let i = 0; i < partidos.length; i++) {
+          const p = partidos[i];
 
           columnaHtml += `
-            <div class="tree-pair-wrapper">
-              ${card1}
-              ${card2}
-              ${connectorLines}
+            <div class="tree-match-wrapper">
+              <div id="card-r${r}-m${i}" class="tree-card bg-mldark-800 border border-slate-700 p-2.5 rounded-xl shadow-lg text-[11px] z-10">
+                <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                  ${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}
+                </div>
+                <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+                <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                  ${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}
+                </div>
+              </div>
             </div>
           `;
         }
 
-        columnaHtml += `</div></div>`;
+        columnaHtml += `</div>`;
         container.innerHTML += columnaHtml;
+      }
+
+      setTimeout(() => redibujarConectoresSVG(), 50);
+    }
+
+    /* REDIBUJADO SVG: TOMA LAS COORDENADAS EXACTAS Y TRAZA LAS CORTES DE CADA RONDA */
+    function redibujarConectoresSVG() {
+      const svg = document.getElementById('tree-svg-overlay');
+      const wrapper = document.querySelector('.tree-scroll-wrapper');
+      if (!svg || !wrapper || !datosBracketServidor) return;
+
+      const rectWrapper = wrapper.getBoundingClientRect();
+      const scrollLeft = wrapper.scrollLeft;
+      const scrollTop = wrapper.scrollTop;
+
+      svg.setAttribute('width', wrapper.scrollWidth);
+      svg.setAttribute('height', wrapper.scrollHeight);
+      svg.innerHTML = '';
+
+      // Definimos la punta de flecha en el SVG
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `
+        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+        </marker>
+      `;
+      svg.appendChild(defs);
+
+      const totalRondas = Object.keys(datosBracketServidor).length;
+
+      for (let r = 1; r < totalRondas; r++) {
+        const partidosOrigen = datosBracketServidor[`ronda_${r}`] || [];
+
+        for (let i = 0; i < partidosOrigen.length; i += 2) {
+          const card1 = document.getElementById(`card-r${r}-m${i}`);
+          const card2 = document.getElementById(`card-r${r}-m${i+1}`);
+          const destCard = document.getElementById(`card-r${r+1}-m${Math.floor(i/2)}`);
+
+          if (card1 && destCard) {
+            const r1 = card1.getBoundingClientRect();
+            const rDest = destCard.getBoundingClientRect();
+
+            const x1 = (r1.right - rectWrapper.left) + scrollLeft;
+            const y1 = (r1.top + r1.height / 2 - rectWrapper.top) + scrollTop;
+
+            const xDest = (rDest.left - rectWrapper.left) + scrollLeft;
+            const yDest = (rDest.top + rDest.height / 2 - rectWrapper.top) + scrollTop;
+
+            const xMid = x1 + (xDest - x1) / 2;
+
+            if (card2) {
+              const r2 = card2.getBoundingClientRect();
+              const y2 = (r2.top + r2.height / 2 - rectWrapper.top) + scrollTop;
+
+              // Camino desde Tarjeta 1
+              const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              path1.setAttribute('d', `M ${x1} ${y1} H ${xMid} V ${yDest}`);
+              path1.setAttribute('stroke', '#f59e0b');
+              path1.setAttribute('stroke-width', '2');
+              path1.setAttribute('fill', 'none');
+              svg.appendChild(path1);
+
+              // Camino desde Tarjeta 2
+              const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              path2.setAttribute('d', `M ${x1} ${y2} H ${xMid} V ${yDest}`);
+              path2.setAttribute('stroke', '#f59e0b');
+              path2.setAttribute('stroke-width', '2');
+              path2.setAttribute('fill', 'none');
+              svg.appendChild(path2);
+
+              // Camino central con flecha al destino
+              const pathCenter = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              pathCenter.setAttribute('d', `M ${xMid} ${yDest} H ${xDest - 4}`);
+              pathCenter.setAttribute('stroke', '#f59e0b');
+              pathCenter.setAttribute('stroke-width', '2');
+              pathCenter.setAttribute('fill', 'none');
+              pathCenter.setAttribute('marker-end', 'url(#arrow)');
+              svg.appendChild(pathCenter);
+            } else {
+              // Conexión simple en caso de imprevistos
+              const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              path.setAttribute('d', `M ${x1} ${y1} H ${xMid} V ${yDest} H ${xDest - 4}`);
+              path.setAttribute('stroke', '#f59e0b');
+              path.setAttribute('stroke-width', '2');
+              path.setAttribute('fill', 'none');
+              path.setAttribute('marker-end', 'url(#arrow)');
+              svg.appendChild(path);
+            }
+          }
+        }
       }
     }
 
@@ -1278,7 +1344,7 @@
           if (!err) {
             let cantPartidos = nuevosPartidos.length;
             let restantes = keysPendientes.length - seleccionadas.length;
-            mostrarToast(`¡Se agregaron ${cantPartidos} partidas! Quedan ${restantes} participantes pendientes.`, "success");
+            mostrarToast(`¡Se agregaron ${cantPartidos} partidas! Quedan ${restantes} pendientes.`, "success");
           }
         });
       });
@@ -1371,7 +1437,7 @@
         rondaSeleccionada = nuevaRondaNum;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada de forma directa y ordenada!`, "success");
+          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada con alineación limpia!`, "success");
         });
       });
     }
