@@ -50,82 +50,50 @@
       border-radius: 4px;
     }
 
-    /* ESTRUCTURA MATEMÁTICA Y FLEXBOX AUTO-ALINEABLE PARA CUALQUIER NÚMERO DE RONDAS */
-    #arbol-esquematico-container {
-      display: flex;
-      flex-direction: row;
-      gap: 3.5rem;
-      align-items: stretch;
-      min-height: 600px;
-    }
-
+    /* CONECTORES PERFECTOS PARA ÁRBOL DE TORNEO EN CUALQUIER RONDA */
     .tree-column {
       display: flex;
       flex-direction: column;
-      min-width: 190px;
-      justify-content: space-between;
+      justify-content: space-around;
+      min-width: 220px;
     }
 
-    .tree-spacer {
-      flex-grow: 1;
-    }
-
-    .tree-spacer:first-child,
-    .tree-spacer:last-child {
-      flex-grow: 0.5;
-    }
-
-    .tree-match-box {
+    .tree-pair-wrapper {
       position: relative;
       display: flex;
+      flex-direction: column;
+      justify-content: space-around;
       align-items: center;
-      justify-content: center;
+      flex-grow: 1;
+      padding-right: 30px;
     }
 
-    /* CONECTORES Y LLAVES LATERALES DINÁMICAS */
-    .tree-match-box.bracket-top::after {
-      content: '';
+    /* LA LLAVE AMARILLA SE ADAPTA AL ALTO DEL PAR */
+    .bracket-line-top {
       position: absolute;
-      right: -1.75rem;
-      top: 50%;
-      width: 1.75rem;
-      height: 2px;
-      background-color: #f59e0b;
+      right: 12px;
+      top: 25%;
+      width: 18px;
+      height: 25%;
+      border-right: 2px solid #f59e0b;
+      border-top: 2px solid #f59e0b;
+      border-top-right-radius: 6px;
     }
 
-    .tree-match-box.bracket-bottom::after {
-      content: '';
+    .bracket-line-bottom {
       position: absolute;
-      right: -1.75rem;
-      top: 50%;
-      width: 1.75rem;
-      height: 2px;
-      background-color: #f59e0b;
+      right: 12px;
+      bottom: 25%;
+      width: 18px;
+      height: 25%;
+      border-right: 2px solid #f59e0b;
+      border-bottom: 2px solid #f59e0b;
+      border-bottom-right-radius: 6px;
     }
 
-    .tree-match-box.bracket-top::before {
-      content: '';
+    .bracket-arrow-center {
       position: absolute;
-      right: -1.75rem;
-      top: 50%;
-      width: 2px;
-      height: 100%;
-      background-color: #f59e0b;
-    }
-
-    .tree-match-box.bracket-bottom::before {
-      content: '';
-      position: absolute;
-      right: -1.75rem;
-      bottom: 50%;
-      width: 2px;
-      height: 100%;
-      background-color: #f59e0b;
-    }
-
-    .tree-match-box .bracket-arrow {
-      position: absolute;
-      right: -3.2rem;
+      right: -6px;
       top: 50%;
       transform: translateY(-50%);
       color: #f59e0b;
@@ -1107,7 +1075,7 @@
       });
     }
 
-    /* RENDERIZADO DINÁMICO RECURSIVO DEL ÁRBOL */
+    /* ÁRBOLES ESQUEMÁTICOS CON LLAVES Y FLECHAS CENTRADAS */
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -1124,44 +1092,64 @@
         const esUltimaColumna = (r === totalRondas);
 
         let columnaHtml = `
-          <div class="tree-column">
+          <div class="tree-column flex-grow">
             <div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-2 mb-2">
               ${partidos.length === 1 ? '🏆 Final' : 'Ronda ' + r}
             </div>
+            <div class="flex flex-col justify-around flex-grow h-full py-2">
         `;
 
-        for (let i = 0; i < partidos.length; i++) {
-          const p = partidos[i];
-          const esParCompanero = (i % 2 === 0);
-          
-          let bracketClass = '';
-          let arrowHtml = '';
+        for (let i = 0; i < partidos.length; i += 2) {
+          let p1 = partidos[i];
+          let p2 = partidos[i + 1];
 
-          if (!esUltimaColumna) {
-            bracketClass = esParCompanero ? 'bracket-top' : 'bracket-bottom';
-            if (esParCompanero) {
-              arrowHtml = `<span class="bracket-arrow">➔</span>`;
-            }
-          }
+          let card1 = `
+            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
+              <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
+              </div>
+              <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+              <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
+              </div>
+            </div>
+          `;
 
-          columnaHtml += `<div class="tree-spacer"></div>`;
-          columnaHtml += `
-            <div class="tree-match-box ${bracketClass}">
+          let card2 = '';
+          if (p2) {
+            card2 = `
               <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
-                <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                  ${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}
+                <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                  ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
                 </div>
                 <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-                <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                  ${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}
+                <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                  ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
                 </div>
               </div>
-              ${arrowHtml}
+            `;
+          } else {
+            card2 = `<div class="w-44 h-12 opacity-0"></div>`;
+          }
+
+          let connectorLines = (!esUltimaColumna && p2) ? `
+            <div class="bracket-line-top"></div>
+            <div class="bracket-line-bottom"></div>
+            <div class="bracket-arrow-center">➔</div>
+          ` : (!esUltimaColumna && !p2 ? `
+            <div class="bracket-arrow-center" style="right: -10px;">➔</div>
+          ` : '');
+
+          columnaHtml += `
+            <div class="tree-pair-wrapper">
+              ${card1}
+              ${card2}
+              ${connectorLines}
             </div>
           `;
         }
 
-        columnaHtml += `<div class="tree-spacer"></div></div>`;
+        columnaHtml += `</div></div>`;
         container.innerHTML += columnaHtml;
       }
     }
