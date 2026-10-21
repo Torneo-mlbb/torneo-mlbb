@@ -1132,7 +1132,7 @@
       setTimeout(() => redibujarConectoresSVG(), 50);
     }
 
-    /* REDIBUJADO SVG: TOMA LAS COORDENADAS EXACTAS Y TRAZA LAS CORTES DE CADA RONDA */
+    /* REDIBUJADO SVG: TOMA LAS COORDENADAS EXACTAS Y TRAZA LAS CORTES DE CADA RONDA Y DE LA FINAL */
     function redibujarConectoresSVG() {
       const svg = document.getElementById('tree-svg-overlay');
       const wrapper = document.querySelector('.tree-scroll-wrapper');
@@ -1206,7 +1206,7 @@
               pathCenter.setAttribute('marker-end', 'url(#arrow)');
               svg.appendChild(pathCenter);
             } else {
-              // Conexión simple en caso de imprevistos
+              // Conexión cuando hay número impar de cuadros
               const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
               path.setAttribute('d', `M ${x1} ${y1} H ${xMid} V ${yDest} H ${xDest - 4}`);
               path.setAttribute('stroke', '#f59e0b');
@@ -1217,6 +1217,28 @@
             }
           }
         }
+      }
+
+      // CONEXIÓN DIRECTA HACIA EL CUADRO DEL CAMPEÓN / FINAL
+      const finalCard = document.getElementById(`card-r${totalRondas}-m0`);
+      const semiCard = document.getElementById(`card-r${totalRondas - 1}-m0`);
+      if (finalCard && semiCard && totalRondas > 1) {
+        const rSemi = semiCard.getBoundingClientRect();
+        const rFinal = finalCard.getBoundingClientRect();
+
+        const xSemi = (rSemi.right - rectWrapper.left) + scrollLeft;
+        const ySemi = (rSemi.top + rSemi.height / 2 - rectWrapper.top) + scrollTop;
+
+        const xFinal = (rFinal.left - rectWrapper.left) + scrollLeft;
+        const yFinal = (rFinal.top + rFinal.height / 2 - rectWrapper.top) + scrollTop;
+
+        const pathFinal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathFinal.setAttribute('d', `M ${xSemi} ${ySemi} H ${xSemi + (xFinal - xSemi) / 2} V ${yFinal} H ${xFinal - 4}`);
+        pathFinal.setAttribute('stroke', '#f59e0b');
+        pathFinal.setAttribute('stroke-width', '2');
+        pathFinal.setAttribute('fill', 'none');
+        pathFinal.setAttribute('marker-end', 'url(#arrow)');
+        svg.appendChild(pathFinal);
       }
     }
 
