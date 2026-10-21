@@ -50,7 +50,7 @@
       border-radius: 4px;
     }
 
-    /* ESTILOS DE ESTRUCTURA Y ALINEACIÓN DE ÁRBOLES ESQUEMÁTICOS */
+    /* ESTILOS DE LLAVES Y FLECHAS PARA INFINITAS RONDAS */
     .tree-column {
       display: flex;
       flex-direction: column;
@@ -58,21 +58,17 @@
       min-width: 210px;
     }
     .tree-match-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: relative;
-      flex-grow: 1;
-      padding: 10px 0;
+      width: 100%;
     }
     .bracket-pair-container {
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      gap: 16px;
+      justify-content: space-around;
       padding-right: 36px;
       width: 100%;
+      min-height: 120px;
     }
     .bracket-connector-top {
       position: absolute;
@@ -1078,7 +1074,7 @@
       });
     }
 
-    /* FUNCIÓN DE ÁRBOLES ESQUEMÁTICOS CON ALINEACIÓN PERFECTA ENTRE RONDAS */
+    /* ÁRBOLES ESQUEMÁTICOS DINÁMICOS PARA N RONDAS CON ALINEACIÓN Y LLAVES AUTOMÁTICAS */
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -1086,6 +1082,7 @@
         container.innerHTML = `<p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>`;
         return;
       }
+      
       const totalRondas = Object.keys(datosBracketServidor).length;
 
       for (let r = 1; r <= totalRondas; r++) {
@@ -1093,83 +1090,66 @@
         let esUltimaColumna = r === totalRondas;
 
         let columnaHtml = `
-          <div class="tree-column">
+          <div class="tree-column flex flex-col justify-around h-full min-w-[220px]">
             <div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-4">
-              Ronda ${r}
+              ${partidos.length === 1 ? '🏆 Final' : 'Ronda ' + r}
             </div>
             <div class="flex flex-col justify-around flex-grow space-y-4">
         `;
 
-        if (r === 1) {
-          // Ronda 1: Agrupa de 2 en 2 para dibujar las llaves
-          for (let i = 0; i < partidos.length; i += 2) {
-            let p1 = partidos[i];
-            let p2 = partidos[i + 1];
+        // Procesamos todos los partidos de 2 en 2 en TODAS LAS RONDAS
+        for (let i = 0; i < partidos.length; i += 2) {
+          let p1 = partidos[i];
+          let p2 = partidos[i + 1];
 
-            let card1 = `
-              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
-                <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                  ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
+          let card1 = `
+            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10 my-auto">
+              <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
+              </div>
+              <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+              <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
+              </div>
+            </div>
+          `;
+
+          let card2 = '';
+          if (p2) {
+            card2 = `
+              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10 my-auto">
+                <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                  ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
                 </div>
                 <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-                <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                  ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
+                <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                  ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
                 </div>
               </div>
             `;
-
-            let card2 = '';
-            if (p2) {
-              card2 = `
-                <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
-                  <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                    ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
-                  </div>
-                  <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-                  <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                    ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
-                  </div>
-                </div>
-              `;
-            } else {
-              card2 = `<div class="w-44 h-[62px]"></div>`;
-            }
-
-            let connectorLines = (!esUltimaColumna && p2) ? `
-              <div class="bracket-connector-top"></div>
-              <div class="bracket-connector-bottom"></div>
-              <div class="bracket-arrow-center">➔</div>
-            ` : '';
-
-            columnaHtml += `
-              <div class="tree-match-wrapper">
-                <div class="bracket-pair-container">
-                  ${card1}
-                  ${card2}
-                  ${connectorLines}
-                </div>
-              </div>
-            `;
+          } else {
+            // En caso de partidos impares o en la Gran Final
+            card2 = `<div class="w-44 h-0 opacity-0"></div>`;
           }
-        } else {
-          // Ronda 2 en adelante: Cada enfrentamiento se centra verticalmente en relación con la ronda previa
-          for (let i = 0; i < partidos.length; i++) {
-            let p = partidos[i];
 
-            columnaHtml += `
-              <div class="tree-match-wrapper">
-                <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
-                  <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                    ${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}
-                  </div>
-                  <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
-                  <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                    ${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}
-                  </div>
-                </div>
+          // Conector genérico para CUALQUIER RONDA
+          let connectorLines = (!esUltimaColumna && p2) ? `
+            <div class="bracket-connector-top"></div>
+            <div class="bracket-connector-bottom"></div>
+            <div class="bracket-arrow-center">➔</div>
+          ` : (!esUltimaColumna && !p2 ? `
+            <div class="bracket-arrow-center" style="right: -10px;">➔</div>
+          ` : '');
+
+          columnaHtml += `
+            <div class="tree-match-wrapper flex-grow flex items-center justify-center">
+              <div class="bracket-pair-container flex flex-col justify-around h-full">
+                ${card1}
+                ${card2}
+                ${connectorLines}
               </div>
-            `;
-          }
+            </div>
+          `;
         }
 
         columnaHtml += `</div></div>`;
