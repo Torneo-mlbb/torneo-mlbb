@@ -50,7 +50,7 @@
       border-radius: 4px;
     }
 
-    /* ESTILOS DE LLAVES Y FLECHAS DE CONEXIÓN CORREGIDOS */
+    /* ESTILOS DE LLAVES Y FLECHAS DE CONEXIÓN CORREGIDOS Y ALINEADOS */
     .bracket-pair-container {
       position: relative;
       display: flex;
@@ -58,7 +58,8 @@
       justify-content: center;
       gap: 12px;
       padding-right: 40px;
-      margin-bottom: 16px;
+      margin-top: auto;
+      margin-bottom: auto;
     }
     .bracket-connector-top {
       position: absolute;
@@ -342,8 +343,8 @@
         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
           <i class="fa-solid fa-sitemap"></i> Camino a la Final
         </h3>
-        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[350px] flex justify-start items-center">
-          <div id="arbol-esquematico-container" class="flex items-center gap-12 py-4">
+        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[400px] flex justify-start items-stretch">
+          <div id="arbol-esquematico-container" class="flex items-stretch gap-12 py-4 w-full">
             <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
           </div>
         </div>
@@ -1076,14 +1077,20 @@
         const partidos = datosBracketServidor[`ronda_${r}`] || [];
         let esUltimaColumna = r === totalRondas;
 
-        let columnaHtml = `<div class="flex flex-col justify-around gap-6 h-full min-w-[220px]"><div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div><div class="flex flex-col justify-around h-full">`;
+        let columnaHtml = `
+          <div class="flex flex-col justify-around h-full min-w-[220px]">
+            <div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-4">
+              Ronda ${r}
+            </div>
+            <div class="flex flex-col justify-around flex-grow space-y-6">
+        `;
         
         for (let i = 0; i < partidos.length; i += 2) {
           let p1 = partidos[i];
           let p2 = partidos[i + 1];
 
           let card1 = `
-            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] relative">
+            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
               <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
                 ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
               </div>
@@ -1097,7 +1104,7 @@
           let card2 = '';
           if (p2) {
             card2 = `
-              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] relative">
+              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-44 shadow-lg text-[11px] z-10">
                 <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
                   ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
                 </div>
@@ -1107,6 +1114,8 @@
                 </div>
               </div>
             `;
+          } else {
+            card2 = `<div class="w-44 h-[62px]"></div>`;
           }
 
           let connectorLines = (!esUltimaColumna && p2) ? `
@@ -1116,7 +1125,7 @@
           ` : '';
 
           columnaHtml += `
-            <div class="bracket-pair-container">
+            <div class="bracket-pair-container flex-1 my-auto">
               ${card1}
               ${card2}
               ${connectorLines}
