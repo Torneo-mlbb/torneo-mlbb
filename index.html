@@ -49,17 +49,42 @@
       background: #1f2937;
       border-radius: 4px;
     }
-    .tree-connector {
+
+    /* ESTILOS DE LLAVES Y FLECHAS DE CONEXIÓN PERFECTAS */
+    .bracket-pair-container {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding-right: 32px;
     }
-    .tree-connector::after {
-      content: '➔';
+    .bracket-connector-top {
       position: absolute;
-      right: -24px;
+      right: 0;
+      top: 25%;
+      width: 24px;
+      height: 25%;
+      border-right: 2px solid #f59e0b;
+      border-top: 2px solid #f59e0b;
+      border-top-right-radius: 8px;
+    }
+    .bracket-connector-bottom {
+      position: absolute;
+      right: 0;
+      bottom: 25%;
+      width: 24px;
+      height: 25%;
+      border-right: 2px solid #f59e0b;
+      border-bottom: 2px solid #f59e0b;
+      border-bottom-right-radius: 8px;
+    }
+    .bracket-arrow-center {
+      position: absolute;
+      right: -10px;
       top: 50%;
       transform: translateY(-50%);
       color: #f59e0b;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
     }
   </style>
@@ -127,7 +152,7 @@
           </h2>
         </div>
 
-        <!-- GENERADOR DE CÓDIGOS BCP YAPE PARA ADMIN -->
+        <!-- GENERADOR DE CÓDIGOS DE PAGO PARA ADMIN -->
         <div class="bg-mldark-900 border border-amber-500/30 p-4 rounded-xl space-y-3">
           <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
             <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pago Consumibles
@@ -192,7 +217,7 @@
         <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
       </div>
 
-      <!-- TAB 1: INSCRIPCIÓN PASO A PASO (YAPE Y CÓDIGO) -->
+      <!-- TAB 1: INSCRIPCIÓN PASO A PASO -->
       <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
         <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Proceso de Inscripción <span id="reg-mode-title">5v5</span></h3>
         
@@ -233,7 +258,7 @@
           </button>
         </div>
 
-        <!-- PASO 2: FORMULARIO DE REGISTRO CON CÓDIGO ÚNICO -->
+        <!-- PASO 2: FORMULARIO -->
         <div id="wizard-step-2" class="hidden space-y-4 max-w-2xl">
           <div class="flex items-center justify-between">
             <button onclick="volverPasoYape()" class="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1 cursor-pointer">
@@ -305,13 +330,13 @@
         </div>
       </div>
 
-      <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
+      <!-- TAB 4: ÁRBOL ESQUEMÁTICO CON FLECHAS Y LÍNEAS CORREGIDAS -->
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
           <i class="fa-solid fa-sitemap"></i> Camino a la Final
         </h3>
-        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[350px] flex justify-start items-center">
-          <div id="arbol-esquematico-container" class="flex items-center gap-12 py-4">
+        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[400px] flex justify-start items-stretch">
+          <div id="arbol-esquematico-container" class="flex items-stretch gap-12 py-4">
             <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
           </div>
         </div>
@@ -417,7 +442,6 @@
       document.getElementById('wizard-step-1').classList.remove('hidden');
     }
 
-    // GENERAR CÓDIGO ÚNICO EN FIREBASE (ADMIN)
     function generarCodigoYapeAdmin() {
       const randomCode = "MLBB-" + Math.random().toString(36).substring(2, 7).toUpperCase();
       db.ref(`torneos/${currentMode}/codigos_invitacion/${randomCode}`).set({
@@ -431,7 +455,6 @@
       });
     }
 
-    // VALIDACIÓN Y CONSUMO DE CÓDIGO ÚNICO AL INSCRIBIR
     function enviarInscripcionConCodigo() {
       const entryCode = document.getElementById('entry-code-input').value.trim().toUpperCase();
       const nombreEquipo = document.getElementById('team-name').value.trim();
@@ -465,7 +488,6 @@
         jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
       }
 
-      // Consulta en tiempo real si el código existe y no ha sido usado
       db.ref(`torneos/${currentMode}/codigos_invitacion/${entryCode}`).once('value', (snap) => {
         const dataCode = snap.val();
         
@@ -479,7 +501,6 @@
           return;
         }
 
-        // Marcar el código como consumido y registrar al equipo
         db.ref(`torneos/${currentMode}/codigos_invitacion/${entryCode}`).update({ usado: true, fechaUso: Date.now() });
 
         db.ref(`torneos/${currentMode}/equipos`).push({ nombreEquipo, jugadores, codigoUsado: entryCode }, (error) => {
@@ -1021,6 +1042,7 @@
       });
     }
 
+    // DIBUJO DEL ÁRBOL ESQUEMÁTICO CON CONECTORES DE CORCHETE Y FLECHAS CENTRADAS
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -1029,27 +1051,60 @@
         return;
       }
       const totalRondas = Object.keys(datosBracketServidor).length;
+
       for (let r = 1; r <= totalRondas; r++) {
         const partidos = datosBracketServidor[`ronda_${r}`] || [];
         let esUltimaColumna = r === totalRondas;
 
-        let columnaHtml = `<div class="flex flex-col justify-around gap-6 h-full"><div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div>`;
+        let columnaHtml = `<div class="flex flex-col justify-around gap-8 h-full min-w-[200px]"><div class="text-center text-xs font-black text-amber-400 border-b border-amber-500/20 pb-1 mb-2">Ronda ${r}</div><div class="flex flex-col justify-around h-full space-y-4">`;
         
-        partidos.forEach((p) => {
-          let connectorClass = !esUltimaColumna ? 'tree-connector' : '';
-          columnaHtml += `
-            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-48 shadow-lg text-[11px] ${connectorClass}">
-              <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                ${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}
+        for (let i = 0; i < partidos.length; i += 2) {
+          let p1 = partidos[i];
+          let p2 = partidos[i + 1];
+
+          let card1 = `
+            <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-48 shadow-lg text-[11px] relative">
+              <div class="text-cyan-400 font-bold truncate ${p1.ganador === p1.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                ${p1.ganador === p1.equipo1 ? '🏆 ' : ''}${p1.equipo1}
               </div>
-              <div class="text-[9px] text-slate-500 my-1 text-center font-bold">VS</div>
-              <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                ${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}
+              <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+              <div class="text-rose-400 font-bold truncate ${p1.ganador === p1.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                ${p1.ganador === p1.equipo2 ? '🏆 ' : ''}${p1.equipo2}
               </div>
             </div>
           `;
-        });
-        columnaHtml += `</div>`;
+
+          let card2 = '';
+          if (p2) {
+            card2 = `
+              <div class="bg-mldark-800 border border-slate-700 p-2.5 rounded-xl w-48 shadow-lg text-[11px] relative">
+                <div class="text-cyan-400 font-bold truncate ${p2.ganador === p2.equipo1 ? 'text-emerald-400 font-black' : ''}">
+                  ${p2.ganador === p2.equipo1 ? '🏆 ' : ''}${p2.equipo1}
+                </div>
+                <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
+                <div class="text-rose-400 font-bold truncate ${p2.ganador === p2.equipo2 ? 'text-emerald-400 font-black' : ''}">
+                  ${p2.ganador === p2.equipo2 ? '🏆 ' : ''}${p2.equipo2}
+                </div>
+              </div>
+            `;
+          }
+
+          let connectorLines = (!esUltimaColumna && p2) ? `
+            <div class="bracket-connector-top"></div>
+            <div class="bracket-connector-bottom"></div>
+            <div class="bracket-arrow-center">➔</div>
+          ` : '';
+
+          columnaHtml += `
+            <div class="bracket-pair-container">
+              ${card1}
+              ${card2}
+              ${connectorLines}
+            </div>
+          `;
+        }
+
+        columnaHtml += `</div></div>`;
         container.innerHTML += columnaHtml;
       }
     }
