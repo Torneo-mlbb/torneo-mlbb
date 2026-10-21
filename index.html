@@ -49,42 +49,17 @@
       background: #1f2937;
       border-radius: 4px;
     }
-
-    /* ESTILOS DE LLAVES Y FLECHAS DE CONEXIÓN PERFECTAS */
-    .bracket-pair-container {
+    .tree-connector {
       position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      padding-right: 32px;
     }
-    .bracket-connector-top {
+    .tree-connector::after {
+      content: '➔';
       position: absolute;
-      right: 0;
-      top: 25%;
-      width: 24px;
-      height: 25%;
-      border-right: 2px solid #f59e0b;
-      border-top: 2px solid #f59e0b;
-      border-top-right-radius: 8px;
-    }
-    .bracket-connector-bottom {
-      position: absolute;
-      right: 0;
-      bottom: 25%;
-      width: 24px;
-      height: 25%;
-      border-right: 2px solid #f59e0b;
-      border-bottom: 2px solid #f59e0b;
-      border-bottom-right-radius: 8px;
-    }
-    .bracket-arrow-center {
-      position: absolute;
-      right: -10px;
+      right: -24px;
       top: 50%;
       transform: translateY(-50%);
       color: #f59e0b;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: bold;
     }
   </style>
@@ -123,20 +98,25 @@
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- SELECCIÓN DE MODALIDAD -->
+    <!-- SELECCIÓN DE MODALIDAD CON 1VS1, 3VS3 Y 5VS5 -->
     <section id="mode-selector-section" class="py-10 text-center">
       <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
-      <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribir a tu equipo</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-        <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
-          <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
-          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5v5</h3>
-          <p class="text-xs text-slate-400">Inscripción para Capitán + 4 Integrantes</p>
+      <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribirte o inscribir a tu equipo</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div onclick="seleccionarModalidad('1v1')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+          <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user"></i></div>
+          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 1vs1</h3>
+          <p class="text-xs text-slate-400">Inscripción Individual (Solo Jugador)</p>
         </div>
         <div onclick="seleccionarModalidad('3v3')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
           <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-user-group"></i></div>
-          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3v3</h3>
+          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 3vs3</h3>
           <p class="text-xs text-slate-400">Inscripción para Capitán + 2 Integrantes</p>
+        </div>
+        <div onclick="seleccionarModalidad('5v5')" class="bg-mldark-800 border border-amber-500/30 hover:border-amber-400 rounded-2xl p-8 cursor-pointer transition transform hover:-translate-y-1 shadow-xl">
+          <div class="text-amber-400 text-3xl mb-3"><i class="fa-solid fa-users"></i></div>
+          <h3 class="text-xl font-bold text-amber-400 mb-1">Torneo 5vs5</h3>
+          <p class="text-xs text-slate-400">Inscripción para Capitán + 4 Integrantes</p>
         </div>
       </div>
     </section>
@@ -157,7 +137,7 @@
           <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
             <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pago Consumibles
           </h4>
-          <p class="text-[11px] text-slate-400">Genera un código de un solo uso para entregárselo al capitán luego de verificar su Yape por WhatsApp.</p>
+          <p class="text-[11px] text-slate-400">Genera un código de un solo uso para entregárselo al usuario/capitán luego de verificar su Yape por WhatsApp.</p>
           <div class="flex flex-wrap gap-2 items-center">
             <button onclick="generarCodigoYapeAdmin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition cursor-pointer">
               <i class="fa-solid fa-plus"></i> Generar Código Único
@@ -212,7 +192,7 @@
       <!-- NAVEGACIÓN INTERNA -->
       <div class="flex gap-2 border-b border-slate-800 pb-2">
         <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
-        <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Equipos Registrados (<span id="count-registered-teams">0</span>)</button>
+        <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Participantes/Equipos (<span id="count-registered-teams">0</span>)</button>
         <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos & Horarios</button>
         <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
       </div>
@@ -232,7 +212,7 @@
             </div>
             
             <p class="text-xs text-slate-300">
-              Para inscribir a tu escuadra, realiza el Yape de <b class="text-emerald-400">S/ 5.00</b> al número o QR oficial del torneo:
+              Para completar tu registro, realiza el Yape de <b class="text-emerald-400">S/ 5.00</b> al número o QR oficial del torneo:
             </p>
 
             <div class="flex flex-col sm:flex-row items-center gap-4 bg-mldark-800 p-4 rounded-xl border border-slate-800">
@@ -254,7 +234,7 @@
           </div>
 
           <button onclick="avanzarPasoFormulario()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer">
-            <span>Siguiente: Llenar Formulario de Equipo</span> <i class="fa-solid fa-arrow-right"></i>
+            <span>Siguiente: Llenar Formulario</span> <i class="fa-solid fa-arrow-right"></i>
           </button>
         </div>
 
@@ -268,21 +248,21 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo / Squad:</label>
+            <label id="team-name-label" class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo / Squad:</label>
             <input type="text" id="team-name" placeholder="Ej: Vindicators MLBB" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
           </div>
           
           <div class="bg-mldark-900 p-3.5 rounded-xl border border-slate-800 space-y-2">
-            <h4 class="text-xs font-bold text-amber-400">👑 Datos del Capitán</h4>
+            <h4 id="cap-section-title" class="text-xs font-bold text-amber-400">👑 Datos del Capitán</h4>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <input type="text" id="cap-nick" placeholder="Nick del Capitán" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+              <input type="text" id="cap-nick" placeholder="Nick del Capitán / Jugador" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
               <input type="text" id="cap-id" placeholder="ID de MLBB (Ej: 12345678)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
               <input type="text" id="cap-server" placeholder="Servidor (Ej: 2001)" class="bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
             </div>
             <input type="tel" id="cap-phone" placeholder="WhatsApp de Contacto" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
           </div>
           
-          <div>
+          <div id="container-extra-players">
             <h4 class="text-xs font-bold text-slate-300 mb-2">🛡️ Integrantes de la Escuadra</h4>
             <div id="dynamic-players-inputs" class="space-y-2"></div>
           </div>
@@ -290,11 +270,11 @@
           <div class="bg-mldark-900 border border-amber-500/30 p-3.5 rounded-xl space-y-1.5">
             <label class="block text-xs font-bold text-amber-400">🔑 Código de Inscripción (Entregado por el Admin):</label>
             <input type="text" id="entry-code-input" placeholder="Ej: MLBB-X92A1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-amber-300 font-mono font-bold uppercase focus:outline-none focus:border-amber-500">
-            <p class="text-[10px] text-slate-500">* Este código se inhabilita automáticamente al registrar a tu equipo.</p>
+            <p class="text-[10px] text-slate-500">* Este código se inhabilita automáticamente al completar la inscripción.</p>
           </div>
 
           <button onclick="enviarInscripcionConCodigo()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/20 cursor-pointer">
-            ✅ Validar Código e Inscribir Equipo
+            ✅ Validar Código e Inscribir
           </button>
         </div>
       </div>
@@ -302,14 +282,14 @@
       <!-- TAB 2: EQUIPOS INSCRITOS -->
       <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-          <h3 class="text-sm font-bold text-amber-400">Equipos Registrados (Panel Admin)</h3>
+          <h3 class="text-sm font-bold text-amber-400">Participantes / Equipos Registrados</h3>
           <div class="relative w-full sm:w-72">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-            <input type="text" id="search-team-input" onkeyup="filtrarEquipos()" placeholder="Buscar equipo por nombre..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+            <input type="text" id="search-team-input" onkeyup="filtrarEquipos()" placeholder="Buscar por nombre..." class="w-full bg-mldark-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
           </div>
         </div>
         <div id="teams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>
+          <p class="text-xs text-slate-500 italic">No hay registros aún...</p>
         </div>
       </div>
 
@@ -330,13 +310,13 @@
         </div>
       </div>
 
-      <!-- TAB 4: ÁRBOL ESQUEMÁTICO CON FLECHAS Y LÍNEAS CORREGIDAS -->
+      <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
           <i class="fa-solid fa-sitemap"></i> Camino a la Final
         </h3>
-        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[400px] flex justify-start items-stretch">
-          <div id="arbol-esquematico-container" class="flex items-stretch gap-12 py-4">
+        <div class="overflow-x-auto custom-scrollbar p-6 bg-mldark-900 rounded-xl border border-slate-800 min-h-[350px] flex justify-start items-center">
+          <div id="arbol-esquematico-container" class="flex items-center gap-12 py-4">
             <p class="text-xs text-slate-500 italic">Genera los enfrentamientos desde el panel de Admin para ver el árbol.</p>
           </div>
         </div>
@@ -403,7 +383,25 @@
       document.getElementById('back-menu-btn').classList.remove('hidden');
       document.getElementById('reg-mode-title').innerText = modo;
       document.getElementById('admin-mode-label').innerText = modo;
-      construirInputsJugadores();
+      
+      const teamLabel = document.getElementById('team-name-label');
+      const teamInput = document.getElementById('team-name');
+      const capTitle = document.getElementById('cap-section-title');
+      const extraPlayersContainer = document.getElementById('container-extra-players');
+
+      if (modo === '1v1') {
+        teamLabel.innerText = "Nombre del Jugador / Alias:";
+        teamInput.placeholder = "Ej: LancelotGod_99";
+        capTitle.innerText = "👤 Datos del Jugador";
+        extraPlayersContainer.classList.add('hidden');
+      } else {
+        teamLabel.innerText = "Nombre del Equipo / Squad:";
+        teamInput.placeholder = "Ej: Vindicators MLBB";
+        capTitle.innerText = "👑 Datos del Capitán";
+        extraPlayersContainer.classList.remove('hidden');
+        construirInputsJugadores();
+      }
+
       sincronizarDatosFirebase();
     }
 
@@ -417,6 +415,8 @@
     function construirInputsJugadores() {
       const container = document.getElementById('dynamic-players-inputs');
       container.innerHTML = '';
+      if (currentMode === '1v1') return;
+
       const numExtra = currentMode === '5v5' ? 4 : 2;
       for (let i = 2; i <= numExtra + 1; i++) {
         container.innerHTML += `
@@ -469,23 +469,25 @@
       }
 
       if (!nombreEquipo || !capNick || !capId || !capServer || !capPhone) {
-        mostrarToast("Completa todos los datos del capitán", "warning");
+        mostrarToast("Completa todos los datos requeridos", "warning");
         return;
       }
 
-      let jugadores = [{ nick: capNick, id: capId, server: capServer, rol: 'Capitán', telefono: capPhone }];
-      const numExtra = currentMode === '5v5' ? 4 : 2;
+      let jugadores = [{ nick: capNick, id: capId, server: capServer, rol: currentMode === '1v1' ? 'Jugador' : 'Capitán', telefono: capPhone }];
 
-      for (let i = 2; i <= numExtra + 1; i++) {
-        const jNick = document.getElementById(`nick-j${i}`).value.trim();
-        const jId = document.getElementById(`id-j${i}`).value.trim();
-        const jServer = document.getElementById(`server-j${i}`).value.trim();
+      if (currentMode !== '1v1') {
+        const numExtra = currentMode === '5v5' ? 4 : 2;
+        for (let i = 2; i <= numExtra + 1; i++) {
+          const jNick = document.getElementById(`nick-j${i}`).value.trim();
+          const jId = document.getElementById(`id-j${i}`).value.trim();
+          const jServer = document.getElementById(`server-j${i}`).value.trim();
 
-        if (!jNick || !jId || !jServer) {
-          mostrarToast(`Faltan datos del Jugador ${i}`, "warning");
-          return;
+          if (!jNick || !jId || !jServer) {
+            mostrarToast(`Faltan datos del Jugador ${i}`, "warning");
+            return;
+          }
+          jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
         }
-        jugadores.push({ nick: jNick, id: jId, server: jServer, rol: 'Integrante' });
       }
 
       db.ref(`torneos/${currentMode}/codigos_invitacion/${entryCode}`).once('value', (snap) => {
@@ -497,7 +499,7 @@
         }
 
         if (dataCode.usado) {
-          mostrarToast("❌ Este código de inscripción ya fue consumido por otro equipo", "error");
+          mostrarToast("❌ Este código de inscripción ya fue consumido", "error");
           return;
         }
 
@@ -512,7 +514,7 @@
             document.getElementById('cap-id').value = '';
             document.getElementById('cap-server').value = '';
             document.getElementById('cap-phone').value = '';
-            construirInputsJugadores();
+            if (currentMode !== '1v1') construirInputsJugadores();
             volverPasoYape();
             cambiarTab('bracket');
           }
@@ -591,7 +593,7 @@
         "S2G Esports", "Stellantis", "Apex Warriors", "Cyber Knights", "Titan Gaming", "Vipers Esports", "Shadow Clan", "Dynasty Esports"
       ];
 
-      const numPlayers = currentMode === '5v5' ? 5 : 3;
+      const numPlayers = currentMode === '5v5' ? 5 : (currentMode === '3v3' ? 3 : 1);
       let batchData = {};
 
       nombresDemo.forEach((nombre, idx) => {
@@ -601,7 +603,7 @@
             nick: `Player_${idx + 1}_${i}`,
             id: Math.floor(10000000 + Math.random() * 90000000).toString(),
             server: Math.floor(1000 + Math.random() * 9000).toString(),
-            rol: i === 1 ? 'Capitán' : 'Integrante',
+            rol: i === 1 ? (currentMode === '1v1' ? 'Jugador' : 'Capitán') : 'Integrante',
             telefono: i === 1 ? '+51999888777' : ''
           });
         }
@@ -611,7 +613,7 @@
 
       db.ref(`torneos/${currentMode}/equipos`).update(batchData, (err) => {
         if (!err) {
-          mostrarToast("¡32 equipos de prueba cargados!", "success");
+          mostrarToast("¡32 registros de prueba cargados!", "success");
           cambiarTab('equipos');
         }
       });
@@ -625,7 +627,7 @@
         equiposCacheObj = {};
 
         if (!data) {
-          container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay equipos registrados aún...</p>`;
+          container.innerHTML = `<p class="text-xs text-slate-500 italic">No hay registros aún...</p>`;
           document.getElementById('count-registered-teams').innerText = "0";
           return;
         }
@@ -939,7 +941,7 @@
       } else {
         btnLid.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
         btnGen.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
-        if (loginMsg) loginMsg.innerText = "Acceso restringido: Ingresa tu ID de MLBB de Capitán:";
+        if (loginMsg) loginMsg.innerText = "Acceso restringido: Ingresa tu ID de MLBB de Capitán/Jugador:";
       }
 
       document.getElementById(`chat-login-view-${matchKey}`).classList.remove('hidden');
@@ -974,7 +976,7 @@
       } else {
         [equipo1, equipo2].forEach(eqNombre => {
           const jugadores = equiposCacheObj[eqNombre] || [];
-          const cap = jugadores.find(j => j.rol === 'Capitán');
+          const cap = jugadores.find(j => j.rol === 'Capitán' || j.rol === 'Jugador');
           if (cap && cap.id === userId) {
             tienePermiso = true;
             nickJugador = `👑 ${cap.nick}`;
@@ -990,8 +992,8 @@
         mostrarToast(`Bienvenido al chat, ${nickJugador}`, "success");
       } else {
         const errorMsg = currentTab === 'general' ? 
-          "Tu ID no figura en ninguno de los 2 equipos de esta partida" : 
-          "Acceso denegado: Solo el Capitán o Admin pueden ingresar a esta pestaña";
+          "Tu ID no figura en ninguno de los 2 participantes de esta partida" : 
+          "Acceso denegado: Solo el Capitán/Jugador o Admin pueden ingresar a esta pestaña";
         mostrarToast(errorMsg, "error");
       }
     }
@@ -1042,7 +1044,6 @@
       });
     }
 
-    // DIBUJO DEL ÁRBOL ESQUEMÁTICO CON CONECTORES DE CORCHETE Y FLECHAS CENTRADAS
     function renderizarArbolEsquematico() {
       const container = document.getElementById('arbol-esquematico-container');
       container.innerHTML = '';
@@ -1165,21 +1166,17 @@
       db.ref(`torneos/${currentMode}/equipos`).once('value', (snap) => {
         const data = snap.val();
         if (!data) {
-          mostrarToast("No hay equipos inscritos.", "warning");
+          mostrarToast("No hay registros inscritos.", "warning");
           return;
         }
 
         let keys = Object.keys(data);
         if (keys.length < 2) {
-          mostrarToast("Se necesitan al menos 2 equipos inscritos.", "warning");
+          mostrarToast("Se necesitan al menos 2 participantes inscritos.", "warning");
           return;
         }
 
         let bracketEstructura = datosBracketServidor || {};
-        if (bracketEstructura['ronda_1'] && bracketEstructura['ronda_1'].length > 0) {
-          mostrarToast("La Ronda 1 ya fue iniciada. Usa 'Continúa Sorteo' si faltan equipos.", "warning");
-          return;
-        }
 
         const matchDateStr = document.getElementById('cfg-match-date').value || new Date().toISOString().split('T')[0];
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
@@ -1196,7 +1193,7 @@
         rondaSeleccionada = 1;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast("¡Sorteo iniciado en bloques organizados por Mesa y Fecha!", "success");
+          if (!err) mostrarToast("¡Sorteo generado con éxito!", "success");
         });
       });
     }
@@ -1208,11 +1205,6 @@
         const bracketObj = dataTorneo.bracket || {};
         let partidosRonda1 = bracketObj['ronda_1'] || [];
 
-        if (partidosRonda1.length === 0) {
-          mostrarToast("Primero debes iniciar el sorteo con el botón verde.", "warning");
-          return;
-        }
-
         let keysSorteadas = new Set();
         partidosRonda1.forEach(p => {
           if (p.equipo1Key) keysSorteadas.add(p.equipo1Key);
@@ -1223,7 +1215,7 @@
         let keysPendientes = allKeys.filter(k => !keysSorteadas.has(k));
 
         if (keysPendientes.length === 0) {
-          mostrarToast("Ya se sortearon todos los equipos inscritos en esta ronda.", "info");
+          mostrarToast("Ya se sortearon todos los participantes inscritos en esta ronda.", "info");
           return;
         }
 
@@ -1242,7 +1234,7 @@
           if (!err) {
             let cantPartidos = nuevosPartidos.length;
             let restantes = keysPendientes.length - seleccionadas.length;
-            mostrarToast(`¡Se agregaron ${cantPartidos} partidas! Quedan ${restantes} equipos pendientes.`, "success");
+            mostrarToast(`¡Se agregaron ${cantPartidos} partidas! Quedan ${restantes} participantes pendientes.`, "success");
           }
         });
       });
@@ -1269,7 +1261,7 @@
 
         let totalEquiposInscritos = Object.keys(equiposObj).length;
         if (keysSorteadasR1.size < totalEquiposInscritos) {
-          mostrarToast(`Faltan ${totalEquiposInscritos - keysSorteadasR1.size} equipos por sortear en Ronda 1. Presiona 'Continúa Sorteo'.`, "warning");
+          mostrarToast(`Faltan ${totalEquiposInscritos - keysSorteadasR1.size} participantes por sortear en Ronda 1. Presiona 'Continúa Sorteo'.`, "warning");
           return;
         }
 
@@ -1358,9 +1350,9 @@
     }
 
     function eliminarEquipo(key) {
-      if (confirm("¿Eliminar este equipo de la lista?")) {
+      if (confirm("¿Eliminar este registro de la lista?")) {
         db.ref(`torneos/${currentMode}/equipos/${key}`).remove();
-        mostrarToast("Equipo eliminado", "info");
+        mostrarToast("Registro eliminado", "info");
       }
     }
 
