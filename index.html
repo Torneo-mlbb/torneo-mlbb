@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MLBB Torneos - Registro & Organización</title>
+  <title>MLBB Torneos - MINIONS 闇美</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -110,12 +110,10 @@
   <header class="bg-mldark-800/90 backdrop-blur-md border-b border-amber-500/25 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
-          <i class="fa-solid fa-shield-halved text-lg"></i>
-        </div>
+        <img src="logo-minions.jpg" alt="MINIONS" class="w-10 h-10 rounded-xl border border-amber-500/40 object-cover shadow-lg shadow-amber-500/20">
         <div>
           <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-2">
-            <span class="ml-gold-gradient-text">Arena Torneos MLBB</span>
+            <span class="ml-gold-gradient-text">MINIONS 闇美</span>
           </h1>
           <p class="text-[11px] text-slate-400">Plataforma Oficial &bull; Registro & Organización Interna</p>
         </div>
@@ -174,9 +172,9 @@
 
         <div class="bg-mldark-900 border border-amber-500/30 p-4 rounded-xl space-y-3">
           <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
-            <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pago Consumibles
+            <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pase Consumibles
           </h4>
-          <p class="text-[11px] text-slate-400">Genera un código de un solo uso para entregárselo al usuario/capitán luego de verificar su Yape por WhatsApp.</p>
+          <p class="text-[11px] text-slate-400">Genera un código de un solo uso para entregárselo al usuario/capitán para su validación.</p>
           <div class="flex flex-wrap gap-2 items-center">
             <button onclick="generarCodigoYapeAdmin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition cursor-pointer">
               <i class="fa-solid fa-plus"></i> Generar Código Único
@@ -245,44 +243,36 @@
           <div class="bg-mldark-900 border border-amber-500/30 p-5 rounded-2xl space-y-3">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
               <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
-                <i class="fa-solid fa-mobile-screen-button"></i> Paso 1: Pago vía Yape (S/ 5.00)
+                <i class="fa-solid fa-ticket"></i> Paso 1: Obtener Código de Invitación
               </h4>
-              <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">Verificación Oficial</span>
+              <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">Registro Directo</span>
             </div>
             
             <p class="text-xs text-slate-300">
-              Para completar tu registro, realiza el Yape de <b class="text-emerald-400">S/ 5.00</b> al número o QR oficial del torneo:
+              Para completar tu registro en el torneo, debes contar con un <b class="text-amber-400">Código de Invitación / Pase Único</b> entregado por la administración de la comunidad <b class="text-amber-400">MINIONS 闇美</b>.
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center gap-4 bg-mldark-800 p-4 rounded-xl border border-slate-800">
-              <div class="w-24 h-24 bg-purple-900/40 border border-purple-500/30 rounded-xl flex items-center justify-center text-purple-400 font-bold text-xs text-center p-2">
-                [ QR YAPE ADMIN ]
-              </div>
-              <div class="space-y-1.5 text-xs text-slate-300">
-                <p>📱 Número Yape: <b class="text-amber-400 font-mono text-sm">999 888 777</b></p>
-                <p>👤 Titular: <b class="text-white">Organización MLBB Arena</b></p>
-                <a href="https://wa.me/51999888777?text=Hola,%20adjunto%20comprobante%20de%20Yape%20para%20obtener%20mi%20c%C3%B3digo%20de%20inscripci%C3%B3n" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-md mt-1">
-                  <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante por WhatsApp
-                </a>
-              </div>
-            </div>
-
-            <p class="text-[11px] text-slate-400 italic">
-              * Al enviar tu comprobante, el administrador te responderá con un <b>Código de Invitación Único</b> de un solo uso.
-            </p>
+            <button onclick="avanzarPasoFormulario()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer mt-2">
+              <span>Continuar al Formulario de Inscripción</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
-
-          <button onclick="avanzarPasoFormulario()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer">
-            <span>Siguiente: Llenar Formulario</span> <i class="fa-solid fa-arrow-right"></i>
-          </button>
         </div>
 
         <div id="wizard-step-2" class="hidden space-y-4 max-w-2xl">
           <div class="flex items-center justify-between">
             <button onclick="volverPasoYape()" class="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1 cursor-pointer">
-              <i class="fa-solid fa-arrow-left"></i> Volver a Yape
+              <i class="fa-solid fa-arrow-left"></i> Volver al Paso 1
             </button>
             <span class="text-xs text-amber-400 font-bold">Paso 2 de 2</span>
+          </div>
+
+          <!-- AVISO ANTI-SPAM Y REGLAS -->
+          <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-left flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base mt-0.5"></i>
+            <div class="text-[11px] text-amber-200/90 leading-relaxed">
+              <strong class="text-amber-400 block font-bold mb-0.5">AVISO ANTI-SPAM Y REGLAS DE REGISTRO:</strong>
+              El envío de datos falsos, nombres ofensivos o registros duplicados resultará en la descalificación inmediata del equipo y el bloqueo permanente en la comunidad MINIONS.
+            </div>
           </div>
 
           <div>
@@ -366,9 +356,32 @@
     </div>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="bg-mldark-900 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-10">
-    Mobile Legends: Bang Bang Tournament Manager &bull; Realtime Database
+  <!-- FOOTER OFICIAL DE LA COMUNIDAD MINIONS -->
+  <footer class="bg-mldark-900 border-t border-amber-500/20 py-8 px-4 text-center text-xs text-slate-400 mt-10">
+    <div class="max-w-6xl mx-auto space-y-4">
+      
+      <!-- Logo e Identidad de la Comunidad -->
+      <div class="flex flex-col items-center justify-center gap-2">
+        <img src="logo-minions.jpg" alt="MINIONS BY DARIFICO" class="w-16 h-16 rounded-xl border border-amber-500/40 shadow-lg shadow-amber-500/10 object-cover">
+        
+        <div class="space-y-0.5">
+          <h3 class="font-black text-sm tracking-wide text-amber-400">MINIONS 闇美</h3>
+          <p class="text-[11px] font-bold text-slate-300">Comunidad Oficial 99.9% &bull; Líder: <span class="text-amber-300">Darifico</span></p>
+        </div>
+      </div>
+
+      <!-- Descargo de Responsabilidad / Copyright Legal -->
+      <p class="text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
+        Mobile Legends: Bang Bang es una marca registrada de Moonton Games. Este torneo y plataforma son organizados de forma independiente por la comunidad <b class="text-slate-400">MINIONS BY DARIFICO</b> sin relación comercial ni patrocinio directo de Moonton.
+      </p>
+
+      <!-- Línea de Copyright 2026 -->
+      <div class="pt-3 border-t border-slate-800/60 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+        <span>© 2026 MINIONS 闇美 &bull; Todos los derechos reservados.</span>
+        <span class="text-amber-500/80 font-semibold">Organizado por Darifico</span>
+      </div>
+
+    </div>
   </footer>
 
   <!-- MODAL ADMIN -->
@@ -507,7 +520,7 @@
       }, (err) => {
         if (!err) {
           document.getElementById('admin-generated-code-display').value = randomCode;
-          mostrarToast("¡Código único generado! Cópialo para enviarlo por WhatsApp.", "success");
+          mostrarToast("¡Código único generado! Entrégalo para la inscripción.", "success");
         }
       });
     }
