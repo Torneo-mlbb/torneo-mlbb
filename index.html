@@ -162,7 +162,7 @@
     <!-- PANEL PRINCIPAL DEL TORNEO -->
     <div id="tournament-app-container" class="hidden space-y-6">
       
-      <!-- PANEL ADMIN -->
+      <!-- PANEL ADMIN CON BOTONES INDIVIDUALES POR ADMIN -->
       <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
@@ -170,16 +170,49 @@
           </h2>
         </div>
 
+        <!-- GENERADOR SIMPLE CON BOTONES INDIVIDUALES -->
         <div class="bg-mldark-900 border border-amber-500/30 p-4 rounded-xl space-y-3">
           <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
-            <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pase Consumibles
+            <i class="fa-solid fa-ticket"></i> Generador de Códigos por Administrador
           </h4>
-          <p class="text-[11px] text-slate-400">Genera un código de un solo uso para entregárselo al usuario/capitán tras confirmar su pago de S/ 2.00.</p>
-          <div class="flex flex-wrap gap-2 items-center">
-            <button onclick="generarCodigoYapeAdmin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus"></i> Generar Código Único
+          <p class="text-[11px] text-slate-400">Haz clic en tu número de Admin para generar un código único de un solo uso:</p>
+          
+          <!-- Botones del Admin 1 al 10 -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <button onclick="generarCodigoPorAdmin(1)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 1
             </button>
-            <input type="text" id="admin-generated-code-display" readonly placeholder="Código generado..." class="bg-mldark-800 border border-slate-700 text-xs px-3 py-2 rounded-lg text-amber-400 font-mono w-48 text-center font-bold">
+            <button onclick="generarCodigoPorAdmin(2)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 2
+            </button>
+            <button onclick="generarCodigoPorAdmin(3)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 3
+            </button>
+            <button onclick="generarCodigoPorAdmin(4)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 4
+            </button>
+            <button onclick="generarCodigoPorAdmin(5)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 5
+            </button>
+            <button onclick="generarCodigoPorAdmin(6)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 6
+            </button>
+            <button onclick="generarCodigoPorAdmin(7)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 7
+            </button>
+            <button onclick="generarCodigoPorAdmin(8)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 8
+            </button>
+            <button onclick="generarCodigoPorAdmin(9)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 9
+            </button>
+            <button onclick="generarCodigoPorAdmin(10)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Admin 10
+            </button>
+          </div>
+
+          <div class="pt-2">
+            <input type="text" id="admin-generated-code-display" readonly placeholder="Tu código generado aparecerá aquí..." class="w-full bg-mldark-800 border border-slate-700 text-xs px-3 py-2.5 rounded-lg text-amber-400 font-mono text-center font-bold tracking-wider">
           </div>
         </div>
 
@@ -297,7 +330,7 @@
 
           <div class="bg-mldark-900 border border-amber-500/30 p-3.5 rounded-xl space-y-1.5">
             <label class="block text-xs font-bold text-amber-400">🔑 Código de Inscripción (Entregado por el Admin):</label>
-            <input type="text" id="entry-code-input" placeholder="Ej: MLBB-X92A1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-amber-300 font-mono font-bold uppercase focus:outline-none focus:border-amber-500">
+            <input type="text" id="entry-code-input" placeholder="Ej: ADM1-X92A1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-amber-300 font-mono font-bold uppercase focus:outline-none focus:border-amber-500">
             <p class="text-[10px] text-slate-500">* Este código se inhabilita automáticamente al completar la inscripción.</p>
           </div>
 
@@ -439,7 +472,7 @@
 
     let currentMode = null;
     let isAdmin = false;
-    const CORREO_MAESTRO = "admin@torneomlbb.com"; // Correo maestro registrado en Firebase
+    const CORREO_MAESTRO = "admin@torneomlbb.com";
     let equiposCacheObj = {};
     let rondaSeleccionada = 1;
     let datosBracketServidor = null;
@@ -533,15 +566,18 @@
       document.getElementById('wizard-step-1').classList.remove('hidden');
     }
 
-    function generarCodigoYapeAdmin() {
-      const randomCode = "MLBB-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+    // GENERACIÓN AUTOMÁTICA CON PREFIJO DE ADMIN
+    function generarCodigoPorAdmin(numAdmin) {
+      const randomCode = "ADM" + numAdmin + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+      
       db.ref(`torneos/${currentMode}/codigos_invitacion/${randomCode}`).set({
         usado: false,
+        creadoPor: "Admin_" + numAdmin,
         fechaCreacion: Date.now()
       }, (err) => {
         if (!err) {
           document.getElementById('admin-generated-code-display').value = randomCode;
-          mostrarToast("¡Código único generado! Entrégalo tras verificar S/ 2.00.", "success");
+          mostrarToast(`¡Código creado para Admin ${numAdmin}! Cópialo y entrégalo.`, "success");
         }
       });
     }
@@ -855,7 +891,6 @@
         return;
       }
 
-      // SOPORTE HASTA 10 ADMINISTRADORES/MESAS SIMULTÁNEAS SEGÚN EL AFICHE
       for (let adminNum = 1; adminNum <= 10; adminNum++) {
         let partidosAdmin = partidosRondaActual.filter((_, idx) => (idx % 10) === (adminNum - 1));
 
@@ -1371,7 +1406,6 @@
         const tolerance = parseInt(document.getElementById('cfg-tolerance').value) || 5;
 
         let keysMezcladas = [...keys].sort(() => Math.random() - 0.5);
-        // PERMITE HASTA 256 JUGADORES PARA RONDA 1
         let tandaKeys = keysMezcladas.slice(0, 256);
 
         let partidosRonda1 = generarBloquesDePartidas(tandaKeys, data, matchDateStr, startTimeStr, duration, breakTime, tolerance);
