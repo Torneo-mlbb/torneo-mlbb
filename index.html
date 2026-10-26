@@ -22,7 +22,7 @@
   </script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase SDK v8.10.1 (App, Auth y Database) -->
+  <!-- Firebase SDK v8.10.1 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -51,7 +51,6 @@
       border-radius: 4px;
     }
 
-    /* CONTENEDOR DEL ÁRBOL CON OVERLAY SVG PARA CONEXIONES PERFECTAS */
     .tree-scroll-wrapper {
       position: relative;
       overflow-x: auto;
@@ -162,57 +161,34 @@
     <!-- PANEL PRINCIPAL DEL TORNEO -->
     <div id="tournament-app-container" class="hidden space-y-6">
       
-      <!-- PANEL ADMIN CON BOTONES INDIVIDUALES POR ADMIN -->
+      <!-- PANEL ADMIN -->
       <section id="admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h2 class="text-sm font-bold text-amber-400 flex items-center gap-2">
             <i class="fa-solid fa-sliders"></i> Control de Torneo (<span id="admin-mode-label">1v1</span>)
           </h2>
+          <span id="current-admin-email-display" class="text-xs font-mono text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full"></span>
         </div>
 
-        <!-- GENERADOR SIMPLE CON BOTONES INDIVIDUALES -->
+        <!-- GENERADOR UNIFICADO PRIVADO -->
         <div class="bg-mldark-900 border border-amber-500/30 p-4 rounded-xl space-y-3">
           <h4 class="text-xs font-bold text-amber-400 flex items-center gap-2">
-            <i class="fa-solid fa-ticket"></i> Generador de Códigos por Administrador
+            <i class="fa-solid fa-ticket"></i> Generador de Códigos de Pase Consumibles
           </h4>
-          <p class="text-[11px] text-slate-400">Haz clic en tu número de Admin para generar un código único de un solo uso:</p>
-          
-          <!-- Botones del Admin 1 al 10 -->
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            <button onclick="generarCodigoPorAdmin(1)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 1
+          <p class="text-[11px] text-slate-400">Genera un código de un solo uso. Los demás administradores no podrán ver los códigos que tú crees.</p>
+          <div class="flex flex-wrap gap-2 items-center">
+            <button onclick="generarCodigoYapeAdmin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg transition cursor-pointer">
+              <i class="fa-solid fa-plus"></i> Generar Mi Código Único
             </button>
-            <button onclick="generarCodigoPorAdmin(2)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 2
-            </button>
-            <button onclick="generarCodigoPorAdmin(3)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 3
-            </button>
-            <button onclick="generarCodigoPorAdmin(4)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 4
-            </button>
-            <button onclick="generarCodigoPorAdmin(5)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 5
-            </button>
-            <button onclick="generarCodigoPorAdmin(6)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 6
-            </button>
-            <button onclick="generarCodigoPorAdmin(7)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 7
-            </button>
-            <button onclick="generarCodigoPorAdmin(8)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 8
-            </button>
-            <button onclick="generarCodigoPorAdmin(9)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 9
-            </button>
-            <button onclick="generarCodigoPorAdmin(10)" class="bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/40 text-xs font-bold py-2 px-2 rounded-lg transition cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Admin 10
-            </button>
+            <input type="text" id="admin-generated-code-display" readonly placeholder="Código generado..." class="bg-mldark-800 border border-slate-700 text-xs px-3 py-2 rounded-lg text-amber-400 font-mono w-48 text-center font-bold">
           </div>
 
-          <div class="pt-2">
-            <input type="text" id="admin-generated-code-display" readonly placeholder="Tu código generado aparecerá aquí..." class="w-full bg-mldark-800 border border-slate-700 text-xs px-3 py-2.5 rounded-lg text-amber-400 font-mono text-center font-bold tracking-wider">
+          <!-- HISTORIAL PRIVADO DE CÓDIGOS DEL ADMIN ACTUAL -->
+          <div class="pt-3 border-t border-slate-800">
+            <h5 class="text-[11px] font-bold text-slate-300 mb-2"><i class="fa-solid fa-clock-rotate-left mr-1 text-amber-400"></i> Mis Códigos Creados (Privado)</h5>
+            <div id="my-codes-history-container" class="max-h-36 overflow-y-auto custom-scrollbar space-y-1 text-xs">
+              <p class="text-[11px] text-slate-500 italic">Cargando tus códigos registrados...</p>
+            </div>
           </div>
         </div>
 
@@ -299,7 +275,6 @@
             <span class="text-xs text-amber-400 font-bold">Paso 2 de 2</span>
           </div>
 
-          <!-- AVISO ANTI-SPAM Y REGLAS -->
           <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-left flex items-start gap-3">
             <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base mt-0.5"></i>
             <div class="text-[11px] text-amber-200/90 leading-relaxed">
@@ -330,7 +305,7 @@
 
           <div class="bg-mldark-900 border border-amber-500/30 p-3.5 rounded-xl space-y-1.5">
             <label class="block text-xs font-bold text-amber-400">🔑 Código de Inscripción (Entregado por el Admin):</label>
-            <input type="text" id="entry-code-input" placeholder="Ej: ADM1-X92A1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-amber-300 font-mono font-bold uppercase focus:outline-none focus:border-amber-500">
+            <input type="text" id="entry-code-input" placeholder="Ej: MLBB-X92A1" class="w-full bg-mldark-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-amber-300 font-mono font-bold uppercase focus:outline-none focus:border-amber-500">
             <p class="text-[10px] text-slate-500">* Este código se inhabilita automáticamente al completar la inscripción.</p>
           </div>
 
@@ -371,7 +346,7 @@
         </div>
       </div>
 
-      <!-- TAB 4: ÁRBOL ESQUEMÁTICO CON OVERLAY SVG -->
+      <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <h3 class="text-sm font-bold text-amber-400 flex items-center justify-between">
           <span class="flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> Camino a la Final</span>
@@ -411,45 +386,38 @@
     </div>
   </div>
 
-  <!-- FOOTER OFICIAL DE LA COMUNIDAD MINIONS -->
+  <!-- FOOTER OFICIAL -->
   <footer class="bg-mldark-900 border-t border-amber-500/20 py-8 px-4 text-center text-xs text-slate-400 mt-10">
     <div class="max-w-6xl mx-auto space-y-4">
-      
-      <!-- Logo e Identidad de la Comunidad -->
       <div class="flex flex-col items-center justify-center gap-2">
         <img src="logo-minions.jpg" alt="MINIONS BY DARIFICO" class="w-16 h-16 rounded-xl border border-amber-500/40 shadow-lg shadow-amber-500/10 object-cover">
-        
         <div class="space-y-0.5">
           <h3 class="font-black text-sm tracking-wide text-amber-400">MINIONS 闇美</h3>
           <p class="text-[11px] font-bold text-slate-300">Comunidad Oficial 99.9% &bull; Líder: <span class="text-amber-300">Darifico</span></p>
         </div>
       </div>
-
-      <!-- Descargo de Responsabilidad / Copyright Legal -->
       <p class="text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
         Mobile Legends: Bang Bang es una marca registrada de Moonton Games. Este torneo y plataforma son organizados de forma independiente por la comunidad <b class="text-slate-400">MINIONS BY DARIFICO</b> sin relación comercial ni patrocinio directo de Moonton.
       </p>
-
-      <!-- Línea de Copyright 2026 -->
       <div class="pt-3 border-t border-slate-800/60 text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
         <span>© 2026 MINIONS 闇美 &bull; Todos los derechos reservados.</span>
         <span class="text-amber-500/80 font-semibold">Organizado por Darifico</span>
       </div>
-
     </div>
   </footer>
 
-  <!-- MODAL ADMIN -->
+  <!-- MODAL ADMIN CON LOGIN INDIVIDUAL (EMAIL / PASSWORD) -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
       <div class="text-center mb-4">
-        <h3 class="text-sm font-bold text-white">Ingreso Administrador</h3>
-        <p class="text-xs text-slate-400 mt-1">Ingresa la clave autorizada de administrador</p>
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-user-shield text-amber-400 mr-1.5"></i> Ingreso Administrador</h3>
+        <p class="text-xs text-slate-400 mt-1">Ingresa tu correo y contraseña asignada</p>
       </div>
       <form onsubmit="handleAdminAuth(event)">
-        <input type="password" id="admin-pin" placeholder="Clave de admin" class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
-        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition cursor-pointer">Verificar</button>
+        <input type="email" id="admin-email" placeholder="Correo (ej: admin1@torneo.com)" required class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-2 focus:outline-none focus:border-amber-500">
+        <input type="password" id="admin-pass" placeholder="Contraseña" required class="w-full bg-mldark-900 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white mb-3 focus:outline-none focus:border-amber-500">
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs py-2 rounded-lg transition cursor-pointer">Iniciar Sesión</button>
       </form>
     </div>
   </div>
@@ -472,7 +440,6 @@
 
     let currentMode = null;
     let isAdmin = false;
-    const CORREO_MAESTRO = "admin@torneomlbb.com";
     let equiposCacheObj = {};
     let rondaSeleccionada = 1;
     let datosBracketServidor = null;
@@ -487,12 +454,17 @@
       });
 
       auth.onAuthStateChanged((user) => {
-        if (user && user.email === CORREO_MAESTRO) {
+        if (user) {
           isAdmin = true;
+          document.getElementById('current-admin-email-display').innerText = user.email;
         } else {
           isAdmin = false;
+          document.getElementById('current-admin-email-display').innerText = '';
         }
         actualizarPermisosAdmin();
+        if (isAdmin && currentMode) {
+          escucharMisCodigos();
+        }
       });
     });
 
@@ -527,6 +499,7 @@
       }
 
       sincronizarDatosFirebase();
+      if (isAdmin) escucharMisCodigos();
     }
 
     function volverMenu() {
@@ -566,20 +539,63 @@
       document.getElementById('wizard-step-1').classList.remove('hidden');
     }
 
-    // GENERACIÓN AUTOMÁTICA CON PREFIJO DE ADMIN
-    function generarCodigoPorAdmin(numAdmin) {
-      const randomCode = "ADM" + numAdmin + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+    // GENERADOR PRIVADO ASOCIADO AL UID DEL ADMIN
+    function generarCodigoYapeAdmin() {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        mostrarToast("Debes iniciar sesión como Admin", "error");
+        return;
+      }
+
+      const randomCode = "MLBB-" + Math.random().toString(36).substring(2, 7).toUpperCase();
       
       db.ref(`torneos/${currentMode}/codigos_invitacion/${randomCode}`).set({
         usado: false,
-        creadoPor: "Admin_" + numAdmin,
+        creadoPorUID: currentUser.uid,
+        creadoPorEmail: currentUser.email,
         fechaCreacion: Date.now()
       }, (err) => {
         if (!err) {
           document.getElementById('admin-generated-code-display').value = randomCode;
-          mostrarToast(`¡Código creado para Admin ${numAdmin}! Cópialo y entrégalo.`, "success");
+          mostrarToast("¡Código único generado! Guardado en tu historial privado.", "success");
         }
       });
+    }
+
+    // HISTORIAL EN TIEMPO REAL SOLO PARA EL ADMIN LOGUEADO
+    function escucharMisCodigos() {
+      const currentUser = auth.currentUser;
+      const historyContainer = document.getElementById('my-codes-history-container');
+      if (!currentUser || !currentMode || !historyContainer) return;
+
+      db.ref(`torneos/${currentMode}/codigos_invitacion`)
+        .orderByChild('creadoPorUID')
+        .equalTo(currentUser.uid)
+        .on('value', (snap) => {
+          const data = snap.val();
+          historyContainer.innerHTML = '';
+
+          if (!data) {
+            historyContainer.innerHTML = `<p class="text-[11px] text-slate-500 italic">Aún no has generado códigos en esta modalidad...</p>`;
+            return;
+          }
+
+          const items = Object.keys(data).reverse();
+          items.forEach(codeKey => {
+            const item = data[codeKey];
+            const isUsed = item.usado;
+            const statusBadge = isUsed 
+              ? `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded text-[10px] font-bold">Consumido</span>`
+              : `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] font-bold">Disponible</span>`;
+
+            historyContainer.innerHTML += `
+              <div class="bg-mldark-800 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                <span class="font-mono text-amber-400 font-bold tracking-wide">${codeKey}</span>
+                ${statusBadge}
+              </div>
+            `;
+          });
+        });
     }
 
     function enviarInscripcionConCodigo() {
@@ -682,16 +698,18 @@
 
     function handleAdminAuth(e) {
       e.preventDefault();
-      const pin = document.getElementById('admin-pin').value;
+      const email = document.getElementById('admin-email').value.trim();
+      const pass = document.getElementById('admin-pass').value.trim();
       
-      auth.signInWithEmailAndPassword(CORREO_MAESTRO, pin)
-        .then(() => {
+      auth.signInWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
           closeAuthModal();
-          document.getElementById('admin-pin').value = '';
-          mostrarToast("Acceso Administrador concedido", "success");
+          document.getElementById('admin-email').value = '';
+          document.getElementById('admin-pass').value = '';
+          mostrarToast(`Bienvenido Admin (${userCredential.user.email})`, "success");
         })
         .catch((error) => {
-          mostrarToast("Contraseña incorrecta de administrador", "error");
+          mostrarToast("Correo o contraseña incorrectos", "error");
         });
     }
 
