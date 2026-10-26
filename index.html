@@ -22,8 +22,9 @@
   </script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase SDK v8.10.1 -->
+  <!-- Firebase SDK v8.10.1 (App, Auth y Database) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
     body {
@@ -399,10 +400,11 @@
 
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
     let currentMode = null;
     let isAdmin = false;
-    const ADMIN_PASS = "admin123";
+    const CORREO_MAESTRO = "admin@torneomlbb.com"; // Correo maestro registrado en Firebase
     let equiposCacheObj = {};
     let rondaSeleccionada = 1;
     let datosBracketServidor = null;
@@ -418,6 +420,16 @@
 
       window.addEventListener('resize', () => {
         if (datosBracketServidor) redibujarConectoresSVG();
+      });
+
+      // Escuchador del estado de autenticación en Firebase Auth
+      auth.onAuthStateChanged((user) => {
+        if (user && user.email === CORREO_MAESTRO) {
+          isAdmin = true;
+        } else {
+          isAdmin = false;
+        }
+        actualizarPermisosAdmin();
       });
     });
 
@@ -586,9 +598,9 @@
 
     function openAuthModal() {
       if (isAdmin) {
-        isAdmin = false;
-        actualizarPermisosAdmin();
-        mostrarToast("Modo administrador cerrado", "info");
+        auth.signOut().then(() => {
+          mostrarToast("Sesión de administrador cerrada", "info");
+        });
       } else {
         document.getElementById('auth-modal').classList.remove('hidden');
       }
@@ -601,15 +613,16 @@
     function handleAdminAuth(e) {
       e.preventDefault();
       const pin = document.getElementById('admin-pin').value;
-      if (pin === ADMIN_PASS) {
-        isAdmin = true;
-        closeAuthModal();
-        document.getElementById('admin-pin').value = '';
-        actualizarPermisosAdmin();
-        mostrarToast("Acceso Administrador concedido", "success");
-      } else {
-        mostrarToast("Clave incorrecta", "error");
-      }
+      
+      auth.signInWithEmailAndPassword(CORREO_MAESTRO, pin)
+        .then(() => {
+          closeAuthModal();
+          document.getElementById('admin-pin').value = '';
+          mostrarToast("Acceso Administrador concedido", "success");
+        })
+        .catch((error) => {
+          mostrarToast("Contraseña incorrecta de administrador", "error");
+        });
     }
 
     function actualizarPermisosAdmin() {
@@ -691,15 +704,15 @@
           
           eq.jugadores.forEach(j => {
             let idInfo = isAdmin ? `<b class="text-slate-400">(${j.id} - ${j.server})</b>` : '';
-            playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${j.nick} ${idInfo}</span> <span class="text-amber-400">${j.rol}</span></div>`;
+            playersHtml += `<div class="text-[11px] text-slate-300 bg-mldark-900 p-1.5 rounded mb-1 flex justify-between"><span>${escapeHTML(j.nick)} ${idInfo}</span> <span class="text-amber-400">${escapeHTML(j.rol)}</span></div>`;
           });
 
           let deleteBtn = isAdmin ? `<button onclick="eliminarEquipo('${key}')" class="text-rose-400 hover:text-rose-300 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>` : '';
 
           container.innerHTML += `
-            <div class="team-card bg-mldark-900 border border-slate-800 p-4 rounded-xl" data-teamname="${eq.nombreEquipo.toLowerCase()}">
+            <div class="team-card bg-mldark-900 border border-slate-800 p-4 rounded-xl" data-teamname="${escapeHTML(eq.nombreEquipo).toLowerCase()}">
               <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
-                <span class="font-bold text-amber-400 text-sm">🛡️ ${eq.nombreEquipo}</span>
+                <span class="font-bold text-amber-400 text-sm">🛡️ ${escapeHTML(eq.nombreEquipo)}</span>
                 ${deleteBtn}
               </div>
               <div>${playersHtml}</div>
@@ -713,6 +726,16 @@
         renderizarRondasYBracket();
         renderizarArbolEsquematico();
       });
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function filtrarEquipos() {
@@ -849,11 +872,11 @@
                     ${isFinished ? '⚠️ Modificar Ganador (Modo Admin)' : 'Declarar Ganador'}
                   </div>
                   <div class="grid grid-cols-2 gap-2">
-                    <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
-                      Gana ${p.equipo1}
+                    <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${escapeHTML(p.equipo1)}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
+                      Gana ${escapeHTML(p.equipo1)}
                     </button>
-                    <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${p.equipo2}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
-                      Gana ${p.equipo2}
+                    <button onclick="declararGanador(${rondaSeleccionada}, ${idxOriginal}, '${escapeHTML(p.equipo2)}')" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer">
+                      Gana ${escapeHTML(p.equipo2)}
                     </button>
                   </div>
                 </div>
@@ -882,7 +905,7 @@
                     <p class="text-[11px] text-slate-400" id="chat-login-msg-${matchKey}">Ingresa tu ID de MLBB registrado para acceder:</p>
                     <div class="flex gap-2">
                       <input type="text" id="chat-userid-input-${matchKey}" placeholder="Tu ID de MLBB" class="bg-mldark-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-white w-full">
-                      <button onclick="validarIngresoChat('${matchKey}', ${rondaSeleccionada}, ${idxOriginal}, '${p.equipo1}', '${p.equipo2}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
+                      <button onclick="validarIngresoChat('${matchKey}', ${rondaSeleccionada}, ${idxOriginal}, '${escapeHTML(p.equipo1)}', '${escapeHTML(p.equipo2)}')" class="bg-amber-500 text-slate-950 font-bold text-xs px-3 py-1 rounded-lg hover:bg-amber-400 transition cursor-pointer">Entrar</button>
                     </div>
                   </div>
 
@@ -898,29 +921,29 @@
             ` : '';
 
             adminCardsHtml += `
-              <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${matchTeamsLower}">
+              <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${escapeHTML(matchTeamsLower)}">
                 <div>
                   <div class="flex items-center justify-between text-xs mb-2 pb-2 border-b border-slate-800">
                     <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idxOriginal + 1}</span>
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
-                      ${isFinished ? 'GANADOR: ' + p.ganador : 'EN ESPERA'}
+                      ${isFinished ? 'GANADOR: ' + escapeHTML(p.ganador) : 'EN ESPERA'}
                     </span>
                   </div>
                   <div class="flex justify-between items-center bg-mldark-900 px-3 py-1.5 rounded-xl mb-3 text-[11px] border border-slate-800">
                     <div class="text-slate-300">
-                      📅 <b class="text-white">${p.fechaDateStr || 'S/F'}</b> &bull; <i class="fa-regular fa-clock text-amber-400"></i> <b class="text-white">${p.timeStr || '--:--'}</b>
+                      📅 <b class="text-white">${escapeHTML(p.fechaDateStr) || 'S/F'}</b> &bull; <i class="fa-regular fa-clock text-amber-400"></i> <b class="text-white">${escapeHTML(p.timeStr) || '--:--'}</b>
                     </div>
                     <div class="text-slate-400">
-                      W.O.: <b class="text-amber-300">${p.toleranceStr || '--:--'}</b>
+                      W.O.: <b class="text-amber-300">${escapeHTML(p.toleranceStr) || '--:--'}</b>
                     </div>
                   </div>
                   <div class="space-y-2 mb-2">
                     <div class="p-3 rounded-xl border ${eq1Style} flex justify-between items-center text-sm">
-                      <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}</span>
+                      <span>${p.ganador === p.equipo1 ? '🏆 ' : ''}${escapeHTML(p.equipo1)}</span>
                     </div>
                     <div class="text-center text-[10px] font-black text-slate-600 tracking-widest">VS</div>
                     <div class="p-3 rounded-xl border ${eq2Style} flex justify-between items-center text-sm">
-                      <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}</span>
+                      <span>${p.ganador === p.equipo2 ? '🏆 ' : ''}${escapeHTML(p.equipo2)}</span>
                     </div>
                   </div>
                   ${chatSectionHtml}
@@ -935,7 +958,7 @@
         fechasDisponibles.forEach(f => {
           let countF = partidosAdmin.filter(p => p.fechaDateStr === f).length;
           let selectedStr = f === fechaFiltroActual ? 'selected' : '';
-          dateOptionsHtml += `<option value="${f}" ${selectedStr}>📅 ${f} (${countF} Partidos)</option>`;
+          dateOptionsHtml += `<option value="${escapeHTML(f)}" ${selectedStr}>📅 ${escapeHTML(f)} (${countF} Partidos)</option>`;
         });
 
         let btnOcultarTexto = ocultarConcluidosAdmin[adminNum] ? 'Mostrar Finalizadas' : 'Ocultar Finalizadas';
@@ -1057,8 +1080,8 @@
         Object.values(data).forEach(m => {
           list.innerHTML += `
             <div class="p-1.5 rounded bg-mldark-900 border border-slate-800">
-              <span class="font-bold text-amber-400 text-[10px]">${m.nick}:</span>
-              <span class="text-slate-200 text-[11px]">${m.texto}</span>
+              <span class="font-bold text-amber-400 text-[10px]">${escapeHTML(m.nick)}:</span>
+              <span class="text-slate-200 text-[11px]">${escapeHTML(m.texto)}</span>
             </div>
           `;
         });
@@ -1114,11 +1137,11 @@
             <div class="tree-match-wrapper">
               <div id="card-r${r}-m${i}" class="tree-card bg-mldark-800 border border-slate-700 p-2.5 rounded-xl shadow-lg text-[11px] z-10">
                 <div class="text-cyan-400 font-bold truncate ${p.ganador === p.equipo1 ? 'text-emerald-400 font-black' : ''}">
-                  ${p.ganador === p.equipo1 ? '🏆 ' : ''}${p.equipo1}
+                  ${p.ganador === p.equipo1 ? '🏆 ' : ''}${escapeHTML(p.equipo1)}
                 </div>
                 <div class="text-[9px] text-slate-500 my-0.5 text-center font-bold">VS</div>
                 <div class="text-rose-400 font-bold truncate ${p.ganador === p.equipo2 ? 'text-emerald-400 font-black' : ''}">
-                  ${p.ganador === p.equipo2 ? '🏆 ' : ''}${p.equipo2}
+                  ${p.ganador === p.equipo2 ? '🏆 ' : ''}${escapeHTML(p.equipo2)}
                 </div>
               </div>
             </div>
