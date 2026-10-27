@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MLBB Torneos 1v1 - MINIONS 闇美</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -20,9 +19,7 @@
       }
     }
   </script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase SDK v8.10.1 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -105,7 +102,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between custom-scrollbar">
 
-  <!-- HEADER -->
   <header class="bg-mldark-800/90 backdrop-blur-md border-b border-amber-500/25 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center gap-3">
@@ -131,11 +127,9 @@
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- SELECCIÓN DE MODALIDAD -->
     <section id="mode-selector-section" class="py-10 text-center">
       <h2 class="text-2xl md:text-3xl font-black text-white mb-2">Inscripciones Abiertas MLBB</h2>
       <p class="text-xs text-slate-400 mb-8">Selecciona tu modalidad para inscribirte o inscribir a tu equipo</p>
@@ -158,10 +152,8 @@
       </div>
     </section>
 
-    <!-- PANEL PRINCIPAL DEL TORNEO -->
     <div id="tournament-app-container" class="hidden space-y-6">
       
-      <!-- SUPER ADMIN PANEL (PANEL CENTRAL DE DARIFICO) -->
       <section id="super-admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/50 rounded-2xl p-5 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-amber-500/30 pb-3">
           <h2 class="text-sm font-black text-amber-400 flex items-center gap-2">
@@ -212,7 +204,6 @@
         </div>
       </section>
 
-      <!-- ADMIN ROOM PANEL (PANEL INDIVIDUAL DE CADA ADMIN DE SALA 1 AL 10) -->
       <section id="admin-room-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-2xl space-y-4">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
           <div>
@@ -245,7 +236,6 @@
         </div>
       </section>
 
-      <!-- TAB NAVEGACIÓN -->
       <div class="flex gap-2 border-b border-slate-800 pb-2">
         <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
         <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Participantes/Equipos (<span id="count-registered-teams">0</span>)</button>
@@ -253,7 +243,6 @@
         <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
       </div>
 
-      <!-- TAB 1: INSCRIPCIÓN -->
       <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
         <h3 class="text-sm font-bold text-amber-400 mb-4"><i class="fa-solid fa-user-plus mr-1"></i> Proceso de Inscripción <span id="reg-mode-title">1v1</span></h3>
         
@@ -324,7 +313,6 @@
         </div>
       </div>
 
-      <!-- TAB 2: EQUIPOS -->
       <div id="tab-content-equipos" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Participantes Registrados</h3>
@@ -338,7 +326,6 @@
         </div>
       </div>
 
-      <!-- TAB 3: BRACKET -->
       <div id="tab-content-bracket" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <h3 class="text-sm font-bold text-amber-400">Cuadro de Partidas</h3>
@@ -355,7 +342,6 @@
         </div>
       </div>
 
-      <!-- TAB 4: ÁRBOL ESQUEMÁTICO -->
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <h3 class="text-sm font-bold text-amber-400 flex items-center justify-between">
           <span class="flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> Camino a la Final</span>
@@ -373,7 +359,6 @@
     </div>
   </main>
 
-  <!-- MODAL ANUNCIO BIENVENIDA -->
   <div id="welcome-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-mldark-800 border border-amber-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-center space-y-4">
       <div class="flex flex-col items-center gap-2">
@@ -395,11 +380,9 @@
     </div>
   </div>
 
-  <!-- MODAL DE CHAT ESTILO WHATSAPP (APARTADO INDEPENDIENTE) -->
   <div id="whatsapp-chat-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-mldark-900 border border-amber-500/40 rounded-2xl w-full max-w-xl h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
       
-      <!-- HEADER CHAT WHATSAPP -->
       <div class="bg-mldark-800 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold">
@@ -415,7 +398,6 @@
         </button>
       </div>
 
-      <!-- VISTA DE AUTENTICACIÓN (ID DE MLBB O CLAVE DE ADMIN) -->
       <div id="chat-modal-auth-view" class="p-6 flex-1 flex flex-col items-center justify-center text-center space-y-4">
         <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl mb-1">
           <i class="fa-solid fa-lock-keyhole"></i>
@@ -432,10 +414,8 @@
         </div>
       </div>
 
-      <!-- VISTA PRINCIPAL DEL CHAT WHATSAPP -->
       <div id="chat-modal-main-view" class="flex-1 flex flex-col hidden overflow-hidden">
         
-        <!-- SUB TABS DE SALAS -->
         <div class="bg-mldark-800/80 px-4 py-2 border-b border-slate-800 flex gap-2 text-xs">
           <button id="modal-subtab-gen" onclick="switchModalChatSubTab('general')" class="px-3 py-1.5 rounded-xl font-bold bg-amber-500 text-slate-950 transition cursor-pointer flex items-center gap-1.5">
             <i class="fa-solid fa-comments"></i> Chat General
@@ -445,12 +425,10 @@
           </button>
         </div>
 
-        <!-- CUERPO DE MENSAJES ESTILO BUBBLES -->
         <div id="chat-modal-messages-container" class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-2.5 bg-slate-950/40">
           <p class="text-xs text-slate-500 italic text-center py-4">No hay mensajes aún en esta sala...</p>
         </div>
 
-        <!-- INPUT MENSAJE ESTILO WHATSAPP -->
         <div class="p-3 bg-mldark-800 border-t border-slate-800 flex items-center gap-2">
           <input type="text" id="chat-modal-text-input" onkeypress="if(event.key==='Enter') enviarMensajeChatWhatsApp()" placeholder="Escribe un mensaje..." class="flex-1 bg-mldark-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
           <button onclick="enviarMensajeChatWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs w-10 h-10 rounded-xl transition flex items-center justify-center cursor-pointer shadow-lg shadow-emerald-600/20">
@@ -463,7 +441,6 @@
     </div>
   </div>
 
-  <!-- FOOTER OFICIAL -->
   <footer class="bg-mldark-900 border-t border-amber-500/20 py-8 px-4 text-center text-xs text-slate-400 mt-10">
     <div class="max-w-6xl mx-auto space-y-4">
       <div class="flex flex-col items-center justify-center gap-2">
@@ -483,7 +460,6 @@
     </div>
   </footer>
 
-  <!-- MODAL ADMIN CON LOGIN INDIVIDUAL -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-mldark-800 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
@@ -499,7 +475,6 @@
     </div>
   </div>
 
-  <!-- SCRIPT LÓGICO -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
@@ -1017,7 +992,6 @@
       }
 
       for (let adminNum = 1; adminNum <= 10; adminNum++) {
-        // FILTRO DE VISTA: Si es Admin de Sala específico (1 a 10), solo ve su Mesa.
         if (!isSuperAdmin && currentAdminRoomNum && currentAdminRoomNum !== adminNum) {
           continue;
         }
@@ -1156,9 +1130,6 @@
       }
     }
 
-    // ==========================================
-    // LÓGICA DEL CHAT APARTADO ESTILO WHATSAPP
-    // ==========================================
     function abrirChatWhatsAppModal(rondaNum, idx, equipo1, equipo2) {
       activeChatMatchInfo = { rondaNum, idx, equipo1, equipo2 };
       
@@ -1184,7 +1155,7 @@
 
     function validarAccesoChatWhatsApp() {
       if (!activeChatMatchInfo) return;
-      const inputVal = document.getElementById('chat-modal-auth-input').value.trim();
+      const inputVal = document.getElementById('chat-modal-auth-input').value.trim().toLowerCase();
 
       if (!inputVal) {
         mostrarToast("Ingresa tu ID de MLBB o Clave de Administrador", "warning");
@@ -1202,7 +1173,7 @@
         [equipo1, equipo2].forEach(eqNombre => {
           const jugadores = equiposCacheObj[eqNombre] || [];
           jugadores.forEach(j => {
-            if (j.id === inputVal) {
+            if (j.id && j.id.toString().trim().toLowerCase() === inputVal) {
               tienePermiso = true;
               nickNombre = j.nick;
             }
@@ -1256,7 +1227,8 @@
         }
 
         Object.values(data).forEach(m => {
-          const esMio = usuarioIdAutenticado && usuarioIdAutenticado.nick === m.nick;
+          const miNick = usuarioIdAutenticado ? usuarioIdAutenticado.nick : (isAdmin ? "🛡️ Admin" : "");
+          const esMio = miNick && m.nick === miNick;
           const alignClass = esMio ? "ml-auto bg-emerald-950/80 border-emerald-800 text-right" : "mr-auto bg-mldark-800 border-slate-700 text-left";
 
           list.innerHTML += `
@@ -1274,7 +1246,18 @@
       if (!activeChatMatchInfo) return;
       const input = document.getElementById('chat-modal-text-input');
       const texto = input.value.trim();
-      if (!texto || !usuarioIdAutenticado) return;
+      if (!texto) return;
+
+      let nickRemitente = "";
+
+      if (usuarioIdAutenticado && usuarioIdAutenticado.nick) {
+        nickRemitente = usuarioIdAutenticado.nick;
+      } else if (isAdmin && auth.currentUser) {
+        nickRemitente = "🛡️ Admin (" + auth.currentUser.email.split('@')[0] + ")";
+      } else {
+        mostrarToast("Debes ingresar con tu ID de MLBB o clave de Admin para hablar", "warning");
+        return;
+      }
 
       const { rondaNum, idx } = activeChatMatchInfo;
       const pathFirebase = activeChatSubTab === 'general' ? 
@@ -1282,11 +1265,15 @@
         `torneos/${currentMode}/chats_lideres/ronda_${rondaNum}_match_${idx}`;
 
       db.ref(pathFirebase).push({
-        nick: usuarioIdAutenticado.nick,
+        nick: nickRemitente,
         texto: texto,
         fecha: Date.now()
-      }, () => {
-        input.value = '';
+      }, (error) => {
+        if (error) {
+          mostrarToast("Error de permisos: " + error.message, "error");
+        } else {
+          input.value = '';
+        }
       });
     }
 
@@ -1450,9 +1437,6 @@
       renderizarRondasYBracket();
     }
 
-    // ==========================================
-    // ALGORITMO DE DISTRIBUCIÓN MATEMÁTICA
-    // ==========================================
     function generarBloquesDePartidasMatematico(tandaKeys, dataEquipos, fechaStr, horaInicioStr, duracion, descanso, tolerancia) {
       let partidosProcesados = [];
       let [hours, minutes] = horaInicioStr.split(':').map(Number);
@@ -1466,7 +1450,6 @@
 
       for (let i = 0; i < tandaKeys.length; i += 2) {
         let partidoIndex = Math.floor(i / 2); 
-        // Distribución equitativa rotativa entre los 10 admins (Mesa 1 a 10)
         let bloqueIndex = Math.floor(partidoIndex / TOTAL_ADMINS);
 
         let tiempoBloqueMs = bloqueIndex * (duracion + descanso) * 60000;
