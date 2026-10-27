@@ -71,21 +71,11 @@
     }
 
     .banner-3v3 {
-      border: 1px solid rgba(6, 182, 212, 0.5);
-      box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.3);
-    }
-    .banner-3v3:hover {
-      border-color: #38bdf8;
-      box-shadow: 0 15px 35px -5px rgba(56, 189, 248, 0.6);
+      border: 1px solid rgba(6, 182, 212, 0.3);
     }
 
     .banner-5v5 {
-      border: 1px solid rgba(168, 85, 247, 0.5);
-      box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.3);
-    }
-    .banner-5v5:hover {
-      border-color: #c084fc;
-      box-shadow: 0 15px 35px -5px rgba(192, 132, 252, 0.6);
+      border: 1px solid rgba(168, 85, 247, 0.3);
     }
 
     .tree-scroll-wrapper {
@@ -179,24 +169,40 @@
           MLBB
         </p>
         <p class="text-xs text-slate-400 font-medium pt-1">
-          SELECCIONA TU MODALIDAD PARA INSCRIBIRTE O INSCRIBIR A TU EQUIPO
+          SELECCIONA TU MODALIDAD PARA INSCRIBIRTE
         </p>
       </div>
 
       <div class="grid grid-cols-1 gap-6">
-        <!-- Banner 1vs1 -->
+        <!-- Banner 1vs1 (ACTIVO) -->
         <div onclick="seleccionarModalidad('1v1')" class="banner-card banner-1v1 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1]">
           <img src="banner-1v1.png" alt="Torneo 1vs1" class="w-full h-full object-cover">
         </div>
 
-        <!-- Banner 3vs3 -->
-        <div onclick="seleccionarModalidad('3v3')" class="banner-card banner-3v3 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1]">
+        <!-- Banner 3vs3 (EN MANTENIMIENTO) -->
+        <div onclick="mostrarToast('La modalidad 3vs3 está en mantenimiento temporalmente', 'warning')" 
+             class="banner-card banner-3v3 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
           <img src="banner-3v3.png" alt="Torneo 3vs3" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4">
+            <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+              <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
+              <span>MODALIDAD EN MANTENIMIENTO</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium mt-1">Próximamente disponible</p>
+          </div>
         </div>
 
-        <!-- Banner 5vs5 -->
-        <div onclick="seleccionarModalidad('5v5')" class="banner-card banner-5v5 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1]">
+        <!-- Banner 5vs5 (EN MANTENIMIENTO) -->
+        <div onclick="mostrarToast('La modalidad 5vs5 está en mantenimiento temporalmente', 'warning')" 
+             class="banner-card banner-5v5 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
           <img src="banner-5v5.png" alt="Torneo 5vs5" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4">
+            <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+              <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
+              <span>MODALIDAD EN MANTENIMIENTO</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium mt-1">Próximamente disponible</p>
+          </div>
         </div>
       </div>
     </section>
