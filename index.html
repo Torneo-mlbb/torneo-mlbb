@@ -612,7 +612,7 @@
         return;
       }
 
-      const randomCode = "MLBB-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+      const randomCode = "MLBB-" + Date.now().toString(36).substring(4).toUpperCase();
       
       db.ref(`torneos/${currentMode}/codigos_invitacion/${randomCode}`).set({
         usado: false,
@@ -622,7 +622,9 @@
       }, (err) => {
         if (!err) {
           document.getElementById('admin-generated-code-display').value = randomCode;
-          mostrarToast("¡Código único generado! Guardado en tu historial privado.", "success");
+          mostrarToast("¡Código único generado!", "success");
+        } else {
+          mostrarToast("Error al generar el código: " + err.message, "error");
         }
       });
     }
@@ -630,7 +632,11 @@
     function escucharMisCodigos() {
       const currentUser = auth.currentUser;
       const historyContainer = document.getElementById('my-codes-history-container');
+      const codeDisplay = document.getElementById('admin-generated-code-display');
+      
       if (!currentUser || !currentMode || !historyContainer) return;
+
+      if (codeDisplay) codeDisplay.value = '';
 
       db.ref(`torneos/${currentMode}/codigos_invitacion`)
         .orderByChild('creadoPorUID')
@@ -641,11 +647,23 @@
 
           if (!data) {
             historyContainer.innerHTML = `<p class="text-[11px] text-slate-500 italic">Aún no has generado códigos en esta modalidad...</p>`;
+            if (codeDisplay) codeDisplay.value = '';
             return;
           }
 
-          const items = Object.keys(data).reverse();
-          items.forEach(codeKey => {
+          const misCodigosKeys = Object.keys(data).filter(key => {
+            return data[key].creadoPorUID === currentUser.uid;
+          }).reverse();
+
+          if (codeDisplay) {
+            if (misCodigosKeys.length > 0) {
+              codeDisplay.value = misCodigosKeys[0];
+            } else {
+              codeDisplay.value = '';
+            }
+          }
+
+          misCodigosKeys.forEach(codeKey => {
             const item = data[codeKey];
             const isUsed = item.usado;
             const statusBadge = isUsed 
@@ -783,6 +801,9 @@
       const adminRoomPanel = document.getElementById('admin-room-panel');
       const authBtn = document.getElementById('auth-btn');
       const tabEquipos = document.getElementById('tab-btn-equipos');
+      const codeInputDisplay = document.getElementById('admin-generated-code-display');
+
+      if (codeInputDisplay) codeInputDisplay.value = '';
 
       if (isAdmin) {
         badge.className = "px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
