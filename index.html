@@ -48,7 +48,6 @@
       border-radius: 4px;
     }
 
-    /* Estilos para los Banners de Imagen Interactivos */
     .banner-card {
       position: relative;
       width: 100%;
@@ -400,7 +399,7 @@
       <div id="tab-content-arbol" class="hidden bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
         <h3 class="text-sm font-bold text-amber-400 flex items-center justify-between">
           <span class="flex items-center gap-2"><i class="fa-solid fa-sitemap"></i> Camino a la Final</span>
-          <span class="text-[11px] text-slate-400 font-normal">Alineación Dinámica SVG Curva Exacta</span>
+          <span class="text-[11px] text-slate-400 font-normal">Alineación Dinámica con Corchetes Centrados</span>
         </h3>
         
         <div class="tree-scroll-wrapper custom-scrollbar bg-mldark-900 rounded-xl border border-slate-800">
@@ -549,6 +548,18 @@
     const auth = firebase.auth();
 
     const CORREO_SUPER_ADMIN = "darifico@torneo.com";
+
+    // MAPA DE FECHAS OFICIALES SEGÚN EL CALENDARIO MINIONS 2026
+    const CALENDARIO_OFICIAL = {
+      1: "2026-11-09", // Ronda 1 (Bloque 1: 09 al 14 Nov)
+      2: "2026-11-11", // Ronda 2
+      3: "2026-11-12", // Ronda 3
+      4: "2026-11-13", // Ronda 4
+      5: "2026-11-14", // Ronda 5
+      6: "2026-11-16", // Cuartos de Final (16 Nov)
+      7: "2026-11-17", // Semifinales (17-18 Nov)
+      8: "2026-11-19"  // Gran Final / Cierre (19-21 Nov)
+    };
 
     let currentMode = null;
     let isAdmin = false;
@@ -795,7 +806,7 @@
         db.ref(`torneos/${currentMode}/equipos`).push({ nombreEquipo, jugadores, codigoUsado: entryCode }, (error) => {
           if (!error) {
             
-            // ENVÍO EN SEGUNDO PLANO A GOOGLE SHEETS (Sin congelamiento)
+            // ENVÍO EN SEGUNDO PLANO A GOOGLE SHEETS
             if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL !== "") {
               setTimeout(() => {
                 fetch(GOOGLE_SCRIPT_URL, {
@@ -1170,7 +1181,12 @@
               <div class="match-card bg-mldark-800 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between" data-teams="${escapeHTML(matchTeamsLower)}">
                 <div>
                   <div class="flex items-center justify-between text-xs mb-2 pb-2 border-b border-slate-800">
-                    <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idxOriginal + 1}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-amber-400 tracking-wider">MATCH #${idxOriginal + 1}</span>
+                      <span class="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        Mesa / Admin ${adminNum}
+                      </span>
+                    </div>
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isFinished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
                       ${isFinished ? 'GANADOR: ' + escapeHTML(p.ganador) : 'EN ESPERA'}
                     </span>
@@ -1474,19 +1490,19 @@
               const y2 = (r2.top + r2.height / 2 - rectWrapper.top) + scrollTop;
 
               const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              path1.setAttribute('d', `M ${x1} ${y1} C ${xMid} ${y1}, ${xMid} ${yDest}, ${xMid} ${yDest}`);
+              path1.setAttribute('d', `M ${x1} ${y1} L ${xMid} ${y1} L ${xMid} ${yDest}`);
               path1.setAttribute('stroke', '#f59e0b');
               path1.setAttribute('stroke-width', '2');
               path1.setAttribute('fill', 'none');
-              path1.setAttribute('stroke-linecap', 'round');
+              path1.setAttribute('stroke-linejoin', 'round');
               svg.appendChild(path1);
 
               const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              path2.setAttribute('d', `M ${x1} ${y2} C ${xMid} ${y2}, ${xMid} ${yDest}, ${xMid} ${yDest}`);
+              path2.setAttribute('d', `M ${x1} ${y2} L ${xMid} ${y2} L ${xMid} ${yDest}`);
               path2.setAttribute('stroke', '#f59e0b');
               path2.setAttribute('stroke-width', '2');
               path2.setAttribute('fill', 'none');
-              path2.setAttribute('stroke-linecap', 'round');
+              path2.setAttribute('stroke-linejoin', 'round');
               svg.appendChild(path2);
 
               const pathCenter = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -1498,10 +1514,11 @@
               svg.appendChild(pathCenter);
             } else {
               const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              path.setAttribute('d', `M ${x1} ${y1} C ${xMid} ${y1}, ${xMid} ${yDest}, ${xDest - 5} ${yDest}`);
+              path.setAttribute('d', `M ${x1} ${y1} L ${xMid} ${y1} L ${xMid} ${yDest} L ${xDest - 5} ${yDest}`);
               path.setAttribute('stroke', '#f59e0b');
               path.setAttribute('stroke-width', '2');
               path.setAttribute('fill', 'none');
+              path.setAttribute('stroke-linejoin', 'round');
               path.setAttribute('marker-end', 'url(#arrow)');
               svg.appendChild(path);
             }
@@ -1525,11 +1542,11 @@
         const xMidFinal = xSemi + (xFinal - xSemi) / 2;
 
         const pathFinal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        pathFinal.setAttribute('d', `M ${xSemi} ${ySemi} C ${xMidFinal} ${ySemi}, ${xMidFinal} ${yFinal}, ${xFinal - 5} ${yFinal}`);
+        pathFinal.setAttribute('d', `M ${xSemi} ${ySemi} L ${xMidFinal} ${ySemi} L ${xMidFinal} ${yFinal} L ${xFinal - 5} ${yFinal}`);
         pathFinal.setAttribute('stroke', '#f59e0b');
         pathFinal.setAttribute('stroke-width', '2.5');
         pathFinal.setAttribute('fill', 'none');
-        pathFinal.setAttribute('stroke-linecap', 'round');
+        pathFinal.setAttribute('stroke-linejoin', 'round');
         pathFinal.setAttribute('marker-end', 'url(#arrow)');
         svg.appendChild(pathFinal);
       }
@@ -1605,7 +1622,8 @@
 
         let bracketEstructura = datosBracketServidor || {};
 
-        const matchDateStr = document.getElementById('cfg-match-date').value || '2026-11-09';
+        // Usa automáticamente la fecha oficial del calendario para Ronda 1
+        const matchDateStr = CALENDARIO_OFICIAL[1] || document.getElementById('cfg-match-date').value || '2026-11-09';
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
@@ -1620,7 +1638,7 @@
         rondaSeleccionada = 1;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast(`¡Sorteo de ${partidosRonda1.length} partidas repartido equitativamente entre los 10 Admins!`, "success");
+          if (!err) mostrarToast(`¡Sorteo oficial de ${partidosRonda1.length} partidas repartido entre los 10 Admins!`, "success");
         });
       });
     }
@@ -1648,7 +1666,7 @@
 
         let seleccionadas = [...keysPendientes].sort(() => Math.random() - 0.5).slice(0, 256);
 
-        const matchDateStr = document.getElementById('cfg-match-date').value || '2026-11-09';
+        const matchDateStr = CALENDARIO_OFICIAL[1] || document.getElementById('cfg-match-date').value || '2026-11-09';
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
@@ -1709,7 +1727,9 @@
         let ganadoresEnOrden = partidosUltimaRonda.map(p => p.ganador);
         let partidosSiguienteRonda = [];
 
-        const matchDateStr = document.getElementById('cfg-match-date').value || '2026-11-09';
+        let nuevaRondaNum = ultimaRondaNum + 1;
+        // Asigna automáticamente la fecha del calendario según el número de ronda alcanzado
+        const matchDateStr = CALENDARIO_OFICIAL[nuevaRondaNum] || document.getElementById('cfg-match-date').value || '2026-11-09';
         const startTimeStr = document.getElementById('cfg-start-time').value || '20:30';
         const duration = parseInt(document.getElementById('cfg-match-dur').value) || 20;
         const breakTime = parseInt(document.getElementById('cfg-break-dur') ? document.getElementById('cfg-break-dur').value : 10) || 10;
@@ -1749,12 +1769,11 @@
           }
         }
 
-        let nuevaRondaNum = ultimaRondaNum + 1;
         bracketEstructura[`ronda_${nuevaRondaNum}`] = partidosSiguienteRonda;
         rondaSeleccionada = nuevaRondaNum;
 
         db.ref(`torneos/${currentMode}/bracket`).set(bracketEstructura, (err) => {
-          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada con alineación limpia!`, "success");
+          if (!err) mostrarToast(`¡Ronda ${nuevaRondaNum} generada oficialmente para el ${matchDateStr}!`, "success");
         });
       });
     }
