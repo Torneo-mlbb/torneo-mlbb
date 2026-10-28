@@ -531,6 +531,9 @@
   </div>
 
   <script>
+    // URL DE CONEXIÓN CON GOOGLE SHEETS
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9-gQBro20vszf2KP3UoD9m0c_R6JvIfodF1aQLpMpv39mcbZ-8L77Pl1Q3eNTXiNZ/exec";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCGKb8A6UWbf4qSb1Gvt7fl7Nt33HckIw8",
       authDomain: "torneomlbb-631f7.firebaseapp.com",
@@ -785,10 +788,30 @@
           return;
         }
 
+        // Marcar código como usado en Firebase
         db.ref(`torneos/${currentMode}/codigos_invitacion/${entryCode}`).update({ usado: true, fechaUso: Date.now() });
 
+        // Guardar participante en Firebase
         db.ref(`torneos/${currentMode}/equipos`).push({ nombreEquipo, jugadores, codigoUsado: entryCode }, (error) => {
           if (!error) {
+            
+            // ENVÍO EN TIEMPO REAL A GOOGLE SHEETS
+            if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL !== "") {
+              fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  nombreEquipo: nombreEquipo,
+                  capNick: capNick,
+                  capId: capId,
+                  capServer: capServer,
+                  capPhone: capPhone,
+                  entryCode: entryCode
+                })
+              }).catch(err => console.log("Error registrando en Sheets:", err));
+            }
+
             mostrarToast("¡Inscripción y Código verificados con éxito!", "success");
             document.getElementById('entry-code-input').value = '';
             document.getElementById('team-name').value = '';
