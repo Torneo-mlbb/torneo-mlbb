@@ -795,21 +795,23 @@
         db.ref(`torneos/${currentMode}/equipos`).push({ nombreEquipo, jugadores, codigoUsado: entryCode }, (error) => {
           if (!error) {
             
-            // ENVÍO EN TIEMPO REAL A GOOGLE SHEETS
+            // ENVÍO EN SEGUNDO PLANO A GOOGLE SHEETS (Sin congelamiento)
             if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL !== "") {
-              fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  nombreEquipo: nombreEquipo,
-                  capNick: capNick,
-                  capId: capId,
-                  capServer: capServer,
-                  capPhone: capPhone,
-                  entryCode: entryCode
-                })
-              }).catch(err => console.log("Error registrando en Sheets:", err));
+              setTimeout(() => {
+                fetch(GOOGLE_SCRIPT_URL, {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    nombreEquipo: nombreEquipo,
+                    capNick: capNick,
+                    capId: capId,
+                    capServer: capServer,
+                    capPhone: capPhone,
+                    entryCode: entryCode
+                  })
+                }).catch(err => console.log("Error Sheets:", err));
+              }, 10);
             }
 
             mostrarToast("¡Inscripción y Código verificados con éxito!", "success");
