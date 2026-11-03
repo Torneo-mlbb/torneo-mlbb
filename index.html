@@ -159,45 +159,64 @@
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <section id="mode-selector-section" class="py-6 text-center max-w-4xl mx-auto space-y-6">
-      <div class="space-y-1">
-        <h2 class="text-3xl md:text-4xl font-black text-white tracking-widest uppercase ml-gold-gradient-text drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]">
-          INSCRIPCIONES ABIERTAS
-        </h2>
-        <p class="text-xs md:text-sm text-red-500 font-black uppercase tracking-widest">
-          MLBB
-        </p>
-        <p class="text-xs text-slate-400 font-medium pt-1">
-          SELECCIONA TU MODALIDAD PARA INSCRIBIRTE
-        </p>
-      </div>
+    <!-- SECCIÓN CON VIDEO ANIMADO EN VIVO DE FONDO -->
+    <section id="mode-selector-section" class="relative py-10 px-6 text-center max-w-4xl mx-auto space-y-6 rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl bg-mldark-900">
+      
+      <!-- Video de Fondo en Autoplay + Loop -->
+      <video 
+        autoplay 
+        loop 
+        muted 
+        playsinline 
+        class="absolute inset-0 w-full h-full object-cover z-0 opacity-40">
+        <source src="video-heroe-mlbb.mp4" type="video/mp4">
+        Tu navegador no soporta videos en HTML5.
+      </video>
 
-      <div class="grid grid-cols-1 gap-6">
-        <div onclick="seleccionarModalidad('1v1')" class="banner-card banner-1v1 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1]">
-          <img src="banner-1v1.png" alt="Torneo 1vs1" class="w-full h-full object-cover">
+      <!-- Capa de sombra para mejorar la visibilidad del texto -->
+      <div class="absolute inset-0 bg-gradient-to-t from-mldark-900 via-mldark-900/60 to-mldark-900/80 z-10"></div>
+
+      <!-- Contenido encima del Video -->
+      <div class="relative z-20 space-y-6">
+        <div class="space-y-1">
+          <h2 class="text-3xl md:text-5xl font-black text-white tracking-widest uppercase ml-gold-gradient-text drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]">
+            INSCRIPCIONES ABIERTAS
+          </h2>
+          <p class="text-xs md:text-sm text-red-500 font-black uppercase tracking-widest">
+            MOBILE LEGENDS BANG BANG
+          </p>
+          <p class="text-xs text-slate-300 font-medium pt-1">
+            SELECCIONA TU MODALIDAD PARA INSCRIBIRTE
+          </p>
         </div>
 
-        <div onclick="mostrarToast('La modalidad 3vs3 está en mantenimiento temporalmente', 'warning')" 
-             class="banner-card banner-3v3 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
-          <img src="banner-3v3.png" alt="Torneo 3vs3" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4">
-            <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
-              <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
-              <span>MODALIDAD EN MANTENIMIENTO</span>
-            </div>
-            <p class="text-[11px] text-slate-400 font-medium mt-1">Próximamente disponible</p>
+        <div class="grid grid-cols-1 gap-6">
+          <div onclick="seleccionarModalidad('1v1')" class="banner-card banner-1v1 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1]">
+            <img src="banner-1v1.png" alt="Torneo 1vs1" class="w-full h-full object-cover">
           </div>
-        </div>
 
-        <div onclick="mostrarToast('La modalidad 5vs5 está en mantenimiento temporalmente', 'warning')" 
-             class="banner-card banner-5v5 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
-          <img src="banner-5v5.png" alt="Torneo 5vs5" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4">
-            <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
-              <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
-              <span>MODALIDAD EN MANTENIMIENTO</span>
+          <div onclick="mostrarToast('La modalidad 3vs3 está en mantenimiento temporalmente', 'warning')" 
+               class="banner-card banner-3v3 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
+            <img src="banner-3v3.png" alt="Torneo 3vs3" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4">
+              <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
+                <span>MODALIDAD EN MANTENIMIENTO</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-medium mt-1">Próximamente disponible</p>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium mt-1">Próximamente disponible</p>
+          </div>
+
+          <div onclick="mostrarToast('La modalidad 5vs5 está en mantenimiento temporalmente', 'warning')" 
+               class="banner-card banner-5v5 aspect-[21/9] sm:aspect-[3/1] md:aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
+            <img src="banner-5v5.png" alt="Torneo 5vs5" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-4">
+              <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
+                <span>MODALIDAD EN MANTENIMIENTO</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-medium mt-1">Próximamente disponible</p>
+            </div>
           </div>
         </div>
       </div>
@@ -253,9 +272,6 @@
           </button>
           <button onclick="avanzarSiguienteRonda()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-angles-right"></i> Pasar a Siguiente Ronda
-          </button>
-          <button onclick="cargarEquiposEjemplo()" class="bg-bnxblue/20 hover:bg-bnxblue/30 text-bnxblue border border-bnxblue/40 font-bold text-xs py-2.5 px-4 rounded-lg transition shadow-md flex items-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-bolt"></i> Cargar Bots Demo (Máx 30)
           </button>
           <button onclick="reiniciarTorneo()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold py-2.5 px-4 rounded-lg transition flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-rotate-right"></i> Reiniciar Torneo
@@ -917,43 +933,6 @@
         tabEquipos.classList.add('hidden');
       }
       if (currentMode) sincronizarDatosFirebase();
-    }
-
-    function cargarEquiposEjemplo() {
-      const nombresDemo = [
-        "Omega Esports", "Blacklist Int", "RRQ Hoshi", "ONIC Esports", "Echo Esports", "Falcon Esports", "Evos Legends", "Brenz ML",
-        "Alter Ego", "Geek Fam", "Todak MLBB", "RSG Slate", "Bigetron Alpha", "Execration", "Incendio Sup", "Team SMG",
-        "Aura Fire", "Rebellion", "Synergy 8", "Cyber Orcas", "Viper Squad", "Titan Core", "Phoenix Edge", "Alpha Seven",
-        "Shadow Hunters", "Nova Strike", "Zenith eSports", "Apex Predators", "Lunar Eclipse", "Vanguard ML"
-      ];
-
-      const numPlayers = currentMode === '5v5' ? 5 : (currentMode === '3v3' ? 3 : 1);
-      let batchData = {};
-
-      const limiteBots = Math.min(nombresDemo.length, 30);
-
-      for (let idx = 0; idx < limiteBots; idx++) {
-        let nombre = nombresDemo[idx];
-        let jugadores = [];
-        for (let i = 1; i <= numPlayers; i++) {
-          jugadores.push({
-            nick: `Player_${idx + 1}_${i}`,
-            id: Math.floor(10000000 + Math.random() * 90000000).toString(),
-            server: Math.floor(1000 + Math.random() * 9000).toString(),
-            rol: i === 1 ? (currentMode === '1v1' ? 'Jugador' : 'Capitán') : 'Integrante',
-            telefono: i === 1 ? '+51999888777' : ''
-          });
-        }
-        let newKey = db.ref(`torneos/${currentMode}/equipos`).push().key;
-        batchData[newKey] = { nombreEquipo: nombre, jugadores: jugadores };
-      }
-
-      db.ref(`torneos/${currentMode}/equipos`).update(batchData, (err) => {
-        if (!err) {
-          mostrarToast(`¡Se cargaron ${limiteBots} bots demo correctamente!`, "success");
-          cambiarTab('equipos');
-        }
-      });
     }
 
     function sincronizarDatosFirebase() {
