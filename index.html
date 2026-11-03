@@ -153,80 +153,80 @@
   <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- SECCIÓN CON VIDEO ANIMADO SPLIT EN EL FONDO -->
-    <section id="mode-selector-section" class="relative min-h-[550px] md:min-h-[600px] w-full rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl bg-mldark-900 flex items-center">
+    <!-- SECCIÓN HERO/SELECTOR DE MODALIDAD (OPTIMIZADA PARA MÓVIL Y DESKTOP) -->
+    <section id="mode-selector-section" class="relative min-h-[500px] md:min-h-[600px] w-full rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl bg-mldark-900 flex items-center">
       
-      <!-- Video de Fondo Lunox HD/4K -->
+      <!-- Video de Fondo (Ajuste de posición según pantalla) -->
       <video 
         autoplay 
         loop 
         muted 
         playsinline 
-        class="absolute inset-0 w-full h-full object-cover object-right md:object-center z-0 opacity-80">
+        class="absolute inset-0 w-full h-full object-cover object-[75%_center] md:object-right z-0 opacity-75 md:opacity-90">
         <source src="video-heroe-mlbb.mp4" type="video/mp4">
         Tu navegador no soporta videos en HTML5.
       </video>
 
-      <!-- Capa de Oscurecimiento lateral (Mayor sombra en la izquierda para los botones) -->
-      <div class="absolute inset-0 bg-gradient-to-r from-mldark-900 via-mldark-900/80 to-transparent z-10"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-mldark-900/90 via-transparent to-mldark-900/50 z-10 md:hidden"></div>
+      <!-- Degradado dinámico: En celular oscurece suavemente el fondo, en PC oscurece la columna izquierda -->
+      <div class="absolute inset-0 bg-gradient-to-b from-mldark-900/95 via-mldark-900/80 to-mldark-900/95 md:bg-gradient-to-r md:from-mldark-900 md:via-mldark-900/80 md:to-transparent z-10"></div>
 
-      <!-- Contenedor Dividido (Split Grid) -->
-      <div class="relative z-20 w-full grid grid-cols-1 md:grid-cols-12 gap-6 p-6 sm:p-10">
+      <!-- Contenedor Principal Responsive (Grid de 12 columnas en PC, 1 en Móvil) -->
+      <div class="relative z-20 w-full grid grid-cols-1 md:grid-cols-12 gap-6 p-4 sm:p-8 md:p-10">
         
-        <!-- COLUMNA IZQUIERDA: Botones e Información sobre Panel Traslúcido -->
-        <div class="md:col-span-6 lg:col-span-5 space-y-5 bg-slate-950/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-2xl">
+        <!-- COLUMNA IZQUIERDA: Botones sobre Panel de Cristal -->
+        <div class="md:col-span-7 lg:col-span-5 space-y-4 bg-slate-950/60 md:bg-slate-950/40 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-white/10 shadow-2xl">
           <div class="space-y-1 text-left">
-            <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+            <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest inline-block">
               Comunidad Oficial
             </span>
-            <h2 class="text-2xl sm:text-4xl font-black text-white tracking-widest uppercase ml-gold-gradient-text drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)] pt-1">
+            <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-white tracking-wider uppercase ml-gold-gradient-text pt-1">
               INSCRIPCIONES ABIERTAS
             </h2>
-            <p class="text-xs text-red-400 font-bold uppercase tracking-widest">
+            <p class="text-[11px] sm:text-xs text-red-400 font-bold uppercase tracking-widest">
               MOBILE LEGENDS: BANG BANG
             </p>
-            <p class="text-xs text-slate-300 font-medium">
-              Selecciona tu modalidad para registrarte al torneo.
+            <p class="text-xs text-slate-300 font-medium pt-1">
+              Selecciona tu modalidad para registrarte al torneo:
             </p>
           </div>
 
-          <div class="space-y-3">
-            <div onclick="seleccionarModalidad('1v1')" class="banner-card banner-1v1 aspect-[3.5/1]">
+          <!-- Tarjetas de Modalidades -->
+          <div class="space-y-2.5">
+            <div onclick="seleccionarModalidad('1v1')" class="banner-card banner-1v1 h-20 sm:h-24">
               <img src="banner-1v1.png" alt="Torneo 1vs1" class="w-full h-full object-cover">
             </div>
 
             <div onclick="mostrarToast('La modalidad 3vs3 está en mantenimiento temporalmente', 'warning')" 
-                 class="banner-card banner-3v3 aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
+                 class="banner-card banner-3v3 h-16 sm:h-20 relative opacity-60 grayscale cursor-not-allowed">
               <img src="banner-3v3.png" alt="Torneo 3vs3" class="w-full h-full object-cover">
               <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex items-center justify-center p-2">
-                <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <span class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                   <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
                   <span>MANTENIMIENTO</span>
-                </div>
+                </span>
               </div>
             </div>
 
             <div onclick="mostrarToast('La modalidad 5vs5 está en mantenimiento temporalmente', 'warning')" 
-                 class="banner-card banner-5v5 aspect-[3.5/1] relative opacity-60 grayscale filter hover:grayscale-0 transition-all cursor-not-allowed">
+                 class="banner-card banner-5v5 h-16 sm:h-20 relative opacity-60 grayscale cursor-not-allowed">
               <img src="banner-5v5.png" alt="Torneo 5vs5" class="w-full h-full object-cover">
               <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] flex items-center justify-center p-2">
-                <div class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <span class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                   <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
                   <span>MANTENIMIENTO</span>
-                </div>
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- COLUMNA DERECHA: Espacio Libre reservado para mostrar a Lunox -->
-        <div class="hidden md:block md:col-span-6 lg:col-span-7"></div>
+        <!-- COLUMNA DERECHA: Espacio reservado para ver la animación de Lunox en computadoras -->
+        <div class="hidden md:block md:col-span-5 lg:col-span-7"></div>
 
       </div>
     </section>
 
-    <!-- RESTO DE LA APLICACIÓN (Mantenida intacta) -->
+    <!-- APPLICACIÓN PRINCIPAL -->
     <div id="tournament-app-container" class="hidden space-y-6">
       
       <section id="super-admin-panel" class="hidden mb-6 bg-mldark-800/90 border border-amber-500/50 rounded-2xl p-5 shadow-2xl space-y-4">
@@ -316,11 +316,11 @@
         </div>
       </section>
 
-      <div class="flex gap-2 border-b border-slate-800 pb-2">
-        <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer">📋 Inscripción</button>
-        <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">👥 Participantes/Equipos (<span id="count-registered-teams">0</span>)</button>
-        <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">⚔️ Enfrentamientos & Horarios</button>
-        <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer">🌳 Árbol Esquemático</button>
+      <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto custom-scrollbar">
+        <button id="tab-btn-registro" onclick="cambiarTab('registro')" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer whitespace-nowrap">📋 Inscripción</button>
+        <button id="tab-btn-equipos" onclick="cambiarTab('equipos')" class="hidden px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer whitespace-nowrap">👥 Participantes/Equipos (<span id="count-registered-teams">0</span>)</button>
+        <button id="tab-btn-bracket" onclick="cambiarTab('bracket')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer whitespace-nowrap">⚔️ Enfrentamientos & Horarios</button>
+        <button id="tab-btn-arbol" onclick="cambiarTab('arbol')" class="px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer whitespace-nowrap">🌳 Árbol Esquemático</button>
       </div>
 
       <div id="tab-content-registro" class="bg-mldark-800/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
@@ -854,12 +854,12 @@
         const el = document.getElementById(`tab-content-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
         if (el) el.classList.add('hidden');
-        if (btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer";
+        if (btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-mldark-800 text-slate-400 hover:text-white transition cursor-pointer whitespace-nowrap";
       });
       const activeEl = document.getElementById(`tab-content-${tab}`);
       const activeBtn = document.getElementById(`tab-btn-${tab}`);
       if (activeEl) activeEl.classList.remove('hidden');
-      if (activeBtn) activeBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer";
+      if (activeBtn) activeBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 text-slate-950 transition cursor-pointer whitespace-nowrap";
 
       if (tab === 'arbol') {
         setTimeout(() => redibujarConectoresSVG(), 50);
